@@ -2,15 +2,188 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
+	"voting-system/authentication"
 	"voting-system/users"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
+	"github.com/go-chi/jwtauth/v5"
+	"golang.org/x/crypto/bcrypt"
 
 	_ "github.com/lib/pq"
 )
+
+// TODO: Move `create<table_name>Table` to storage files in packages
+
+var tokenAuth *jwtauth.JWTAuth
+
+var usersResource *users.Resource
+
+func init() {
+	// TODO: replace with secret key
+	tokenAuth = jwtauth.New("HS256", []byte("secret"), nil)
+}
+
+func main() {
+	database := openDatabase()
+
+	defer database.Close()
+
+	createTables(database)
+
+	usersResource = users.NewResource(users.NewStorage(database))
+
+	http.ListenAndServe(":3000", router())
+}
+
+func router() http.Handler {
+	r := chi.NewRouter()
+
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300,
+	}))
+
+	r.Post("/login", func(w http.ResponseWriter, r *http.Request) {
+		var credentials authentication.Credentials
+
+		error := json.NewDecoder(r.Body).Decode(&credentials)
+
+		if error != nil {
+			http.Error(w, "Invalid request payload", http.StatusBadRequest)
+			return
+		}
+
+		user, error := usersResource.Storage.GetByEmail(credentials.Email)
+
+		if error != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		if user == nil {
+			http.Error(w, "Invalid email or password", http.StatusUnauthorized)
+			return
+		}
+
+		error = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password))
+
+		if error != nil {
+			http.Error(w, "Invalid email or password", http.StatusUnauthorized)
+			return
+		}
+
+		_, tokenString, error := tokenAuth.Encode(map[string]interface{}{"user_id": user.Id})
+
+		if error != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+
+		json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
+	})
+
+	r.Post("/signup", func(w http.ResponseWriter, r *http.Request) {
+		var credentials authentication.Credentials
+
+		error := json.NewDecoder(r.Body).Decode(&credentials)
+
+		if error != nil {
+			http.Error(w, "Invalid request payload", http.StatusBadRequest)
+			return
+		}
+
+		if credentials.Email == "" || credentials.Password == "" {
+			http.Error(w, "Email and password are required", http.StatusBadRequest)
+			return
+		}
+
+		user, error := usersResource.Storage.GetByEmail(credentials.Email)
+
+		if error != nil && error != sql.ErrNoRows {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		if user != nil {
+			http.Error(w, "User already exists", http.StatusConflict)
+			return
+		}
+
+		hashedPassword, error := bcrypt.GenerateFromPassword([]byte(credentials.Password), bcrypt.DefaultCost)
+
+		if error != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		newUser := users.User{
+			Email:    credentials.Email,
+			Password: string(hashedPassword),
+			IsActive: true,
+		}
+
+		userID, error := usersResource.Storage.Create(newUser)
+
+		if error != nil {
+			http.Error(w, "Failed to create user", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+
+		w.WriteHeader(http.StatusCreated)
+
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"message": "User created successfully",
+			"user_id": userID,
+		})
+	})
+
+	r.Group(func(r chi.Router) {
+		r.Use(jwtauth.Verifier(tokenAuth))
+
+		r.Use(jwtauth.Authenticator(tokenAuth))
+
+		r.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
+			_, claims, _ := jwtauth.FromContext(r.Context())
+
+			userID := int(claims["user_id"].(float64))
+
+			user, err := usersResource.Storage.GetByID(userID)
+
+			if err != nil {
+				http.Error(w, "Failed to retrieve user", http.StatusInternalServerError)
+				return
+			}
+
+			if user == nil {
+				http.Error(w, "User not found", http.StatusNotFound)
+				return
+			}
+
+			w.Write([]byte(fmt.Sprintf("Protected area. Hi %s", user.Email)))
+		})
+	})
+
+	// TODO: debug only endpoints. remove later
+	r.Mount("/users", usersResource.Routes())
+
+	return r
+}
+
+// TODO: move to database folder
 
 func openDatabase() *sql.DB {
 	connectionString := "user=postgres dbname=database host=/run/postgresql sslmode=disable"
@@ -123,24 +296,4 @@ func createTables(db *sql.DB) {
 	createCandidatesTable(db)
 
 	createVotesTable(db)
-}
-
-// TODO: Move `create<table_name>Table` to storage files in packages
-
-func main() {
-	database := openDatabase()
-
-	defer database.Close()
-
-	createTables(database)
-
-	usersStorage := users.NewStorage(database)
-
-	usersResource := users.NewResource(usersStorage)
-
-	r := chi.NewRouter()
-
-	r.Mount("/users", usersResource.Routes())
-
-	http.ListenAndServe(":3000", r)
 }

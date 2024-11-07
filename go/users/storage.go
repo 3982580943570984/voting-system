@@ -89,6 +89,27 @@ func (s *Storage) GetByID(id int) (*User, error) {
 	return user, nil
 }
 
+func (s *Storage) GetByEmail(email string) (*User, error) {
+	query := `
+		SELECT user_id, email, password, is_active
+		FROM users
+		WHERE email = $1
+	`
+
+	user := &User{}
+
+	error := s.db.QueryRow(query, email).Scan(&user.Id, &user.Email, &user.Password, &user.IsActive)
+
+	if error != nil {
+		if error == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, error
+	}
+
+	return user, nil
+}
+
 func (s *Storage) Update(user User) error {
 	query := `
 		UPDATE users

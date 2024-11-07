@@ -9,11 +9,11 @@ import (
 )
 
 type Resource struct {
-	storage *Storage
+	Storage *Storage
 }
 
 func NewResource(s *Storage) *Resource {
-	return &Resource{storage: s}
+	return &Resource{Storage: s}
 }
 
 func (rs Resource) Routes() chi.Router {
@@ -42,7 +42,7 @@ func (rs Resource) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, error := rs.storage.Create(user)
+	userID, error := rs.Storage.Create(user)
 
 	if error != nil {
 		http.Error(w, "Failed to create user", http.StatusInternalServerError)
@@ -65,7 +65,7 @@ func (rs Resource) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, error := rs.storage.GetByID(id)
+	user, error := rs.Storage.GetByID(id)
 
 	if error != nil {
 		http.Error(w, "Failed to retrieve user", http.StatusInternalServerError)
@@ -84,7 +84,7 @@ func (rs Resource) Get(w http.ResponseWriter, r *http.Request) {
 
 // curl localhost:3000/users --request GET
 func (rs Resource) GetAll(w http.ResponseWriter, r *http.Request) {
-	usersList, error := rs.storage.GetAll()
+	usersList, error := rs.Storage.GetAll()
 
 	if error != nil {
 		http.Error(w, "Failed to retrieve users", http.StatusInternalServerError)
@@ -117,7 +117,7 @@ func (rs Resource) Put(w http.ResponseWriter, r *http.Request) {
 
 	user.Id = id
 
-	error = rs.storage.Update(user)
+	error = rs.Storage.Update(user)
 
 	if error != nil {
 		http.Error(w, "Failed to update user", http.StatusInternalServerError)
@@ -138,7 +138,7 @@ func (rs Resource) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	error = rs.storage.Delete(id)
+	error = rs.Storage.Delete(id)
 
 	if error != nil {
 		http.Error(w, "Failed to delete user", http.StatusInternalServerError)
