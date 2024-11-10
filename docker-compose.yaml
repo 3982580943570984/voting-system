@@ -1,0 +1,10 @@
+services:
+  backend:
+    build:
+      context: ./go
+      dockerfile: Dockerfile
+    image: voting-system:latest
+    container_name: voting-system
+    ports:
+      - "3000:3000"
+    restart: unless-stopped

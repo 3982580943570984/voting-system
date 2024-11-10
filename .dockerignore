@@ -1,0 +1,11 @@
+# Dockerfile
+Dockerfile
+
+# Git
+.git
+.gitignore
+
+# Project
+readme.md
+sql/
+static/
