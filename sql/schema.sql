@@ -118,7 +118,7 @@ CREATE TABLE
         "birthdate" timestamptz NULL,
         "user_profile" bigint NOT NULL,
         PRIMARY KEY ("id"),
-        CONSTRAINT "profiles_users_profile" FOREIGN KEY ("user_profile") REFERENCES "public"."users" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
+        CONSTRAINT "profiles_users_profile" FOREIGN KEY ("user_profile") REFERENCES "public"."users" ("id") ON UPDATE NO ACTION ON DELETE CASCADE
     );
 
 -- Create index "profiles_user_profile_key" to table: "profiles"
