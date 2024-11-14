@@ -67,7 +67,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Param id path int true "ID пользователя"
-// @Success 200 {object} User "Данные пользователя"
+// @Success 200 {object} ent.User "Данные пользователя"
 // @Failure 400 {object} map[string]string "Неверный ID"
 // @Failure 404 {object} map[string]string "Пользователь не найден"
 // @Router /users/{id} [get]
@@ -95,7 +95,7 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 // @Tags Пользователи
 // @Accept json
 // @Produce json
-// @Success 200 {array} User "Список пользователей"
+// @Success 200 {array} ent.User "Список пользователей"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router /users [get]
 func getAllUsers(w http.ResponseWriter, r *http.Request) {
