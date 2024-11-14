@@ -29,6 +29,6 @@ func (Candidate) Edges() []ent.Edge {
 			Unique().
 			Required(),
 		edge.To("votes", Vote.Type),
-		edge.To("results", ElectionResult.Type),
+		edge.To("results", Result.Type),
 	}
 }
