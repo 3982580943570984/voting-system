@@ -1,6 +1,9 @@
 package schema
 
-import "entgo.io/ent"
+import (
+	"entgo.io/ent"
+	"entgo.io/ent/schema/field"
+)
 
 // Tag holds the schema definition for the Tag entity.
 type Tag struct {
@@ -9,10 +12,15 @@ type Tag struct {
 
 // Fields of the Tag.
 func (Tag) Fields() []ent.Field {
-	return nil
+	return []ent.Field{
+		field.String("name").
+			Unique(),
+	}
 }
 
 // Edges of the Tag.
 func (Tag) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		// Define edges if Tags are associated with other entities, e.g., Elections
+	}
 }

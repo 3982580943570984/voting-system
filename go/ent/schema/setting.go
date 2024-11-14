@@ -1,18 +1,32 @@
 package schema
 
-import "entgo.io/ent"
+import (
+	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
+	"entgo.io/ent/schema/edge"
+	"entgo.io/ent/schema/field"
+)
 
-// Setting holds the schema definition for the Setting entity.
-type Setting struct {
+// Settings holds the schema definition for the Settings entity.
+type Settings struct {
 	ent.Schema
 }
 
-// Fields of the Setting.
-func (Setting) Fields() []ent.Field {
-	return nil
+// Fields of the Settings.
+func (Settings) Fields() []ent.Field {
+	return []ent.Field{
+		field.Bool("is_anonymous").
+			Default(false),
+	}
 }
 
-// Edges of the Setting.
-func (Setting) Edges() []ent.Edge {
-	return nil
+// Edges of the Settings.
+func (Settings) Edges() []ent.Edge {
+	return []ent.Edge{
+		edge.From("election", Election.Type).
+			Ref("settings").
+			Unique().
+			Required().
+			Annotations(entsql.OnDelete(entsql.Cascade)),
+	}
 }

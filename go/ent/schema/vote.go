@@ -1,6 +1,12 @@
 package schema
 
-import "entgo.io/ent"
+import (
+	"time"
+
+	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
+	"entgo.io/ent/schema/field"
+)
 
 // Vote holds the schema definition for the Vote entity.
 type Vote struct {
@@ -9,10 +15,30 @@ type Vote struct {
 
 // Fields of the Vote.
 func (Vote) Fields() []ent.Field {
-	return nil
+	return []ent.Field{
+		field.Time("timestamp").
+			Default(time.Now),
+		field.Bool("is_active").
+			Default(true),
+	}
 }
 
 // Edges of the Vote.
 func (Vote) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.From("user", User.Type).
+			Ref("votes").
+			Unique().
+			Required(),
+
+		edge.From("election", Election.Type).
+			Ref("votes").
+			Unique().
+			Required(),
+
+		edge.From("candidate", Candidate.Type).
+			Ref("votes").
+			Unique().
+			Required(),
+	}
 }
