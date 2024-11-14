@@ -30,10 +30,19 @@ func UsersRoutes() chi.Router {
 	return r
 }
 
-// curl localhost:3000/users --request POST --data '{"email":"example@example.com", "password":"password", "is_active":true}'
+// createUser создает нового пользователя
+//
+//	@Summary		Создать пользователя
+//	@Description	Создает нового пользователя с указанными данными
+//	@Tags			Пользователи
+//	@Accept			json
+//	@Produce		json
+//	@Param			user	body		userInput			true	"Данные пользователя"
+//	@Success		200		{object}	map[string]int		"ID созданного пользователя"
+//	@Failure		400		{object}	map[string]string	"Неверный запрос"
+//	@Router			/users [post]
 func createUser(w http.ResponseWriter, r *http.Request) {
 	var input userInput
-
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
@@ -51,17 +60,14 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]int{"id": user.ID})
 }
 
-// curl localhost:3000/users/1 --request GET
 func getUser(w http.ResponseWriter, r *http.Request) {
 	id, error := strconv.Atoi(chi.URLParam(r, "id"))
-
 	if error != nil {
 		http.Error(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
 
 	user := database.Users.GetX(r.Context(), id)
-
 	if user == nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
@@ -72,7 +78,6 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
-// curl localhost:3000/users --request GET
 func getAllUsers(w http.ResponseWriter, r *http.Request) {
 	users := database.Users.
 		Query().
@@ -83,17 +88,14 @@ func getAllUsers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(users)
 }
 
-// curl localhost:3000/users/1 --request PUT --data '{"email":"example@example.com", "password":"password", "is_active":true}'
 func updateUser(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
-
 	if err != nil {
 		http.Error(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
 
 	var input userInput
-
 	if err = json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
@@ -111,10 +113,8 @@ func updateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]int{"id": updatedUser.ID})
 }
 
-// curl localhost:3000/users/1 --request DELETE
 func deleteUser(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
-
 	if err != nil {
 		http.Error(w, "Invalid user ID", http.StatusBadRequest)
 		return

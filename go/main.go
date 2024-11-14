@@ -8,7 +8,6 @@ import (
 )
 
 // TODO: change all database operations to panic
-// TODO: use docker
 // TODO: write open api file
 
 func main() {

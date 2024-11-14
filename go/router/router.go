@@ -5,9 +5,12 @@ import (
 	"net/http"
 	"voting-system/router/routes"
 
+	_ "voting-system/docs"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func Router() http.Handler {
@@ -39,6 +42,10 @@ func Router() http.Handler {
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 	})
+
+	router.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL("swagger/doc.json"),
+	))
 
 	return router
 }
