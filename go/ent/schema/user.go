@@ -37,6 +37,14 @@ func (User) Edges() []ent.Edge {
 		edge.To("profile", Profile.Type).
 			Unique().
 			Annotations(entsql.OnDelete(entsql.Cascade)),
+
+		edge.To("voter", Voter.Type).
+			Unique().
+			Annotations(entsql.OnDelete(entsql.Cascade)),
+
+		edge.To("organizer", Organizer.Type).
+			Unique().
+			Annotations(entsql.OnDelete(entsql.Cascade)),
 	}
 }
 
