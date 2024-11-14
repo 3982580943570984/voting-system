@@ -29,16 +29,16 @@ var (
 func init() {
 	var err error
 
-	dsn := "user=postgres dbname=database host=/run/postgresql sslmode=disable"
+	dsn := "postgresql://postgres@database:5432/database?sslmode=disable"
 
+	log.Print("Opening database connection")
 	Client, err = ent.Open(dialect.Postgres, dsn)
-
 	if err != nil {
 		log.Fatalf("Error during database open: %v", err)
 	}
 
-	Client.Schema.Create(context.Background())
-
+	log.Print("Creating database schema")
+	err = Client.Schema.Create(context.Background())
 	if err != nil {
 		log.Fatalf("Error during schema creation: %v", err)
 	}
