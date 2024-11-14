@@ -60,6 +60,17 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]int{"id": user.ID})
 }
 
+// getUser получает пользователя по ID
+// @Summary Получить пользователя
+// @Description Получает пользователя по уникальному идентификатору
+// @Tags Пользователи
+// @Accept json
+// @Produce json
+// @Param id path int true "ID пользователя"
+// @Success 200 {object} User "Данные пользователя"
+// @Failure 400 {object} map[string]string "Неверный ID"
+// @Failure 404 {object} map[string]string "Пользователь не найден"
+// @Router /users/{id} [get]
 func getUser(w http.ResponseWriter, r *http.Request) {
 	id, error := strconv.Atoi(chi.URLParam(r, "id"))
 	if error != nil {
@@ -78,6 +89,15 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
+// getAllUsers получает список всех пользователей
+// @Summary Получить всех пользователей
+// @Description Получает список всех зарегистрированных пользователей
+// @Tags Пользователи
+// @Accept json
+// @Produce json
+// @Success 200 {array} User "Список пользователей"
+// @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router /users [get]
 func getAllUsers(w http.ResponseWriter, r *http.Request) {
 	users := database.Users.
 		Query().
@@ -88,6 +108,18 @@ func getAllUsers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(users)
 }
 
+// updateUser обновляет данные пользователя по ID
+// @Summary Обновить пользователя
+// @Description Обновляет данные существующего пользователя по уникальному идентификатору
+// @Tags Пользователи
+// @Accept json
+// @Produce json
+// @Param id path int true "ID пользователя"
+// @Param user body userInput true "Обновленные данные пользователя"
+// @Success 200 {object} map[string]int "ID обновленного пользователя"
+// @Failure 400 {object} map[string]string "Неверный запрос"
+// @Failure 404 {object} map[string]string "Пользователь не найден"
+// @Router /users/{id} [put]
 func updateUser(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
@@ -113,6 +145,17 @@ func updateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]int{"id": updatedUser.ID})
 }
 
+// deleteUser удаляет пользователя по ID
+// @Summary Удалить пользователя
+// @Description Удаляет существующего пользователя по уникальному идентификатору
+// @Tags Пользователи
+// @Accept json
+// @Produce json
+// @Param id path int true "ID пользователя"
+// @Success 200 {object} map[string]int "ID удаленного пользователя"
+// @Failure 400 {object} map[string]string "Неверный ID"
+// @Failure 404 {object} map[string]string "Пользователь не найден"
+// @Router /users/{id} [delete]
 func deleteUser(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
