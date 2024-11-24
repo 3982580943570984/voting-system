@@ -1,11 +1,10 @@
 package schema
 
 import (
+	"time"
+
 	"entgo.io/ent"
-	"entgo.io/ent/dialect/entsql"
-	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/index"
 )
 
 // User holds the schema definition for the User entity.
@@ -16,41 +15,26 @@ type User struct {
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
-		// TODO: add email validation
+		// TODO: custom validator for email value
 		field.String("email").
-			Unique().
-			Validate(func(s string) error {
-				return nil
-			}),
+			NotEmpty().
+			Unique(),
 
 		field.String("password").
+			MinLen(8).
+			MaxLen(32).
 			Sensitive(),
 
-		field.Bool("is_active").
-			Default(true),
+		field.Time("created_at").
+			Immutable().
+			Default(time.Now),
+
+		field.Time("last_login").
+			Default(time.Now),
 	}
 }
 
 // Edges of the User.
 func (User) Edges() []ent.Edge {
-	return []ent.Edge{
-		edge.To("profile", Profile.Type).
-			Unique().
-			Annotations(entsql.OnDelete(entsql.Cascade)),
-
-		edge.To("voter", Voter.Type).
-			Unique().
-			Annotations(entsql.OnDelete(entsql.Cascade)),
-
-		edge.To("organizer", Organizer.Type).
-			Unique().
-			Annotations(entsql.OnDelete(entsql.Cascade)),
-	}
-}
-
-func (User) Indexes() []ent.Index {
-	return []ent.Index{
-		index.Fields("email").
-			Unique(),
-	}
+	return nil
 }

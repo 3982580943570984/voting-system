@@ -15,6 +15,110 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/login": {
+            "post": {
+                "description": "Аутентификация пользователя и возврат JWT-токена",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Аутентификация"
+                ],
+                "summary": "Вход пользователя",
+                "parameters": [
+                    {
+                        "description": "Учетные данные пользователя",
+                        "name": "credentials",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.Credentials"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.TokenResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неверный пароль",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/signup": {
+            "post": {
+                "description": "Регистрация нового пользователя",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Аутентификация"
+                ],
+                "summary": "Регистрация пользователя",
+                "parameters": [
+                    {
+                        "description": "Учетные данные пользователя",
+                        "name": "credentials",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.Credentials"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/routes.SignupResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса или ошибка при создании пользователя",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "description": "Получает список всех зарегистрированных пользователей",
@@ -34,56 +138,12 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/ent.User"
+                                "$ref": "#/definitions/generated.User"
                             }
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Создает нового пользователя с указанными данными",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Пользователи"
-                ],
-                "summary": "Создать пользователя",
-                "parameters": [
-                    {
-                        "description": "Данные пользователя",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/routes.userInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "ID созданного пользователя",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "integer"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -120,118 +180,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Данные пользователя",
                         "schema": {
-                            "$ref": "#/definitions/ent.User"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный ID",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Пользователь не найден",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Обновляет данные существующего пользователя по уникальному идентификатору",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Пользователи"
-                ],
-                "summary": "Обновить пользователя",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID пользователя",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Обновленные данные пользователя",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/routes.userInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "ID обновленного пользователя",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "integer"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Пользователь не найден",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Удаляет существующего пользователя по уникальному идентификатору",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Пользователи"
-                ],
-                "summary": "Удалить пользователя",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID пользователя",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "ID удаленного пользователя",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "integer"
-                            }
+                            "$ref": "#/definitions/generated.User"
                         }
                     },
                     "400": {
@@ -257,58 +206,12 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "ent.Profile": {
+        "generated.User": {
             "type": "object",
             "properties": {
-                "birthdate": {
-                    "description": "Birthdate holds the value of the \"birthdate\" field.",
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
                     "type": "string"
-                },
-                "edges": {
-                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the ProfileQuery when eager-loading is set.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/ent.ProfileEdges"
-                        }
-                    ]
-                },
-                "first_name": {
-                    "description": "FirstName holds the value of the \"first_name\" field.",
-                    "type": "string"
-                },
-                "id": {
-                    "description": "ID of the ent.",
-                    "type": "integer"
-                },
-                "last_name": {
-                    "description": "LastName holds the value of the \"last_name\" field.",
-                    "type": "string"
-                }
-            }
-        },
-        "ent.ProfileEdges": {
-            "type": "object",
-            "properties": {
-                "user": {
-                    "description": "User holds the value of the user edge.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/ent.User"
-                        }
-                    ]
-                }
-            }
-        },
-        "ent.User": {
-            "type": "object",
-            "properties": {
-                "edges": {
-                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the UserQuery when eager-loading is set.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/ent.UserEdges"
-                        }
-                    ]
                 },
                 "email": {
                     "description": "Email holds the value of the \"email\" field.",
@@ -318,35 +221,43 @@ const docTemplate = `{
                     "description": "ID of the ent.",
                     "type": "integer"
                 },
-                "is_active": {
-                    "description": "IsActive holds the value of the \"is_active\" field.",
-                    "type": "boolean"
+                "last_login": {
+                    "description": "LastLogin holds the value of the \"last_login\" field.",
+                    "type": "string"
                 }
             }
         },
-        "ent.UserEdges": {
-            "type": "object",
-            "properties": {
-                "profile": {
-                    "description": "Profile holds the value of the profile edge.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/ent.Profile"
-                        }
-                    ]
-                }
-            }
-        },
-        "routes.userInput": {
+        "routes.Credentials": {
             "type": "object",
             "properties": {
                 "email": {
+                    "description": "Электронная почта пользователя\nrequired: true",
                     "type": "string"
                 },
-                "is_active": {
-                    "type": "boolean"
-                },
                 "password": {
+                    "description": "Пароль пользователя\nrequired: true",
+                    "type": "string"
+                }
+            }
+        },
+        "routes.SignupResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "ID вновь созданного пользователя",
+                    "type": "integer"
+                },
+                "message": {
+                    "description": "Сообщение об успешном создании пользователя",
+                    "type": "string"
+                }
+            }
+        },
+        "routes.TokenResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "description": "JWT-токен",
                     "type": "string"
                 }
             }

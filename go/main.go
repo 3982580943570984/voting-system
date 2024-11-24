@@ -11,6 +11,7 @@ import (
 // TODO: write open api file
 // TODO: change entity names
 // TODO: populate entity attributes
+// TODO: Update user's `last_login` field upon login
 
 // TODO: All fields are required by default, and can be set to optional using the Optional method.
 // TODO: consider to use pgx instead of pq

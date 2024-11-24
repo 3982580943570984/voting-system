@@ -33,10 +33,6 @@ func Router() http.Handler {
 
 	router.Mount("/users", routes.UsersRoutes())
 
-	router.Mount("/elections", routes.ElectionsRoutes())
-
-	router.Mount("/profiles", routes.ProfilesRoutes())
-
 	router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
