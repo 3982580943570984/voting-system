@@ -7,7 +7,12 @@ import (
 	"errors"
 	"fmt"
 	"time"
+	"voting-system/ent/generated/comment"
+	"voting-system/ent/generated/election"
+	"voting-system/ent/generated/profile"
+	"voting-system/ent/generated/role"
 	"voting-system/ent/generated/user"
+	"voting-system/ent/generated/vote"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -60,6 +65,89 @@ func (uc *UserCreate) SetNillableLastLogin(t *time.Time) *UserCreate {
 	return uc
 }
 
+// SetProfileID sets the "profile" edge to the Profile entity by ID.
+func (uc *UserCreate) SetProfileID(id int) *UserCreate {
+	uc.mutation.SetProfileID(id)
+	return uc
+}
+
+// SetNillableProfileID sets the "profile" edge to the Profile entity by ID if the given value is not nil.
+func (uc *UserCreate) SetNillableProfileID(id *int) *UserCreate {
+	if id != nil {
+		uc = uc.SetProfileID(*id)
+	}
+	return uc
+}
+
+// SetProfile sets the "profile" edge to the Profile entity.
+func (uc *UserCreate) SetProfile(p *Profile) *UserCreate {
+	return uc.SetProfileID(p.ID)
+}
+
+// SetRoleID sets the "role" edge to the Role entity by ID.
+func (uc *UserCreate) SetRoleID(id int) *UserCreate {
+	uc.mutation.SetRoleID(id)
+	return uc
+}
+
+// SetNillableRoleID sets the "role" edge to the Role entity by ID if the given value is not nil.
+func (uc *UserCreate) SetNillableRoleID(id *int) *UserCreate {
+	if id != nil {
+		uc = uc.SetRoleID(*id)
+	}
+	return uc
+}
+
+// SetRole sets the "role" edge to the Role entity.
+func (uc *UserCreate) SetRole(r *Role) *UserCreate {
+	return uc.SetRoleID(r.ID)
+}
+
+// AddElectionIDs adds the "elections" edge to the Election entity by IDs.
+func (uc *UserCreate) AddElectionIDs(ids ...int) *UserCreate {
+	uc.mutation.AddElectionIDs(ids...)
+	return uc
+}
+
+// AddElections adds the "elections" edges to the Election entity.
+func (uc *UserCreate) AddElections(e ...*Election) *UserCreate {
+	ids := make([]int, len(e))
+	for i := range e {
+		ids[i] = e[i].ID
+	}
+	return uc.AddElectionIDs(ids...)
+}
+
+// AddCommentIDs adds the "comments" edge to the Comment entity by IDs.
+func (uc *UserCreate) AddCommentIDs(ids ...int) *UserCreate {
+	uc.mutation.AddCommentIDs(ids...)
+	return uc
+}
+
+// AddComments adds the "comments" edges to the Comment entity.
+func (uc *UserCreate) AddComments(c ...*Comment) *UserCreate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uc.AddCommentIDs(ids...)
+}
+
+// AddVoteIDs adds the "votes" edge to the Vote entity by IDs.
+func (uc *UserCreate) AddVoteIDs(ids ...int) *UserCreate {
+	uc.mutation.AddVoteIDs(ids...)
+	return uc
+}
+
+// AddVotes adds the "votes" edges to the Vote entity.
+func (uc *UserCreate) AddVotes(v ...*Vote) *UserCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return uc.AddVoteIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uc *UserCreate) Mutation() *UserMutation {
 	return uc.mutation
@@ -67,7 +155,9 @@ func (uc *UserCreate) Mutation() *UserMutation {
 
 // Save creates the User in the database.
 func (uc *UserCreate) Save(ctx context.Context) (*User, error) {
-	uc.defaults()
+	if err := uc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, uc.sqlSave, uc.mutation, uc.hooks)
 }
 
@@ -94,15 +184,22 @@ func (uc *UserCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (uc *UserCreate) defaults() {
+func (uc *UserCreate) defaults() error {
 	if _, ok := uc.mutation.CreatedAt(); !ok {
+		if user.DefaultCreatedAt == nil {
+			return fmt.Errorf("generated: uninitialized user.DefaultCreatedAt (forgotten import generated/runtime?)")
+		}
 		v := user.DefaultCreatedAt()
 		uc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := uc.mutation.LastLogin(); !ok {
+		if user.DefaultLastLogin == nil {
+			return fmt.Errorf("generated: uninitialized user.DefaultLastLogin (forgotten import generated/runtime?)")
+		}
 		v := user.DefaultLastLogin()
 		uc.mutation.SetLastLogin(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -170,6 +267,86 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.LastLogin(); ok {
 		_spec.SetField(user.FieldLastLogin, field.TypeTime, value)
 		_node.LastLogin = value
+	}
+	if nodes := uc.mutation.ProfileIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.ProfileTable,
+			Columns: []string{user.ProfileColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profile.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.RoleIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.RoleTable,
+			Columns: []string{user.RoleColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.ElectionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ElectionsTable,
+			Columns: []string{user.ElectionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(election.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.CommentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CommentsTable,
+			Columns: []string{user.CommentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(comment.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.VotesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.VotesTable,
+			Columns: []string{user.VotesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(vote.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

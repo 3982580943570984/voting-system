@@ -2,7 +2,225 @@
 
 package runtime
 
-// The schema-stitching logic is generated in voting-system/ent/generated/runtime.go
+import (
+	"time"
+	"voting-system/ent/generated/candidate"
+	"voting-system/ent/generated/comment"
+	"voting-system/ent/generated/election"
+	"voting-system/ent/generated/electionsettings"
+	"voting-system/ent/generated/profile"
+	"voting-system/ent/generated/role"
+	"voting-system/ent/generated/tag"
+	"voting-system/ent/generated/user"
+	"voting-system/ent/generated/vote"
+	"voting-system/ent/schema"
+)
+
+// The init function reads all schema descriptors with runtime code
+// (default values, validators, hooks and policies) and stitches it
+// to their package variables.
+func init() {
+	candidateFields := schema.Candidate{}.Fields()
+	_ = candidateFields
+	// candidateDescName is the schema descriptor for name field.
+	candidateDescName := candidateFields[0].Descriptor()
+	// candidate.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	candidate.NameValidator = candidateDescName.Validators[0].(func(string) error)
+	// candidateDescDescription is the schema descriptor for description field.
+	candidateDescDescription := candidateFields[1].Descriptor()
+	// candidate.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	candidate.DescriptionValidator = candidateDescDescription.Validators[0].(func(string) error)
+	// candidateDescVotesCount is the schema descriptor for votes_count field.
+	candidateDescVotesCount := candidateFields[3].Descriptor()
+	// candidate.DefaultVotesCount holds the default value on creation for the votes_count field.
+	candidate.DefaultVotesCount = candidateDescVotesCount.Default.(int)
+	commentFields := schema.Comment{}.Fields()
+	_ = commentFields
+	// commentDescContents is the schema descriptor for contents field.
+	commentDescContents := commentFields[0].Descriptor()
+	// comment.ContentsValidator is a validator for the "contents" field. It is called by the builders before save.
+	comment.ContentsValidator = commentDescContents.Validators[0].(func(string) error)
+	// commentDescTimestamp is the schema descriptor for timestamp field.
+	commentDescTimestamp := commentFields[1].Descriptor()
+	// comment.DefaultTimestamp holds the default value on creation for the timestamp field.
+	comment.DefaultTimestamp = commentDescTimestamp.Default.(func() time.Time)
+	electionFields := schema.Election{}.Fields()
+	_ = electionFields
+	// electionDescTitle is the schema descriptor for title field.
+	electionDescTitle := electionFields[0].Descriptor()
+	// election.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	election.TitleValidator = func() func(string) error {
+		validators := electionDescTitle.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(title string) error {
+			for _, fn := range fns {
+				if err := fn(title); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// electionDescDescription is the schema descriptor for description field.
+	electionDescDescription := electionFields[1].Descriptor()
+	// election.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	election.DescriptionValidator = func() func(string) error {
+		validators := electionDescDescription.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(description string) error {
+			for _, fn := range fns {
+				if err := fn(description); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	electionsettingsFields := schema.ElectionSettings{}.Fields()
+	_ = electionsettingsFields
+	// electionsettingsDescIsActive is the schema descriptor for is_active field.
+	electionsettingsDescIsActive := electionsettingsFields[0].Descriptor()
+	// electionsettings.DefaultIsActive holds the default value on creation for the is_active field.
+	electionsettings.DefaultIsActive = electionsettingsDescIsActive.Default.(bool)
+	// electionsettingsDescIsAnonymous is the schema descriptor for is_anonymous field.
+	electionsettingsDescIsAnonymous := electionsettingsFields[1].Descriptor()
+	// electionsettings.DefaultIsAnonymous holds the default value on creation for the is_anonymous field.
+	electionsettings.DefaultIsAnonymous = electionsettingsDescIsAnonymous.Default.(bool)
+	// electionsettingsDescAllowComments is the schema descriptor for allow_comments field.
+	electionsettingsDescAllowComments := electionsettingsFields[2].Descriptor()
+	// electionsettings.DefaultAllowComments holds the default value on creation for the allow_comments field.
+	electionsettings.DefaultAllowComments = electionsettingsDescAllowComments.Default.(bool)
+	// electionsettingsDescMaxVotes is the schema descriptor for max_votes field.
+	electionsettingsDescMaxVotes := electionsettingsFields[3].Descriptor()
+	// electionsettings.DefaultMaxVotes holds the default value on creation for the max_votes field.
+	electionsettings.DefaultMaxVotes = electionsettingsDescMaxVotes.Default.(int)
+	// electionsettings.MaxVotesValidator is a validator for the "max_votes" field. It is called by the builders before save.
+	electionsettings.MaxVotesValidator = electionsettingsDescMaxVotes.Validators[0].(func(int) error)
+	// electionsettingsDescStartDate is the schema descriptor for start_date field.
+	electionsettingsDescStartDate := electionsettingsFields[4].Descriptor()
+	// electionsettings.DefaultStartDate holds the default value on creation for the start_date field.
+	electionsettings.DefaultStartDate = electionsettingsDescStartDate.Default.(func() time.Time)
+	// electionsettingsDescEndDate is the schema descriptor for end_date field.
+	electionsettingsDescEndDate := electionsettingsFields[5].Descriptor()
+	// electionsettings.DefaultEndDate holds the default value on creation for the end_date field.
+	electionsettings.DefaultEndDate = electionsettingsDescEndDate.Default.(time.Time)
+	profileFields := schema.Profile{}.Fields()
+	_ = profileFields
+	// profileDescFirstName is the schema descriptor for first_name field.
+	profileDescFirstName := profileFields[0].Descriptor()
+	// profile.FirstNameValidator is a validator for the "first_name" field. It is called by the builders before save.
+	profile.FirstNameValidator = func() func(string) error {
+		validators := profileDescFirstName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(first_name string) error {
+			for _, fn := range fns {
+				if err := fn(first_name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// profileDescLastName is the schema descriptor for last_name field.
+	profileDescLastName := profileFields[1].Descriptor()
+	// profile.LastNameValidator is a validator for the "last_name" field. It is called by the builders before save.
+	profile.LastNameValidator = func() func(string) error {
+		validators := profileDescLastName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(last_name string) error {
+			for _, fn := range fns {
+				if err := fn(last_name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// profileDescPhoneNumber is the schema descriptor for phone_number field.
+	profileDescPhoneNumber := profileFields[3].Descriptor()
+	// profile.PhoneNumberValidator is a validator for the "phone_number" field. It is called by the builders before save.
+	profile.PhoneNumberValidator = profileDescPhoneNumber.Validators[0].(func(string) error)
+	// profileDescBio is the schema descriptor for bio field.
+	profileDescBio := profileFields[4].Descriptor()
+	// profile.BioValidator is a validator for the "bio" field. It is called by the builders before save.
+	profile.BioValidator = profileDescBio.Validators[0].(func(string) error)
+	// profileDescAddress is the schema descriptor for address field.
+	profileDescAddress := profileFields[5].Descriptor()
+	// profile.AddressValidator is a validator for the "address" field. It is called by the builders before save.
+	profile.AddressValidator = profileDescAddress.Validators[0].(func(string) error)
+	roleFields := schema.Role{}.Fields()
+	_ = roleFields
+	// roleDescIsVoter is the schema descriptor for is_voter field.
+	roleDescIsVoter := roleFields[0].Descriptor()
+	// role.DefaultIsVoter holds the default value on creation for the is_voter field.
+	role.DefaultIsVoter = roleDescIsVoter.Default.(bool)
+	// roleDescIsOrganizer is the schema descriptor for is_organizer field.
+	roleDescIsOrganizer := roleFields[1].Descriptor()
+	// role.DefaultIsOrganizer holds the default value on creation for the is_organizer field.
+	role.DefaultIsOrganizer = roleDescIsOrganizer.Default.(bool)
+	tagFields := schema.Tag{}.Fields()
+	_ = tagFields
+	// tagDescName is the schema descriptor for name field.
+	tagDescName := tagFields[0].Descriptor()
+	// tag.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	tag.NameValidator = tagDescName.Validators[0].(func(string) error)
+	userHooks := schema.User{}.Hooks()
+	user.Hooks[0] = userHooks[0]
+	userFields := schema.User{}.Fields()
+	_ = userFields
+	// userDescEmail is the schema descriptor for email field.
+	userDescEmail := userFields[0].Descriptor()
+	// user.EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	user.EmailValidator = func() func(string) error {
+		validators := userDescEmail.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(email string) error {
+			for _, fn := range fns {
+				if err := fn(email); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// userDescPassword is the schema descriptor for password field.
+	userDescPassword := userFields[1].Descriptor()
+	// user.PasswordValidator is a validator for the "password" field. It is called by the builders before save.
+	user.PasswordValidator = userDescPassword.Validators[0].(func(string) error)
+	// userDescCreatedAt is the schema descriptor for created_at field.
+	userDescCreatedAt := userFields[2].Descriptor()
+	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
+	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
+	// userDescLastLogin is the schema descriptor for last_login field.
+	userDescLastLogin := userFields[3].Descriptor()
+	// user.DefaultLastLogin holds the default value on creation for the last_login field.
+	user.DefaultLastLogin = userDescLastLogin.Default.(func() time.Time)
+	voteFields := schema.Vote{}.Fields()
+	_ = voteFields
+	// voteDescTimestamp is the schema descriptor for timestamp field.
+	voteDescTimestamp := voteFields[0].Descriptor()
+	// vote.DefaultTimestamp holds the default value on creation for the timestamp field.
+	vote.DefaultTimestamp = voteDescTimestamp.Default.(func() time.Time)
+	// voteDescIsActive is the schema descriptor for is_active field.
+	voteDescIsActive := voteFields[1].Descriptor()
+	// vote.DefaultIsActive holds the default value on creation for the is_active field.
+	vote.DefaultIsActive = voteDescIsActive.Default.(bool)
+}
 
 const (
 	Version = "v0.14.1"                                         // Version of ent codegen.

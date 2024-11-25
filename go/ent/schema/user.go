@@ -1,9 +1,16 @@
 package schema
 
 import (
+	"context"
+	"errors"
+	"net/mail"
 	"time"
 
+	gen "voting-system/ent/generated"
+	"voting-system/ent/generated/hook"
+
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
 
@@ -15,14 +22,19 @@ type User struct {
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
-		// TODO: custom validator for email value
 		field.String("email").
 			NotEmpty().
-			Unique(),
+			Unique().
+			Validate(func(s string) error {
+				_, err := mail.ParseAddress(s)
+				if err != nil {
+					return errors.New("invalid email format")
+				}
+				return nil
+			}),
 
 		field.String("password").
-			MinLen(8).
-			MaxLen(32).
+			NotEmpty().
 			Sensitive(),
 
 		field.Time("created_at").
@@ -36,5 +48,49 @@ func (User) Fields() []ent.Field {
 
 // Edges of the User.
 func (User) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.To("profile", Profile.Type).
+			Unique(),
+
+		edge.To("role", Role.Type).
+			Unique(),
+
+		edge.To("elections", Election.Type),
+
+		edge.To("comments", Comment.Type),
+
+		edge.To("votes", Vote.Type),
+	}
+}
+
+// Hooks of the User.
+func (User) Hooks() []ent.Hook {
+	return []ent.Hook{
+		hook.On(func(next ent.Mutator) ent.Mutator {
+			return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+				v, err := next.Mutate(ctx, m)
+				if err != nil {
+					return nil, err
+				}
+
+				user, ok := v.(*gen.User)
+				if !ok {
+					return nil, errors.New("unexpected type: expected *ent.User")
+				}
+
+				userMutation, ok := m.(*gen.UserMutation)
+				if !ok {
+					return nil, errors.New("unexpected mutation type: expected *ent.UserMutation")
+				}
+
+				if _, err := userMutation.Client().Profile.
+					Create().
+					SetUser(user).
+					Save(ctx); err != nil {
+					return nil, err
+				}
+				return v, nil
+			})
+		}, ent.OpCreate),
+	}
 }

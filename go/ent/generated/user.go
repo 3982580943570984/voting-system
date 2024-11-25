@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"voting-system/ent/generated/profile"
+	"voting-system/ent/generated/role"
 	"voting-system/ent/generated/user"
 
 	"entgo.io/ent"
@@ -24,8 +26,77 @@ type User struct {
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// LastLogin holds the value of the "last_login" field.
-	LastLogin    time.Time `json:"last_login,omitempty"`
+	LastLogin time.Time `json:"last_login,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the UserQuery when eager-loading is set.
+	Edges        UserEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// UserEdges holds the relations/edges for other nodes in the graph.
+type UserEdges struct {
+	// Profile holds the value of the profile edge.
+	Profile *Profile `json:"profile,omitempty"`
+	// Role holds the value of the role edge.
+	Role *Role `json:"role,omitempty"`
+	// Elections holds the value of the elections edge.
+	Elections []*Election `json:"elections,omitempty"`
+	// Comments holds the value of the comments edge.
+	Comments []*Comment `json:"comments,omitempty"`
+	// Votes holds the value of the votes edge.
+	Votes []*Vote `json:"votes,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [5]bool
+}
+
+// ProfileOrErr returns the Profile value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) ProfileOrErr() (*Profile, error) {
+	if e.Profile != nil {
+		return e.Profile, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: profile.Label}
+	}
+	return nil, &NotLoadedError{edge: "profile"}
+}
+
+// RoleOrErr returns the Role value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) RoleOrErr() (*Role, error) {
+	if e.Role != nil {
+		return e.Role, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: role.Label}
+	}
+	return nil, &NotLoadedError{edge: "role"}
+}
+
+// ElectionsOrErr returns the Elections value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ElectionsOrErr() ([]*Election, error) {
+	if e.loadedTypes[2] {
+		return e.Elections, nil
+	}
+	return nil, &NotLoadedError{edge: "elections"}
+}
+
+// CommentsOrErr returns the Comments value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) CommentsOrErr() ([]*Comment, error) {
+	if e.loadedTypes[3] {
+		return e.Comments, nil
+	}
+	return nil, &NotLoadedError{edge: "comments"}
+}
+
+// VotesOrErr returns the Votes value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) VotesOrErr() ([]*Vote, error) {
+	if e.loadedTypes[4] {
+		return e.Votes, nil
+	}
+	return nil, &NotLoadedError{edge: "votes"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -95,6 +166,31 @@ func (u *User) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (u *User) Value(name string) (ent.Value, error) {
 	return u.selectValues.Get(name)
+}
+
+// QueryProfile queries the "profile" edge of the User entity.
+func (u *User) QueryProfile() *ProfileQuery {
+	return NewUserClient(u.config).QueryProfile(u)
+}
+
+// QueryRole queries the "role" edge of the User entity.
+func (u *User) QueryRole() *RoleQuery {
+	return NewUserClient(u.config).QueryRole(u)
+}
+
+// QueryElections queries the "elections" edge of the User entity.
+func (u *User) QueryElections() *ElectionQuery {
+	return NewUserClient(u.config).QueryElections(u)
+}
+
+// QueryComments queries the "comments" edge of the User entity.
+func (u *User) QueryComments() *CommentQuery {
+	return NewUserClient(u.config).QueryComments(u)
+}
+
+// QueryVotes queries the "votes" edge of the User entity.
+func (u *User) QueryVotes() *VoteQuery {
+	return NewUserClient(u.config).QueryVotes(u)
 }
 
 // Update returns a builder for updating this User.

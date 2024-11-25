@@ -12,8 +12,24 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// Candidate is the client for interacting with the Candidate builders.
+	Candidate *CandidateClient
+	// Comment is the client for interacting with the Comment builders.
+	Comment *CommentClient
+	// Election is the client for interacting with the Election builders.
+	Election *ElectionClient
+	// ElectionSettings is the client for interacting with the ElectionSettings builders.
+	ElectionSettings *ElectionSettingsClient
+	// Profile is the client for interacting with the Profile builders.
+	Profile *ProfileClient
+	// Role is the client for interacting with the Role builders.
+	Role *RoleClient
+	// Tag is the client for interacting with the Tag builders.
+	Tag *TagClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// Vote is the client for interacting with the Vote builders.
+	Vote *VoteClient
 
 	// lazily loaded.
 	client     *Client
@@ -145,7 +161,15 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.Candidate = NewCandidateClient(tx.config)
+	tx.Comment = NewCommentClient(tx.config)
+	tx.Election = NewElectionClient(tx.config)
+	tx.ElectionSettings = NewElectionSettingsClient(tx.config)
+	tx.Profile = NewProfileClient(tx.config)
+	tx.Role = NewRoleClient(tx.config)
+	tx.Tag = NewTagClient(tx.config)
 	tx.User = NewUserClient(tx.config)
+	tx.Vote = NewVoteClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.
@@ -155,7 +179,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: User.QueryXXX(), the query will be executed
+// applies a query, for example: Candidate.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

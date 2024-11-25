@@ -8,7 +8,15 @@ import (
 	"fmt"
 	"reflect"
 	"sync"
+	"voting-system/ent/generated/candidate"
+	"voting-system/ent/generated/comment"
+	"voting-system/ent/generated/election"
+	"voting-system/ent/generated/electionsettings"
+	"voting-system/ent/generated/profile"
+	"voting-system/ent/generated/role"
+	"voting-system/ent/generated/tag"
 	"voting-system/ent/generated/user"
+	"voting-system/ent/generated/vote"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -73,7 +81,15 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			user.Table: user.ValidColumn,
+			candidate.Table:        candidate.ValidColumn,
+			comment.Table:          comment.ValidColumn,
+			election.Table:         election.ValidColumn,
+			electionsettings.Table: electionsettings.ValidColumn,
+			profile.Table:          profile.ValidColumn,
+			role.Table:             role.ValidColumn,
+			tag.Table:              tag.ValidColumn,
+			user.Table:             user.ValidColumn,
+			vote.Table:             vote.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

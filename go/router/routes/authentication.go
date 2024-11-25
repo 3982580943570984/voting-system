@@ -3,7 +3,6 @@ package routes
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 	"voting-system/services"
@@ -120,7 +119,6 @@ func login(w http.ResponseWriter, r *http.Request) {
 		GetByEmail(r.Context(), creds.Email)
 
 	if err != nil {
-		log.Print("1")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

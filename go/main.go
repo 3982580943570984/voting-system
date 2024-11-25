@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"voting-system/database"
+	_ "voting-system/ent/generated/runtime"
 	"voting-system/router"
 )
 

@@ -8,6 +8,90 @@ import (
 	"voting-system/ent/generated"
 )
 
+// The CandidateFunc type is an adapter to allow the use of ordinary
+// function as Candidate mutator.
+type CandidateFunc func(context.Context, *generated.CandidateMutation) (generated.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CandidateFunc) Mutate(ctx context.Context, m generated.Mutation) (generated.Value, error) {
+	if mv, ok := m.(*generated.CandidateMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generated.CandidateMutation", m)
+}
+
+// The CommentFunc type is an adapter to allow the use of ordinary
+// function as Comment mutator.
+type CommentFunc func(context.Context, *generated.CommentMutation) (generated.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CommentFunc) Mutate(ctx context.Context, m generated.Mutation) (generated.Value, error) {
+	if mv, ok := m.(*generated.CommentMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generated.CommentMutation", m)
+}
+
+// The ElectionFunc type is an adapter to allow the use of ordinary
+// function as Election mutator.
+type ElectionFunc func(context.Context, *generated.ElectionMutation) (generated.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ElectionFunc) Mutate(ctx context.Context, m generated.Mutation) (generated.Value, error) {
+	if mv, ok := m.(*generated.ElectionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generated.ElectionMutation", m)
+}
+
+// The ElectionSettingsFunc type is an adapter to allow the use of ordinary
+// function as ElectionSettings mutator.
+type ElectionSettingsFunc func(context.Context, *generated.ElectionSettingsMutation) (generated.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ElectionSettingsFunc) Mutate(ctx context.Context, m generated.Mutation) (generated.Value, error) {
+	if mv, ok := m.(*generated.ElectionSettingsMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generated.ElectionSettingsMutation", m)
+}
+
+// The ProfileFunc type is an adapter to allow the use of ordinary
+// function as Profile mutator.
+type ProfileFunc func(context.Context, *generated.ProfileMutation) (generated.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ProfileFunc) Mutate(ctx context.Context, m generated.Mutation) (generated.Value, error) {
+	if mv, ok := m.(*generated.ProfileMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generated.ProfileMutation", m)
+}
+
+// The RoleFunc type is an adapter to allow the use of ordinary
+// function as Role mutator.
+type RoleFunc func(context.Context, *generated.RoleMutation) (generated.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RoleFunc) Mutate(ctx context.Context, m generated.Mutation) (generated.Value, error) {
+	if mv, ok := m.(*generated.RoleMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generated.RoleMutation", m)
+}
+
+// The TagFunc type is an adapter to allow the use of ordinary
+// function as Tag mutator.
+type TagFunc func(context.Context, *generated.TagMutation) (generated.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TagFunc) Mutate(ctx context.Context, m generated.Mutation) (generated.Value, error) {
+	if mv, ok := m.(*generated.TagMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generated.TagMutation", m)
+}
+
 // The UserFunc type is an adapter to allow the use of ordinary
 // function as User mutator.
 type UserFunc func(context.Context, *generated.UserMutation) (generated.Value, error)
@@ -18,6 +102,18 @@ func (f UserFunc) Mutate(ctx context.Context, m generated.Mutation) (generated.V
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *generated.UserMutation", m)
+}
+
+// The VoteFunc type is an adapter to allow the use of ordinary
+// function as Vote mutator.
+type VoteFunc func(context.Context, *generated.VoteMutation) (generated.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f VoteFunc) Mutate(ctx context.Context, m generated.Mutation) (generated.Value, error) {
+	if mv, ok := m.(*generated.VoteMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generated.VoteMutation", m)
 }
 
 // Condition is a hook condition function.
