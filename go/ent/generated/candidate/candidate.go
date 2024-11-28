@@ -79,6 +79,8 @@ var (
 	DescriptionValidator func(string) error
 	// DefaultVotesCount holds the default value on creation for the "votes_count" field.
 	DefaultVotesCount int
+	// VotesCountValidator is a validator for the "votes_count" field. It is called by the builders before save.
+	VotesCountValidator func(int) error
 )
 
 // OrderOption defines the ordering options for the Candidate queries.

@@ -6,7 +6,7 @@ import (
 	"net/mail"
 	"time"
 
-	gen "voting-system/ent/generated"
+	"voting-system/ent/generated"
 	"voting-system/ent/generated/hook"
 
 	"entgo.io/ent"
@@ -73,20 +73,47 @@ func (User) Hooks() []ent.Hook {
 					return nil, err
 				}
 
-				user, ok := v.(*gen.User)
+				user, ok := v.(*generated.User)
 				if !ok {
 					return nil, errors.New("unexpected type: expected *ent.User")
 				}
 
-				userMutation, ok := m.(*gen.UserMutation)
+				userMutation, ok := m.(*generated.UserMutation)
 				if !ok {
 					return nil, errors.New("unexpected mutation type: expected *ent.UserMutation")
 				}
 
-				if _, err := userMutation.Client().Profile.
+				_, err = userMutation.Client().Profile.
 					Create().
 					SetUser(user).
-					Save(ctx); err != nil {
+					Save(ctx)
+
+				if err != nil {
+					return nil, err
+				}
+
+				return v, nil
+			})
+		}, ent.OpCreate),
+
+		hook.On(func(m ent.Mutator) ent.Mutator {
+			return hook.UserFunc(func(ctx context.Context, um *generated.UserMutation) (generated.Value, error) {
+				v, err := m.Mutate(ctx, um)
+				if err != nil {
+					return nil, err
+				}
+
+				user, ok := v.(*generated.User)
+				if !ok {
+					return nil, errors.New("unexpected type: expected *generated.User")
+				}
+
+				_, err = um.Client().Role.
+					Create().
+					SetUser(user).
+					Save(ctx)
+
+				if err != nil {
 					return nil, err
 				}
 

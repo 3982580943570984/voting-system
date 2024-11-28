@@ -97,7 +97,7 @@ func ValidColumn(column string) bool {
 //
 //	import _ "voting-system/ent/generated/runtime"
 var (
-	Hooks [1]ent.Hook
+	Hooks [2]ent.Hook
 	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	EmailValidator func(string) error
 	// PasswordValidator is a validator for the "password" field. It is called by the builders before save.

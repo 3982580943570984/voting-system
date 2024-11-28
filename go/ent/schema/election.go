@@ -55,9 +55,9 @@ func (Election) Edges() []ent.Edge {
 // Hooks of the Election.
 func (Election) Hooks() []ent.Hook {
 	return []ent.Hook{
-		hook.On(func(next ent.Mutator) ent.Mutator {
+		hook.On(func(m ent.Mutator) ent.Mutator {
 			return hook.ElectionFunc(func(ctx context.Context, em *generated.ElectionMutation) (generated.Value, error) {
-				v, err := next.Mutate(ctx, em)
+				v, err := m.Mutate(ctx, em)
 				if err != nil {
 					return nil, err
 				}

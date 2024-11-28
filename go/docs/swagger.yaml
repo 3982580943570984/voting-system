@@ -1,19 +1,4 @@
 definitions:
-  generated.User:
-    properties:
-      created_at:
-        description: CreatedAt holds the value of the "created_at" field.
-        type: string
-      email:
-        description: Email holds the value of the "email" field.
-        type: string
-      id:
-        description: ID of the ent.
-        type: integer
-      last_login:
-        description: LastLogin holds the value of the "last_login" field.
-        type: string
-    type: object
   routes.Credentials:
     properties:
       email:
@@ -42,9 +27,60 @@ definitions:
         description: JWT-токен
         type: string
     type: object
+  services.ElectionCreate:
+    properties:
+      description:
+        description: |-
+          Description — описание выборов
+          Это обязательное поле, максимальная длина 1000 символов.
+        maxLength: 1000
+        type: string
+      title:
+        description: |-
+          Title — название выборов
+          Это обязательное поле, минимальная длина 8 символов, максимальная длина 64 символа.
+        maxLength: 64
+        minLength: 8
+        type: string
+      user_id:
+        description: |-
+          UserID - идентификатор пользователя, которые создает выборы
+          Это обязательное поле.
+        type: integer
+    type: object
 info:
   contact: {}
 paths:
+  /elections:
+    post:
+      consumes:
+      - application/json
+      description: Создает новые выборы на основе данных, переданных в теле запроса.
+      parameters:
+      - description: Данные для создания выборов
+        in: body
+        name: election
+        required: true
+        schema:
+          $ref: '#/definitions/services.ElectionCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешно создано, возвращает идентификатор созданных выборов
+          schema:
+            type: integer
+        "400":
+          description: Неверный формат запроса
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Создать выборы
+      tags:
+      - Выборы
   /login:
     post:
       consumes:
@@ -113,60 +149,4 @@ paths:
       summary: Регистрация пользователя
       tags:
       - Аутентификация
-  /users:
-    get:
-      consumes:
-      - application/json
-      description: Получает список всех зарегистрированных пользователей
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Список пользователей
-          schema:
-            items:
-              $ref: '#/definitions/generated.User'
-            type: array
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Получить всех пользователей
-      tags:
-      - Пользователи
-  /users/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Получает пользователя по уникальному идентификатору
-      parameters:
-      - description: ID пользователя
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Данные пользователя
-          schema:
-            $ref: '#/definitions/generated.User'
-        "400":
-          description: Неверный ID
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "404":
-          description: Пользователь не найден
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Получить пользователя
-      tags:
-      - Пользователи
 swagger: "2.0"

@@ -824,7 +824,8 @@ func (c *ElectionClient) QuerySettings(e *Election) *ElectionSettingsQuery {
 
 // Hooks returns the client hooks.
 func (c *ElectionClient) Hooks() []Hook {
-	return c.hooks.Election
+	hooks := c.hooks.Election
+	return append(hooks[:len(hooks):len(hooks)], election.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.

@@ -203,6 +203,11 @@ func (cu *CandidateUpdate) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generated: validator failed for field "Candidate.description": %w`, err)}
 		}
 	}
+	if v, ok := cu.mutation.VotesCount(); ok {
+		if err := candidate.VotesCountValidator(v); err != nil {
+			return &ValidationError{Name: "votes_count", err: fmt.Errorf(`generated: validator failed for field "Candidate.votes_count": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -515,6 +520,11 @@ func (cuo *CandidateUpdateOne) check() error {
 	if v, ok := cuo.mutation.Description(); ok {
 		if err := candidate.DescriptionValidator(v); err != nil {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generated: validator failed for field "Candidate.description": %w`, err)}
+		}
+	}
+	if v, ok := cuo.mutation.VotesCount(); ok {
+		if err := candidate.VotesCountValidator(v); err != nil {
+			return &ValidationError{Name: "votes_count", err: fmt.Errorf(`generated: validator failed for field "Candidate.votes_count": %w`, err)}
 		}
 	}
 	return nil

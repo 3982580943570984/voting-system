@@ -157,6 +157,11 @@ func (cc *CandidateCreate) check() error {
 	if _, ok := cc.mutation.VotesCount(); !ok {
 		return &ValidationError{Name: "votes_count", err: errors.New(`generated: missing required field "Candidate.votes_count"`)}
 	}
+	if v, ok := cc.mutation.VotesCount(); ok {
+		if err := candidate.VotesCountValidator(v); err != nil {
+			return &ValidationError{Name: "votes_count", err: fmt.Errorf(`generated: validator failed for field "Candidate.votes_count": %w`, err)}
+		}
+	}
 	return nil
 }
 

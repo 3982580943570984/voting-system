@@ -16,7 +16,7 @@ var (
 func init() {
 	var err error
 
-	dsn := "postgresql://postgres@database:5432/database?sslmode=disable"
+	dsn := "postgresql://postgres@postgres:5432/database?sslmode=disable"
 
 	Client, err = ent.Open(dialect.Postgres, dsn)
 	if err != nil {

@@ -25,25 +25,71 @@ func init() {
 	// candidateDescName is the schema descriptor for name field.
 	candidateDescName := candidateFields[0].Descriptor()
 	// candidate.NameValidator is a validator for the "name" field. It is called by the builders before save.
-	candidate.NameValidator = candidateDescName.Validators[0].(func(string) error)
+	candidate.NameValidator = func() func(string) error {
+		validators := candidateDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
 	// candidateDescDescription is the schema descriptor for description field.
 	candidateDescDescription := candidateFields[1].Descriptor()
 	// candidate.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
-	candidate.DescriptionValidator = candidateDescDescription.Validators[0].(func(string) error)
+	candidate.DescriptionValidator = func() func(string) error {
+		validators := candidateDescDescription.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(description string) error {
+			for _, fn := range fns {
+				if err := fn(description); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
 	// candidateDescVotesCount is the schema descriptor for votes_count field.
 	candidateDescVotesCount := candidateFields[3].Descriptor()
 	// candidate.DefaultVotesCount holds the default value on creation for the votes_count field.
 	candidate.DefaultVotesCount = candidateDescVotesCount.Default.(int)
+	// candidate.VotesCountValidator is a validator for the "votes_count" field. It is called by the builders before save.
+	candidate.VotesCountValidator = candidateDescVotesCount.Validators[0].(func(int) error)
 	commentFields := schema.Comment{}.Fields()
 	_ = commentFields
 	// commentDescContents is the schema descriptor for contents field.
 	commentDescContents := commentFields[0].Descriptor()
 	// comment.ContentsValidator is a validator for the "contents" field. It is called by the builders before save.
-	comment.ContentsValidator = commentDescContents.Validators[0].(func(string) error)
+	comment.ContentsValidator = func() func(string) error {
+		validators := commentDescContents.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(contents string) error {
+			for _, fn := range fns {
+				if err := fn(contents); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
 	// commentDescTimestamp is the schema descriptor for timestamp field.
 	commentDescTimestamp := commentFields[1].Descriptor()
 	// comment.DefaultTimestamp holds the default value on creation for the timestamp field.
 	comment.DefaultTimestamp = commentDescTimestamp.Default.(func() time.Time)
+	electionHooks := schema.Election{}.Hooks()
+	election.Hooks[0] = electionHooks[0]
 	electionFields := schema.Election{}.Fields()
 	_ = electionFields
 	// electionDescTitle is the schema descriptor for title field.
@@ -178,6 +224,7 @@ func init() {
 	tag.NameValidator = tagDescName.Validators[0].(func(string) error)
 	userHooks := schema.User{}.Hooks()
 	user.Hooks[0] = userHooks[0]
+	user.Hooks[1] = userHooks[1]
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescEmail is the schema descriptor for email field.

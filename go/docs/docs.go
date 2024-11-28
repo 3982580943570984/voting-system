@@ -15,6 +15,52 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/elections": {
+            "post": {
+                "description": "Создает новые выборы на основе данных, переданных в теле запроса.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Выборы"
+                ],
+                "summary": "Создать выборы",
+                "parameters": [
+                    {
+                        "description": "Данные для создания выборов",
+                        "name": "election",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.ElectionCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Успешно создано, возвращает идентификатор созданных выборов",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "Аутентификация пользователя и возврат JWT-токена",
@@ -118,115 +164,9 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/users": {
-            "get": {
-                "description": "Получает список всех зарегистрированных пользователей",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Пользователи"
-                ],
-                "summary": "Получить всех пользователей",
-                "responses": {
-                    "200": {
-                        "description": "Список пользователей",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/generated.User"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/users/{id}": {
-            "get": {
-                "description": "Получает пользователя по уникальному идентификатору",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Пользователи"
-                ],
-                "summary": "Получить пользователя",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID пользователя",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Данные пользователя",
-                        "schema": {
-                            "$ref": "#/definitions/generated.User"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный ID",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Пользователь не найден",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
-        "generated.User": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "description": "CreatedAt holds the value of the \"created_at\" field.",
-                    "type": "string"
-                },
-                "email": {
-                    "description": "Email holds the value of the \"email\" field.",
-                    "type": "string"
-                },
-                "id": {
-                    "description": "ID of the ent.",
-                    "type": "integer"
-                },
-                "last_login": {
-                    "description": "LastLogin holds the value of the \"last_login\" field.",
-                    "type": "string"
-                }
-            }
-        },
         "routes.Credentials": {
             "type": "object",
             "properties": {
@@ -259,6 +199,26 @@ const docTemplate = `{
                 "token": {
                     "description": "JWT-токен",
                     "type": "string"
+                }
+            }
+        },
+        "services.ElectionCreate": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "Description — описание выборов\nЭто обязательное поле, максимальная длина 1000 символов.",
+                    "type": "string",
+                    "maxLength": 1000
+                },
+                "title": {
+                    "description": "Title — название выборов\nЭто обязательное поле, минимальная длина 8 символов, максимальная длина 64 символа.",
+                    "type": "string",
+                    "maxLength": 64,
+                    "minLength": 8
+                },
+                "user_id": {
+                    "description": "UserID - идентификатор пользователя, которые создает выборы\nЭто обязательное поле.",
+                    "type": "integer"
                 }
             }
         }

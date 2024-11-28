@@ -11,8 +11,8 @@ var (
 	// CandidatesColumns holds the columns for the "candidates" table.
 	CandidatesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "name", Type: field.TypeString},
-		{Name: "description", Type: field.TypeString},
+		{Name: "name", Type: field.TypeString, Size: 100},
+		{Name: "description", Type: field.TypeString, Size: 1000},
 		{Name: "photo_url", Type: field.TypeString, Nullable: true},
 		{Name: "votes_count", Type: field.TypeInt, Default: 0},
 		{Name: "election_candidates", Type: field.TypeInt, Nullable: true},
@@ -27,14 +27,14 @@ var (
 				Symbol:     "candidates_elections_candidates",
 				Columns:    []*schema.Column{CandidatesColumns[5]},
 				RefColumns: []*schema.Column{ElectionsColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.Cascade,
 			},
 		},
 	}
 	// CommentsColumns holds the columns for the "comments" table.
 	CommentsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "contents", Type: field.TypeString},
+		{Name: "contents", Type: field.TypeString, Size: 2000},
 		{Name: "timestamp", Type: field.TypeTime},
 		{Name: "comment_children", Type: field.TypeInt, Nullable: true},
 		{Name: "election_comments", Type: field.TypeInt, Nullable: true},
@@ -56,7 +56,7 @@ var (
 				Symbol:     "comments_elections_comments",
 				Columns:    []*schema.Column{CommentsColumns[4]},
 				RefColumns: []*schema.Column{ElectionsColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "comments_users_comments",
@@ -108,7 +108,7 @@ var (
 				Symbol:     "election_settings_elections_settings",
 				Columns:    []*schema.Column{ElectionSettingsColumns[7]},
 				RefColumns: []*schema.Column{ElectionsColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.Cascade,
 			},
 		},
 	}

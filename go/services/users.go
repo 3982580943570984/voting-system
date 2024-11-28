@@ -4,14 +4,14 @@ import (
 	"context"
 	"time"
 	"voting-system/database"
-	ent "voting-system/ent/generated"
+	"voting-system/ent/generated"
 	"voting-system/ent/generated/user"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
 type Users struct {
-	DB *ent.UserClient
+	DB *generated.UserClient
 }
 
 type UserCreate struct {
@@ -32,7 +32,7 @@ func NewUsers() *Users {
 	}
 }
 
-func (u *Users) Create(ctx context.Context, uc *UserCreate) (*ent.User, error) {
+func (u *Users) Create(ctx context.Context, uc *UserCreate) (*generated.User, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(uc.Password), bcrypt.DefaultCost)
 
 	if err != nil {
@@ -52,22 +52,22 @@ func (u *Users) Create(ctx context.Context, uc *UserCreate) (*ent.User, error) {
 	return user, nil
 }
 
-func (u *Users) GetAll(ctx context.Context) ([]*ent.User, error) {
+func (u *Users) GetAll(ctx context.Context) ([]*generated.User, error) {
 	return u.DB.Query().All(ctx)
 }
 
-func (u *Users) GetById(ctx context.Context, id int) (*ent.User, error) {
+func (u *Users) GetById(ctx context.Context, id int) (*generated.User, error) {
 	return u.DB.Get(ctx, id)
 }
 
-func (u *Users) GetByEmail(ctx context.Context, email string) (*ent.User, error) {
+func (u *Users) GetByEmail(ctx context.Context, email string) (*generated.User, error) {
 	return u.DB.
 		Query().
 		Where(user.EmailEQ(email)).
 		Only(context.Background())
 }
 
-func (u *Users) Update(ctx context.Context, uu *UserUpdate) (*ent.User, error) {
+func (u *Users) Update(ctx context.Context, uu *UserUpdate) (*generated.User, error) {
 	builder := u.DB.UpdateOneID(uu.ID)
 
 	if uu.Email != nil {
