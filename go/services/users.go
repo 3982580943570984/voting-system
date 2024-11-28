@@ -10,25 +10,25 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type Users struct {
+	DB *ent.UserClient
+}
+
 type UserCreate struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 type UserUpdate struct {
-	ID        int        `json:"id,omitempty"`
+	ID        int        `json:"id"`
 	Email     *string    `json:"email,omitempty"`
 	Password  *string    `json:"password,omitempty"`
 	LastLogin *time.Time `json:"last_login,omitempty"`
 }
 
-type Users struct {
-	DB *ent.UserClient
-}
-
 func NewUsers() *Users {
 	return &Users{
-		DB: database.Users,
+		DB: database.Client.User,
 	}
 }
 
@@ -53,14 +53,11 @@ func (u *Users) Create(ctx context.Context, uc *UserCreate) (*ent.User, error) {
 }
 
 func (u *Users) GetAll(ctx context.Context) ([]*ent.User, error) {
-	return u.DB.
-		Query().
-		All(ctx)
+	return u.DB.Query().All(ctx)
 }
 
 func (u *Users) GetById(ctx context.Context, id int) (*ent.User, error) {
-	return u.DB.
-		Get(ctx, id)
+	return u.DB.Get(ctx, id)
 }
 
 func (u *Users) GetByEmail(ctx context.Context, email string) (*ent.User, error) {

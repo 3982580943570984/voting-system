@@ -89,6 +89,7 @@ func (User) Hooks() []ent.Hook {
 					Save(ctx); err != nil {
 					return nil, err
 				}
+
 				return v, nil
 			})
 		}, ent.OpCreate),

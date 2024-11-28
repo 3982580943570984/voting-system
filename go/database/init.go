@@ -11,7 +11,6 @@ import (
 
 var (
 	Client *ent.Client
-	Users  *ent.UserClient
 )
 
 func init() {
@@ -28,6 +27,4 @@ func init() {
 	if err != nil {
 		log.Fatalf("Error during schema creation: %v", err)
 	}
-
-	Users = Client.User
 }

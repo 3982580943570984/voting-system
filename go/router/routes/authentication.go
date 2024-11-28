@@ -12,6 +12,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var token *jwtauth.JWTAuth
+
+func init() {
+	// TODO: replace with secret key
+	token = jwtauth.New("HS256", []byte("secret"), nil)
+}
+
 // Credentials представляет учетные данные пользователя для входа/регистрации.
 // swagger:model Credentials
 type Credentials struct {
@@ -39,13 +46,6 @@ type SignupResponse struct {
 
 	// Сообщение об успешном создании пользователя
 	Message string `json:"message"`
-}
-
-var token *jwtauth.JWTAuth
-
-func init() {
-	// TODO: replace with secret key
-	token = jwtauth.New("HS256", []byte("secret"), nil)
 }
 
 func AuthenticationRoutes() chi.Router {
