@@ -6,50 +6,54 @@
     <title>Manage Elections</title>
     <style>
       body {
-        font-family: Arial, sans-serif;
+        font-family: "Arial", sans-serif;
         margin: 20px;
+        background-color: #f8f9fa; /* Light background color for a clean look */
       }
 
-      /* Container to hold the election cards */
+      /* Container for election cards */
       .election-list {
         display: grid;
-        grid-template-columns: 1fr; /* Single column grid */
+        grid-template-columns: repeat(2, 1fr); /* Set to 2 columns */
         gap: 20px; /* Space between cards */
         margin-top: 20px;
       }
 
       /* Election card styling */
       .election-card {
-        width: 1fr; /* Ensure card takes full width of the grid */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
         padding: 20px;
-        margin: 10px 20px;
         border: 1px solid #ddd;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        background-color: #ffffff; /* White background for cards */
         text-align: center;
-        word-wrap: break-word;
-        overflow: hidden;
-        height: auto;
-        transition: transform 0.3s ease; /* Smooth transition on hover */
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: auto; /* Ensure cards adjust their height based on content */
       }
 
       .election-card:hover {
-        transform: scale(1.03); /* Slight zoom effect on hover */
+        transform: translateY(-5px); /* Subtle lift effect */
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
       }
 
-      /* Description text styling */
+      /* Card title and description */
+      .election-card h3 {
+        margin: 0 0 10px;
+        font-size: 1.25rem; /* Slightly larger font for emphasis */
+        color: #333;
+      }
+
       .election-card p {
         font-size: 14px;
         color: #555;
-        white-space: normal;
+        margin: 0;
+        line-height: 1.5;
         overflow: hidden;
         text-overflow: ellipsis;
-      }
-
-      .election-card h3 {
-        margin: 0;
-        font-size: 20px;
-        color: #333;
+        white-space: normal;
       }
 
       /* Button styling */
@@ -57,67 +61,117 @@
       .delete-btn,
       .create-btn {
         margin-top: 10px;
-        padding: 8px 15px;
-        background-color: #007bff;
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-
-      .view-btn:hover,
-      .delete-btn:hover,
-      .create-btn:hover {
-        background-color: #0056b3;
-      }
-
-      /* Form styling */
-      .create-election-form {
-        display: grid;
-        grid-template-columns: 1fr; /* Create a single column grid */
-        gap: 10px; /* Space between form elements */
-        width: 1fr;
-        margin-bottom: 30px;
-        padding: 20px;
-        border: 1px solid #ddd;
+        padding: 10px 16px;
         border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        border: none;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color 0.3s, transform 0.2s;
       }
 
-      .create-election-form input,
-      .create-election-form textarea {
-        display: block;
-        width: 98%;
-        padding: 10px;
-        margin-bottom: 10px;
+      .view-btn {
+        background-color: #007bff;
+      }
+
+      .delete-btn {
+        background-color: #dc3545;
+      }
+
+      .create-btn {
+        background-color: #28a745;
+      }
+
+      .view-btn:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+      }
+
+      .delete-btn:hover {
+        background-color: #c82333;
+        transform: scale(1.05);
+      }
+
+      .create-btn:hover {
+        background-color: #218838;
+        transform: scale(1.05);
+      }
+
+      /* Form container styling */
+      .create-election-form {
+        display: flex;
+        flex-direction: column; /* Align child elements in a column */
+        align-items: center; /* Center content horizontally */
+        justify-content: center; /* Center content vertically */
+        max-width: 600px; /* Limit the form width */
+        margin: 30px auto;
+        padding: 30px; /* Adjusted padding for a more spacious feel */
         border: 1px solid #ddd;
-        border-radius: 5px;
+        border-radius: 12px; /* Slightly more rounded corners */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Deeper shadow for more depth */
+        background-color: #ffffff; /* White background */
+        transition: box-shadow 0.3s; /* Smooth shadow transition */
       }
 
+      .create-election-form:hover {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); /* Shadow increases on hover */
+      }
+
+      /* Prevent resizing the textarea by width */
+      .create-election-form textarea {
+        resize: none; /* Allow vertical resizing only */
+      }
+
+      /* Form input and textarea styling */
+      .create-election-form input,
+      .create-election-form textarea,
+      .create-election-form button {
+        width: 100%; /* Full width within the form */
+        padding: 12px 20px; /* Comfortable padding for uniform size */
+        border-radius: 10px; /* Consistent rounded corners */
+        border: 1px solid #ccc; /* Softer border color */
+        outline: none;
+        font-size: 1rem; /* Standard font size for readability */
+        box-sizing: border-box; /* Ensures padding is included in the total width */
+        transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transitions */
+        margin: 5px 0;
+      }
+
+      /* Adjusting spacing between inputs */
+      .create-election-form input:not(:last-of-type),
+      .create-election-form textarea:not(:last-of-type) {
+        margin-bottom: 15px; /* Space between inputs */
+      }
+
+      /* Focus state for input and textarea */
+      .create-election-form input:focus,
+      .create-election-form textarea:focus {
+        border-color: #007bff; /* Blue border on focus */
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+      }
+
+      /* Button styling */
       .create-election-form button {
         background-color: #28a745;
-        color: white;
-        padding: 10px 15px;
-        border: none;
-        border-radius: 5px;
+        color: #ffffff;
+        font-weight: 600; /* Slightly bold for emphasis */
         cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s; /* Added transition */
+        display: inline-block;
       }
 
+      /* Button hover effect */
       .create-election-form button:hover {
-        background-color: #218838;
+        background-color: #218838; /* Darker green on hover */
+        transform: translateY(-2px); /* Subtle lift effect */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow effect */
       }
 
-      /* Responsive design for smaller screens */
-      @media (max-width: 768px) {
-        .election-list {
-          grid-template-columns: 1fr; /* One column layout */
-        }
-      }
-
-      @media (max-width: 480px) {
-        .election-list {
-          grid-template-columns: 1fr; /* One column layout */
-        }
+      /* Button focus styling for accessibility */
+      .create-election-form button:focus {
+        outline: none;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Blue shadow for focus */
       }
     </style>
   </head>
@@ -128,15 +182,10 @@
     <div class="create-election-form" id="create-election-form">
       <h2>Create a New Election</h2>
       <form id="create-election">
-        <input
-          type="text"
-          id="election-title"
-          placeholder="Election Title"
-          required
-        />
+        <input type="text" id="election-title" placeholder="Title" required />
         <textarea
           id="election-description"
-          placeholder="Election Description"
+          placeholder="Description"
           required
         ></textarea>
         <button type="submit">Create Election</button>

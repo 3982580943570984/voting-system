@@ -8,26 +8,63 @@
       body {
         font-family: Arial, sans-serif;
         margin: 20px;
+        background-color: #f4f7f6;
       }
+
+      h1,
+      h2,
+      h3 {
+        color: #333;
+      }
+
       .candidate-card {
-        padding: 15px;
-        margin: 10px 0;
+        padding: 20px;
+        margin: 15px 0;
         border: 1px solid #ddd;
         border-radius: 8px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         display: flex;
         justify-content: space-between;
         align-items: center;
+        background-color: white;
       }
+
+      .candidate-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
       .vote-btn {
         background-color: #28a745;
         color: white;
-        padding: 8px 15px;
+        padding: 10px 20px;
         border-radius: 5px;
         cursor: pointer;
+        border: none;
+        font-weight: bold;
       }
+
       .vote-btn:hover {
         background-color: #218838;
+      }
+
+      .vote-count {
+        font-size: 1.1em;
+        color: #555;
+      }
+
+      button.back-btn {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+      }
+
+      button.back-btn:hover {
+        background-color: #0056b3;
       }
     </style>
   </head>
@@ -41,7 +78,7 @@
     <h3>Candidates</h3>
     <div id="candidate-list"></div>
 
-    <button onclick="window.location.href='elections.html';">
+    <button class="back-btn" onclick="window.location.href='elections.html';">
       Back to Elections
     </button>
 
@@ -58,10 +95,12 @@
         })
           .then((response) => response.json())
           .then((election) => {
-            document.getElementById("election-title").innerText =
-              election.title;
-            document.getElementById("election-description").innerText =
-              election.description;
+            document.getElementById(
+              "election-title"
+            ).innerText = `Title: ${election.title}`;
+            document.getElementById(
+              "election-description"
+            ).innerText = `Description: ${election.description}`;
           })
           .catch((error) =>
             console.error("Error fetching election details:", error)
@@ -80,10 +119,31 @@
             candidates.forEach((candidate) => {
               const card = document.createElement("div");
               card.classList.add("candidate-card");
-              card.innerHTML = `
-              <span>${candidate.name}</span>
-              <button class="vote-btn" onclick="voteForCandidate(${candidate.id})">Vote</button>
-            `;
+
+              // Create the candidate info section
+              const candidateInfo = document.createElement("div");
+              candidateInfo.classList.add("candidate-info");
+
+              const name = document.createElement("span");
+              name.innerText = `Name: ${candidate.name}`;
+              candidateInfo.appendChild(name);
+
+              candidateInfo.appendChild(document.createElement("br"));
+
+              const voteCount = document.createElement("div");
+              voteCount.classList.add("vote-count");
+              voteCount.innerText = `Votes: ${candidate?.votes_count || 0}`;
+              candidateInfo.appendChild(voteCount);
+
+              // Create the vote button
+              const voteButton = document.createElement("button");
+              voteButton.classList.add("vote-btn");
+              voteButton.innerText = "Vote";
+              voteButton.onclick = () =>
+                voteForCandidate(candidate.id, voteCount);
+
+              card.appendChild(candidateInfo);
+              card.appendChild(voteButton);
               candidateList.appendChild(card);
             });
           })
@@ -91,22 +151,31 @@
       }
 
       // Vote for a candidate
-      function voteForCandidate(candidateId) {
+      function voteForCandidate(candidateId, voteCountElement) {
         fetch("http://localhost:3000/votes", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: "Bearer " + localStorage.getItem("jwt_token"),
           },
-          body: JSON.stringify({ candidateId }),
+          body: JSON.stringify({ candidate_id: candidateId }),
         })
           .then((response) => {
             if (!response.ok) {
               throw new Error("Failed to cast vote");
             }
             alert("Vote cast successfully!");
+
+            // Increment the vote count on the page after successful vote
+            const currentVoteCount = parseInt(
+              voteCountElement.innerText.split(": ")[1]
+            );
+            voteCountElement.innerText = `Votes: ${currentVoteCount + 1}`;
           })
-          .catch((error) => console.error("Error casting vote:", error));
+          .catch((error) => {
+            console.error("Error casting vote:", error);
+            alert("Error casting vote: " + error.message);
+          });
       }
 
       // Load election details when the page loads
