@@ -4,6 +4,7 @@ import (
 	"context"
 	"voting-system/database"
 	"voting-system/ent/generated"
+	"voting-system/ent/generated/election"
 )
 
 // Elections представляет сервис для работы с выборами
@@ -51,23 +52,36 @@ func NewElections() *Elections {
 }
 
 func (e *Elections) Create(ctx context.Context, ec *ElectionCreate) (*generated.Election, error) {
-	election, err := e.DB.Create().
+	return e.DB.Create().
 		SetUserID(ec.UserID).
 		SetTitle(ec.Title).
 		SetDescription(ec.Description).
 		Save(ctx)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return election, nil
 }
 
 func (e *Elections) GetAll(ctx context.Context) ([]*generated.Election, error) {
-	return e.DB.Query().All(ctx)
+	return e.DB.Query().Select(election.Columns...).All(ctx)
 }
 
 func (e *Elections) GetById(ctx context.Context, id int) (*generated.Election, error) {
-	return e.DB.Get(ctx, id)
+	return e.DB.Query().Select(election.Columns...).Where(election.ID(id)).Only(ctx)
+}
+
+func (e *Elections) GetCandidates(ctx context.Context, id int) ([]*generated.Candidate, error) {
+	return e.DB.Query().Where(election.ID(id)).QueryCandidates().All(ctx)
+}
+
+func (e *Elections) GetSettings(ctx context.Context, id int) (*generated.ElectionSettings, error) {
+	return e.DB.Query().Where(election.ID(id)).QuerySettings().Only(ctx)
+}
+
+func (e *Elections) Update(ctx context.Context, eu *ElectionUpdate) (*generated.Election, error) {
+	return e.DB.UpdateOneID(eu.ID).
+		SetNillableTitle(eu.Title).
+		SetNillableDescription(eu.Description).
+		Save(ctx)
+}
+
+func (e *Elections) DeleteById(ctx context.Context, id int) error {
+	return e.DB.DeleteOneID(id).Exec(ctx)
 }

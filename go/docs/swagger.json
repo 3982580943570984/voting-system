@@ -5,7 +5,48 @@
     },
     "paths": {
         "/elections": {
+            "get": {
+                "description": "Эта функция возвращает список всех доступных выборов.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Выборы"
+                ],
+                "summary": "Получить все выборы",
+                "responses": {
+                    "200": {
+                        "description": "Список выборов",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/generated.Election"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Создает новые выборы на основе данных, переданных в теле запроса.",
                 "consumes": [
                     "application/json"
@@ -37,6 +78,426 @@
                     },
                     "400": {
                         "description": "Неверный формат запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/elections/{id}": {
+            "get": {
+                "description": "Эта функция возвращает информацию о конкретных выборах по ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Выборы"
+                ],
+                "summary": "Получить выборы по ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID выборов",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Информация о выборах",
+                        "schema": {
+                            "$ref": "#/definitions/generated.Election"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Выборы не найдены",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Эта функция обновляет данные выборов по ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Выборы"
+                ],
+                "summary": "Обновить выборы",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID выборов для обновления",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для обновления выборов",
+                        "name": "election",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.ElectionUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешно обновлено, возвращает идентификатор обновленных выборов",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Выборы с указанным ID не найдены",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Эта функция удаляет выборы по ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Выборы"
+                ],
+                "summary": "Удалить выборы",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID выборов для удаления",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Успешно удалено, нет контента",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Выборы с указанным ID не найдены",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/elections/{id}/candidates": {
+            "get": {
+                "description": "Эта функция возвращает список всех кандидатов для выбранных выборов по ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Кандидаты"
+                ],
+                "summary": "Получить всех кандидатов",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID выборов",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список кандидатов",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/generated.Candidate"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Обновляет информацию о кандидате.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Кандидаты"
+                ],
+                "summary": "Обновить кандидата",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID выборов",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для обновления кандидата",
+                        "name": "candidate",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.CandidateUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешно обновлено, возвращает идентификатор обновленного кандидата",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Кандидат не найден",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Создает нового кандидата на основе данных, переданных в теле запроса.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Кандидаты"
+                ],
+                "summary": "Создать кандидата",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID выборов",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для создания кандидата",
+                        "name": "candidate",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.CandidateCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Успешно создан, возвращает идентификатор созданного кандидата",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаляет кандидата.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Кандидаты"
+                ],
+                "summary": "Удалить кандидата",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID выборов",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для удаления кандидата",
+                        "name": "candidate",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.CandidateDelete"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Кандидат успешно удален",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Кандидат не найден",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/elections/{id}/settings": {
+            "get": {
+                "description": "Возвращает настройки выборов по ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Настройки выборов"
+                ],
+                "summary": "Получить настройки выборов",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID выборов",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Настройки выборов",
+                        "schema": {
+                            "$ref": "#/definitions/generated.ElectionSettings"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Выборы не найдены",
                         "schema": {
                             "type": "string"
                         }
@@ -137,9 +598,9 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "Успешно создано, возвращает идентификатор созданного пользователя",
                         "schema": {
-                            "$ref": "#/definitions/routes.SignupResponse"
+                            "type": "integer"
                         }
                     },
                     "400": {
@@ -153,9 +614,561 @@
                     }
                 }
             }
+        },
+        "/votes": {
+            "post": {
+                "description": "Создает новый голос на основе данных, переданных в теле запроса.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Голоса"
+                ],
+                "summary": "Создать новый голос",
+                "parameters": [
+                    {
+                        "description": "Данные для создания голоса",
+                        "name": "vote",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.VoteCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Успешно создано, возвращает идентификатор созданного голоса",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаляет голос пользователя по ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Голоса"
+                ],
+                "summary": "Удаление голоса пользователя",
+                "parameters": [
+                    {
+                        "description": "Информация о пользователе для удаления его голоса",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.VoteDelete"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Голос успешно удален",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат данных или ошибка при удалении",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "generated.Candidate": {
+            "type": "object",
+            "properties": {
+                "create_time": {
+                    "description": "CreateTime holds the value of the \"create_time\" field.",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description holds the value of the \"description\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the CandidateQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.CandidateEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                },
+                "photo_url": {
+                    "description": "PhotoURL holds the value of the \"photo_url\" field.",
+                    "type": "string"
+                },
+                "update_time": {
+                    "description": "UpdateTime holds the value of the \"update_time\" field.",
+                    "type": "string"
+                },
+                "votes_count": {
+                    "description": "VotesCount holds the value of the \"votes_count\" field.",
+                    "type": "integer"
+                }
+            }
+        },
+        "generated.CandidateEdges": {
+            "type": "object",
+            "properties": {
+                "election": {
+                    "description": "Election holds the value of the election edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.Election"
+                        }
+                    ]
+                },
+                "votes": {
+                    "description": "Votes holds the value of the votes edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/generated.Vote"
+                    }
+                }
+            }
+        },
+        "generated.Comment": {
+            "type": "object",
+            "properties": {
+                "contents": {
+                    "description": "Contents holds the value of the \"contents\" field.",
+                    "type": "string"
+                },
+                "create_time": {
+                    "description": "CreateTime holds the value of the \"create_time\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the CommentQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.CommentEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "integer"
+                },
+                "update_time": {
+                    "description": "UpdateTime holds the value of the \"update_time\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "generated.CommentEdges": {
+            "type": "object",
+            "properties": {
+                "children": {
+                    "description": "Children holds the value of the children edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/generated.Comment"
+                    }
+                },
+                "election": {
+                    "description": "Election holds the value of the election edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.Election"
+                        }
+                    ]
+                },
+                "parent": {
+                    "description": "Parent holds the value of the parent edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.Comment"
+                        }
+                    ]
+                },
+                "user": {
+                    "description": "User holds the value of the user edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.User"
+                        }
+                    ]
+                }
+            }
+        },
+        "generated.Election": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "Description holds the value of the \"description\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the ElectionQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.ElectionEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "integer"
+                },
+                "title": {
+                    "description": "Title holds the value of the \"title\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "generated.ElectionEdges": {
+            "type": "object",
+            "properties": {
+                "candidates": {
+                    "description": "Candidates holds the value of the candidates edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/generated.Candidate"
+                    }
+                },
+                "comments": {
+                    "description": "Comments holds the value of the comments edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/generated.Comment"
+                    }
+                },
+                "settings": {
+                    "description": "Settings holds the value of the settings edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.ElectionSettings"
+                        }
+                    ]
+                },
+                "tags": {
+                    "description": "Tags holds the value of the tags edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/generated.Tag"
+                    }
+                },
+                "user": {
+                    "description": "User holds the value of the user edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.User"
+                        }
+                    ]
+                }
+            }
+        },
+        "generated.ElectionSettings": {
+            "type": "object",
+            "properties": {
+                "allow_comments": {
+                    "description": "AllowComments holds the value of the \"allow_comments\" field.",
+                    "type": "boolean"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the ElectionSettingsQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.ElectionSettingsEdges"
+                        }
+                    ]
+                },
+                "end_date": {
+                    "description": "EndDate holds the value of the \"end_date\" field.",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "integer"
+                },
+                "is_active": {
+                    "description": "IsActive holds the value of the \"is_active\" field.",
+                    "type": "boolean"
+                },
+                "is_anonymous": {
+                    "description": "IsAnonymous holds the value of the \"is_anonymous\" field.",
+                    "type": "boolean"
+                },
+                "max_votes": {
+                    "description": "MaxVotes holds the value of the \"max_votes\" field.",
+                    "type": "integer"
+                },
+                "start_date": {
+                    "description": "StartDate holds the value of the \"start_date\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "generated.ElectionSettingsEdges": {
+            "type": "object",
+            "properties": {
+                "election": {
+                    "description": "Election holds the value of the election edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.Election"
+                        }
+                    ]
+                }
+            }
+        },
+        "generated.Profile": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "description": "Address holds the value of the \"address\" field.",
+                    "type": "string"
+                },
+                "bio": {
+                    "description": "Bio holds the value of the \"bio\" field.",
+                    "type": "string"
+                },
+                "birthdate": {
+                    "description": "Birthdate holds the value of the \"birthdate\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the ProfileQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.ProfileEdges"
+                        }
+                    ]
+                },
+                "first_name": {
+                    "description": "FirstName holds the value of the \"first_name\" field.",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "integer"
+                },
+                "last_name": {
+                    "description": "LastName holds the value of the \"last_name\" field.",
+                    "type": "string"
+                },
+                "phone_number": {
+                    "description": "PhoneNumber holds the value of the \"phone_number\" field.",
+                    "type": "string"
+                },
+                "photo_url": {
+                    "description": "PhotoURL holds the value of the \"photo_url\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "generated.ProfileEdges": {
+            "type": "object",
+            "properties": {
+                "user": {
+                    "description": "User holds the value of the user edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.User"
+                        }
+                    ]
+                }
+            }
+        },
+        "generated.Tag": {
+            "type": "object",
+            "properties": {
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the TagQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.TagEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "generated.TagEdges": {
+            "type": "object",
+            "properties": {
+                "elections": {
+                    "description": "Elections holds the value of the elections edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/generated.Election"
+                    }
+                }
+            }
+        },
+        "generated.User": {
+            "type": "object",
+            "properties": {
+                "create_time": {
+                    "description": "CreateTime holds the value of the \"create_time\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the UserQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.UserEdges"
+                        }
+                    ]
+                },
+                "email": {
+                    "description": "Email holds the value of the \"email\" field.",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "integer"
+                },
+                "is_active": {
+                    "description": "IsActive holds the value of the \"is_active\" field.",
+                    "type": "boolean"
+                },
+                "is_organizer": {
+                    "description": "IsOrganizer holds the value of the \"is_organizer\" field.",
+                    "type": "boolean"
+                },
+                "last_login": {
+                    "description": "LastLogin holds the value of the \"last_login\" field.",
+                    "type": "string"
+                },
+                "update_time": {
+                    "description": "UpdateTime holds the value of the \"update_time\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "generated.UserEdges": {
+            "type": "object",
+            "properties": {
+                "comments": {
+                    "description": "Comments holds the value of the comments edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/generated.Comment"
+                    }
+                },
+                "elections": {
+                    "description": "Elections holds the value of the elections edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/generated.Election"
+                    }
+                },
+                "profile": {
+                    "description": "Profile holds the value of the profile edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.Profile"
+                        }
+                    ]
+                },
+                "votes": {
+                    "description": "Votes holds the value of the votes edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/generated.Vote"
+                    }
+                }
+            }
+        },
+        "generated.Vote": {
+            "type": "object",
+            "properties": {
+                "create_time": {
+                    "description": "CreateTime holds the value of the \"create_time\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the VoteQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.VoteEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "integer"
+                },
+                "is_active": {
+                    "description": "IsActive holds the value of the \"is_active\" field.",
+                    "type": "boolean"
+                }
+            }
+        },
+        "generated.VoteEdges": {
+            "type": "object",
+            "properties": {
+                "candidate": {
+                    "description": "Candidate holds the value of the candidate edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.Candidate"
+                        }
+                    ]
+                },
+                "user": {
+                    "description": "User holds the value of the user edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.User"
+                        }
+                    ]
+                }
+            }
+        },
         "routes.Credentials": {
             "type": "object",
             "properties": {
@@ -163,21 +1176,12 @@
                     "description": "Электронная почта пользователя\nrequired: true",
                     "type": "string"
                 },
+                "is_organizer": {
+                    "description": "Пользователь является организатором.",
+                    "type": "boolean"
+                },
                 "password": {
                     "description": "Пароль пользователя\nrequired: true",
-                    "type": "string"
-                }
-            }
-        },
-        "routes.SignupResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "description": "ID вновь созданного пользователя",
-                    "type": "integer"
-                },
-                "message": {
-                    "description": "Сообщение об успешном создании пользователя",
                     "type": "string"
                 }
             }
@@ -191,25 +1195,114 @@
                 }
             }
         },
+        "services.CandidateCreate": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "electionId": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "services.CandidateDelete": {
+            "type": "object",
+            "properties": {
+                "electionId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "services.CandidateUpdate": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "photo_url": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "services.ElectionCreate": {
             "type": "object",
             "properties": {
                 "description": {
-                    "description": "Description — описание выборов\nЭто обязательное поле, максимальная длина 1000 символов.",
+                    "description": "Description — описание выборов\n@json: description\n@example: \"Описание президентских выборов.\"\n@required: true",
                     "type": "string",
                     "maxLength": 1000
                 },
                 "title": {
-                    "description": "Title — название выборов\nЭто обязательное поле, минимальная длина 8 символов, максимальная длина 64 символа.",
+                    "description": "Title — название выборов\n@json: title\n@example: \"Президентские выборы\"\n@required: true",
                     "type": "string",
                     "maxLength": 64,
                     "minLength": 8
                 },
                 "user_id": {
-                    "description": "UserID - идентификатор пользователя, которые создает выборы\nЭто обязательное поле.",
+                    "description": "UserID - идентификатор пользователя, который создает выборы\n@json: user_id\n@example: 123\n@required: false",
                     "type": "integer"
                 }
             }
+        },
+        "services.ElectionUpdate": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "Description — новое описание выборов\nЭто необязательное поле при обновлении данных.",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID — уникальный идентификатор выбора, который необходимо обновить\nЭто обязательное поле для обновления информации о конкретном выборе.",
+                    "type": "integer"
+                },
+                "title": {
+                    "description": "Title — новое название выборов\nЭто обязательное поле при обновлении данных.",
+                    "type": "string"
+                }
+            }
+        },
+        "services.VoteCreate": {
+            "type": "object",
+            "properties": {
+                "candidate_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "services.VoteDelete": {
+            "type": "object",
+            "properties": {
+                "candidate_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "Bearer": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

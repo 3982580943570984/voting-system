@@ -8,17 +8,11 @@ import (
 	"voting-system/router"
 )
 
-// TODO: change all database operations to panic
-// TODO: write open api file
-// TODO: change entity names
-// TODO: populate entity attributes
-// TODO: Update user's `last_login` field upon login
-
-// TODO: All fields are required by default, and can be set to optional using the Optional method.
-// TODO: consider to use pgx instead of pq
-
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 func main() {
-	// TODO: consider to remove or smth similar
 	defer database.Client.Close()
 
 	http.ListenAndServe(":3000", router.Router())

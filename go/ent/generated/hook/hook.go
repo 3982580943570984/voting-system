@@ -68,18 +68,6 @@ func (f ProfileFunc) Mutate(ctx context.Context, m generated.Mutation) (generate
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *generated.ProfileMutation", m)
 }
 
-// The RoleFunc type is an adapter to allow the use of ordinary
-// function as Role mutator.
-type RoleFunc func(context.Context, *generated.RoleMutation) (generated.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f RoleFunc) Mutate(ctx context.Context, m generated.Mutation) (generated.Value, error) {
-	if mv, ok := m.(*generated.RoleMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *generated.RoleMutation", m)
-}
-
 // The TagFunc type is an adapter to allow the use of ordinary
 // function as Tag mutator.
 type TagFunc func(context.Context, *generated.TagMutation) (generated.Value, error)

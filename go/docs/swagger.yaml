@@ -1,4 +1,312 @@
 definitions:
+  generated.Candidate:
+    properties:
+      create_time:
+        description: CreateTime holds the value of the "create_time" field.
+        type: string
+      description:
+        description: Description holds the value of the "description" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/generated.CandidateEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the CandidateQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: integer
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+      photo_url:
+        description: PhotoURL holds the value of the "photo_url" field.
+        type: string
+      update_time:
+        description: UpdateTime holds the value of the "update_time" field.
+        type: string
+      votes_count:
+        description: VotesCount holds the value of the "votes_count" field.
+        type: integer
+    type: object
+  generated.CandidateEdges:
+    properties:
+      election:
+        allOf:
+        - $ref: '#/definitions/generated.Election'
+        description: Election holds the value of the election edge.
+      votes:
+        description: Votes holds the value of the votes edge.
+        items:
+          $ref: '#/definitions/generated.Vote'
+        type: array
+    type: object
+  generated.Comment:
+    properties:
+      contents:
+        description: Contents holds the value of the "contents" field.
+        type: string
+      create_time:
+        description: CreateTime holds the value of the "create_time" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/generated.CommentEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the CommentQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: integer
+      update_time:
+        description: UpdateTime holds the value of the "update_time" field.
+        type: string
+    type: object
+  generated.CommentEdges:
+    properties:
+      children:
+        description: Children holds the value of the children edge.
+        items:
+          $ref: '#/definitions/generated.Comment'
+        type: array
+      election:
+        allOf:
+        - $ref: '#/definitions/generated.Election'
+        description: Election holds the value of the election edge.
+      parent:
+        allOf:
+        - $ref: '#/definitions/generated.Comment'
+        description: Parent holds the value of the parent edge.
+      user:
+        allOf:
+        - $ref: '#/definitions/generated.User'
+        description: User holds the value of the user edge.
+    type: object
+  generated.Election:
+    properties:
+      description:
+        description: Description holds the value of the "description" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/generated.ElectionEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the ElectionQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: integer
+      title:
+        description: Title holds the value of the "title" field.
+        type: string
+    type: object
+  generated.ElectionEdges:
+    properties:
+      candidates:
+        description: Candidates holds the value of the candidates edge.
+        items:
+          $ref: '#/definitions/generated.Candidate'
+        type: array
+      comments:
+        description: Comments holds the value of the comments edge.
+        items:
+          $ref: '#/definitions/generated.Comment'
+        type: array
+      settings:
+        allOf:
+        - $ref: '#/definitions/generated.ElectionSettings'
+        description: Settings holds the value of the settings edge.
+      tags:
+        description: Tags holds the value of the tags edge.
+        items:
+          $ref: '#/definitions/generated.Tag'
+        type: array
+      user:
+        allOf:
+        - $ref: '#/definitions/generated.User'
+        description: User holds the value of the user edge.
+    type: object
+  generated.ElectionSettings:
+    properties:
+      allow_comments:
+        description: AllowComments holds the value of the "allow_comments" field.
+        type: boolean
+      edges:
+        allOf:
+        - $ref: '#/definitions/generated.ElectionSettingsEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the ElectionSettingsQuery when eager-loading is set.
+      end_date:
+        description: EndDate holds the value of the "end_date" field.
+        type: string
+      id:
+        description: ID of the ent.
+        type: integer
+      is_active:
+        description: IsActive holds the value of the "is_active" field.
+        type: boolean
+      is_anonymous:
+        description: IsAnonymous holds the value of the "is_anonymous" field.
+        type: boolean
+      max_votes:
+        description: MaxVotes holds the value of the "max_votes" field.
+        type: integer
+      start_date:
+        description: StartDate holds the value of the "start_date" field.
+        type: string
+    type: object
+  generated.ElectionSettingsEdges:
+    properties:
+      election:
+        allOf:
+        - $ref: '#/definitions/generated.Election'
+        description: Election holds the value of the election edge.
+    type: object
+  generated.Profile:
+    properties:
+      address:
+        description: Address holds the value of the "address" field.
+        type: string
+      bio:
+        description: Bio holds the value of the "bio" field.
+        type: string
+      birthdate:
+        description: Birthdate holds the value of the "birthdate" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/generated.ProfileEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the ProfileQuery when eager-loading is set.
+      first_name:
+        description: FirstName holds the value of the "first_name" field.
+        type: string
+      id:
+        description: ID of the ent.
+        type: integer
+      last_name:
+        description: LastName holds the value of the "last_name" field.
+        type: string
+      phone_number:
+        description: PhoneNumber holds the value of the "phone_number" field.
+        type: string
+      photo_url:
+        description: PhotoURL holds the value of the "photo_url" field.
+        type: string
+    type: object
+  generated.ProfileEdges:
+    properties:
+      user:
+        allOf:
+        - $ref: '#/definitions/generated.User'
+        description: User holds the value of the user edge.
+    type: object
+  generated.Tag:
+    properties:
+      edges:
+        allOf:
+        - $ref: '#/definitions/generated.TagEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the TagQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: integer
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+    type: object
+  generated.TagEdges:
+    properties:
+      elections:
+        description: Elections holds the value of the elections edge.
+        items:
+          $ref: '#/definitions/generated.Election'
+        type: array
+    type: object
+  generated.User:
+    properties:
+      create_time:
+        description: CreateTime holds the value of the "create_time" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/generated.UserEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the UserQuery when eager-loading is set.
+      email:
+        description: Email holds the value of the "email" field.
+        type: string
+      id:
+        description: ID of the ent.
+        type: integer
+      is_active:
+        description: IsActive holds the value of the "is_active" field.
+        type: boolean
+      is_organizer:
+        description: IsOrganizer holds the value of the "is_organizer" field.
+        type: boolean
+      last_login:
+        description: LastLogin holds the value of the "last_login" field.
+        type: string
+      update_time:
+        description: UpdateTime holds the value of the "update_time" field.
+        type: string
+    type: object
+  generated.UserEdges:
+    properties:
+      comments:
+        description: Comments holds the value of the comments edge.
+        items:
+          $ref: '#/definitions/generated.Comment'
+        type: array
+      elections:
+        description: Elections holds the value of the elections edge.
+        items:
+          $ref: '#/definitions/generated.Election'
+        type: array
+      profile:
+        allOf:
+        - $ref: '#/definitions/generated.Profile'
+        description: Profile holds the value of the profile edge.
+      votes:
+        description: Votes holds the value of the votes edge.
+        items:
+          $ref: '#/definitions/generated.Vote'
+        type: array
+    type: object
+  generated.Vote:
+    properties:
+      create_time:
+        description: CreateTime holds the value of the "create_time" field.
+        type: string
+      edges:
+        allOf:
+        - $ref: '#/definitions/generated.VoteEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the VoteQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: integer
+      is_active:
+        description: IsActive holds the value of the "is_active" field.
+        type: boolean
+    type: object
+  generated.VoteEdges:
+    properties:
+      candidate:
+        allOf:
+        - $ref: '#/definitions/generated.Candidate'
+        description: Candidate holds the value of the candidate edge.
+      user:
+        allOf:
+        - $ref: '#/definitions/generated.User'
+        description: User holds the value of the user edge.
+    type: object
   routes.Credentials:
     properties:
       email:
@@ -6,19 +314,13 @@ definitions:
           Электронная почта пользователя
           required: true
         type: string
+      is_organizer:
+        description: Пользователь является организатором.
+        type: boolean
       password:
         description: |-
           Пароль пользователя
           required: true
-        type: string
-    type: object
-  routes.SignupResponse:
-    properties:
-      id:
-        description: ID вновь созданного пользователя
-        type: integer
-      message:
-        description: Сообщение об успешном создании пользователя
         type: string
     type: object
   routes.TokenResponse:
@@ -27,31 +329,120 @@ definitions:
         description: JWT-токен
         type: string
     type: object
+  services.CandidateCreate:
+    properties:
+      description:
+        type: string
+      electionId:
+        type: integer
+      name:
+        type: string
+    type: object
+  services.CandidateDelete:
+    properties:
+      electionId:
+        type: integer
+      id:
+        type: integer
+    type: object
+  services.CandidateUpdate:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      photo_url:
+        type: string
+      title:
+        type: string
+    type: object
   services.ElectionCreate:
     properties:
       description:
         description: |-
           Description — описание выборов
-          Это обязательное поле, максимальная длина 1000 символов.
+          @json: description
+          @example: "Описание президентских выборов."
+          @required: true
         maxLength: 1000
         type: string
       title:
         description: |-
           Title — название выборов
-          Это обязательное поле, минимальная длина 8 символов, максимальная длина 64 символа.
+          @json: title
+          @example: "Президентские выборы"
+          @required: true
         maxLength: 64
         minLength: 8
         type: string
       user_id:
         description: |-
-          UserID - идентификатор пользователя, которые создает выборы
-          Это обязательное поле.
+          UserID - идентификатор пользователя, который создает выборы
+          @json: user_id
+          @example: 123
+          @required: false
+        type: integer
+    type: object
+  services.ElectionUpdate:
+    properties:
+      description:
+        description: |-
+          Description — новое описание выборов
+          Это необязательное поле при обновлении данных.
+        type: string
+      id:
+        description: |-
+          ID — уникальный идентификатор выбора, который необходимо обновить
+          Это обязательное поле для обновления информации о конкретном выборе.
+        type: integer
+      title:
+        description: |-
+          Title — новое название выборов
+          Это обязательное поле при обновлении данных.
+        type: string
+    type: object
+  services.VoteCreate:
+    properties:
+      candidate_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  services.VoteDelete:
+    properties:
+      candidate_id:
+        type: integer
+      user_id:
         type: integer
     type: object
 info:
   contact: {}
 paths:
   /elections:
+    get:
+      consumes:
+      - application/json
+      description: Эта функция возвращает список всех доступных выборов.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список выборов
+          schema:
+            items:
+              $ref: '#/definitions/generated.Election'
+            type: array
+        "400":
+          description: Ошибка запроса
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Получить все выборы
+      tags:
+      - Выборы
     post:
       consumes:
       - application/json
@@ -78,9 +469,291 @@ paths:
           description: Ошибка сервера
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: Создать выборы
       tags:
       - Выборы
+  /elections/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Эта функция удаляет выборы по ID.
+      parameters:
+      - description: ID выборов для удаления
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Успешно удалено, нет контента
+          schema:
+            type: string
+        "400":
+          description: Неверный формат запроса
+          schema:
+            type: string
+        "404":
+          description: Выборы с указанным ID не найдены
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Удалить выборы
+      tags:
+      - Выборы
+    get:
+      consumes:
+      - application/json
+      description: Эта функция возвращает информацию о конкретных выборах по ID.
+      parameters:
+      - description: ID выборов
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о выборах
+          schema:
+            $ref: '#/definitions/generated.Election'
+        "400":
+          description: Неверный формат ID
+          schema:
+            type: string
+        "404":
+          description: Выборы не найдены
+          schema:
+            type: string
+      summary: Получить выборы по ID
+      tags:
+      - Выборы
+    put:
+      consumes:
+      - application/json
+      description: Эта функция обновляет данные выборов по ID.
+      parameters:
+      - description: ID выборов для обновления
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные для обновления выборов
+        in: body
+        name: election
+        required: true
+        schema:
+          $ref: '#/definitions/services.ElectionUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешно обновлено, возвращает идентификатор обновленных выборов
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: Неверный формат запроса
+          schema:
+            type: string
+        "404":
+          description: Выборы с указанным ID не найдены
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Обновить выборы
+      tags:
+      - Выборы
+  /elections/{id}/candidates:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет кандидата.
+      parameters:
+      - description: ID выборов
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные для удаления кандидата
+        in: body
+        name: candidate
+        required: true
+        schema:
+          $ref: '#/definitions/services.CandidateDelete'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Кандидат успешно удален
+          schema:
+            type: string
+        "400":
+          description: Неверный формат запроса
+          schema:
+            type: string
+        "404":
+          description: Кандидат не найден
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Удалить кандидата
+      tags:
+      - Кандидаты
+    get:
+      consumes:
+      - application/json
+      description: Эта функция возвращает список всех кандидатов для выбранных выборов
+        по ID.
+      parameters:
+      - description: ID выборов
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список кандидатов
+          schema:
+            items:
+              $ref: '#/definitions/generated.Candidate'
+            type: array
+        "400":
+          description: Неверный формат ID
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Получить всех кандидатов
+      tags:
+      - Кандидаты
+    post:
+      consumes:
+      - application/json
+      description: Создает нового кандидата на основе данных, переданных в теле запроса.
+      parameters:
+      - description: ID выборов
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные для создания кандидата
+        in: body
+        name: candidate
+        required: true
+        schema:
+          $ref: '#/definitions/services.CandidateCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешно создан, возвращает идентификатор созданного кандидата
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: Неверный формат запроса
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Создать кандидата
+      tags:
+      - Кандидаты
+    put:
+      consumes:
+      - application/json
+      description: Обновляет информацию о кандидате.
+      parameters:
+      - description: ID выборов
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные для обновления кандидата
+        in: body
+        name: candidate
+        required: true
+        schema:
+          $ref: '#/definitions/services.CandidateUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешно обновлено, возвращает идентификатор обновленного кандидата
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: Неверный формат запроса
+          schema:
+            type: string
+        "404":
+          description: Кандидат не найден
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Обновить кандидата
+      tags:
+      - Кандидаты
+  /elections/{id}/settings:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает настройки выборов по ID.
+      parameters:
+      - description: ID выборов
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Настройки выборов
+          schema:
+            $ref: '#/definitions/generated.ElectionSettings'
+        "400":
+          description: Неверный формат ID
+          schema:
+            type: string
+        "404":
+          description: Выборы не найдены
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Получить настройки выборов
+      tags:
+      - Настройки выборов
   /login:
     post:
       consumes:
@@ -137,9 +810,9 @@ paths:
       - application/json
       responses:
         "201":
-          description: Created
+          description: Успешно создано, возвращает идентификатор созданного пользователя
           schema:
-            $ref: '#/definitions/routes.SignupResponse'
+            type: integer
         "400":
           description: Неверный формат запроса или ошибка при создании пользователя
           schema:
@@ -149,4 +822,71 @@ paths:
       summary: Регистрация пользователя
       tags:
       - Аутентификация
+  /votes:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет голос пользователя по ID.
+      parameters:
+      - description: Информация о пользователе для удаления его голоса
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.VoteDelete'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Голос успешно удален
+          schema:
+            type: string
+        "400":
+          description: Неверный формат данных или ошибка при удалении
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Удаление голоса пользователя
+      tags:
+      - Голоса
+    post:
+      consumes:
+      - application/json
+      description: Создает новый голос на основе данных, переданных в теле запроса.
+      parameters:
+      - description: Данные для создания голоса
+        in: body
+        name: vote
+        required: true
+        schema:
+          $ref: '#/definitions/services.VoteCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешно создано, возвращает идентификатор созданного голоса
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: Неверный формат запроса
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Создать новый голос
+      tags:
+      - Голоса
+securityDefinitions:
+  Bearer:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -21,9 +21,6 @@ type ElectionSettings func(*sql.Selector)
 // Profile is the predicate function for profile builders.
 type Profile func(*sql.Selector)
 
-// Role is the predicate function for role builders.
-type Role func(*sql.Selector)
-
 // Tag is the predicate function for tag builders.
 type Tag func(*sql.Selector)
 

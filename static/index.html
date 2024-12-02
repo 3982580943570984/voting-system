@@ -45,14 +45,6 @@
       <p>Don't have an account? <a href="#" id="show-signup">Sign Up</a></p>
     </div>
 
-    <!-- Protected Section -->
-    <div id="protected-section" style="display: none">
-      <h2>Protected Content</h2>
-      <button id="fetch-protected">Fetch Protected Data</button>
-      <p id="protected-data"></p>
-      <button id="logout">Logout</button>
-    </div>
-
     <script>
       // Show Login Form
       document
@@ -133,36 +125,8 @@
               // Store JWT token in localStorage
               localStorage.setItem("jwt_token", data.token);
 
-              // Show protected section
-              document.getElementById("login-section").style.display = "none";
-              document.getElementById("protected-section").style.display =
-                "block";
-            })
-            .catch((error) => {
-              alert(error.message);
-            });
-        });
-
-      // Fetch Protected Data
-      document
-        .getElementById("fetch-protected")
-        .addEventListener("click", function () {
-          const token = localStorage.getItem("jwt_token");
-
-          fetch("http://localhost:3000/admin", {
-            method: "GET",
-            headers: {
-              Authorization: "Bearer " + token,
-            },
-          })
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error("Failed to fetch protected data");
-              }
-              return response.text();
-            })
-            .then((data) => {
-              document.getElementById("protected-data").innerText = data;
+              // Redirect to elections page
+              window.location.href = "elections.html";
             })
             .catch((error) => {
               alert(error.message);

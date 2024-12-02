@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 	"voting-system/services"
 
 	"github.com/go-chi/chi/v5"
@@ -29,6 +28,9 @@ type Credentials struct {
 	// Пароль пользователя
 	// required: true
 	Password string `json:"password"`
+
+	// Пользователь является организатором.
+	IsOrganizer bool `json:"is_organizer"`
 }
 
 // TokenResponse представляет ответ с JWT-токеном.
@@ -36,16 +38,6 @@ type Credentials struct {
 type TokenResponse struct {
 	// JWT-токен
 	Token string `json:"token"`
-}
-
-// SignupResponse представляет ответ после успешной регистрации.
-// swagger:model SignupResponse
-type SignupResponse struct {
-	// ID вновь созданного пользователя
-	ID int `json:"id"`
-
-	// Сообщение об успешном создании пользователя
-	Message string `json:"message"`
 }
 
 func AuthenticationRoutes() chi.Router {
@@ -94,17 +86,17 @@ func AuthenticationRoutes() chi.Router {
 	return router
 }
 
-// @Summary		Вход пользователя
-// @Description	Аутентификация пользователя и возврат JWT-токена
-// @Tags			Аутентификация
-// @Accept			json
-// @Produce		json
-// @Param			credentials	body		Credentials	true	"Учетные данные пользователя"
-// @Success		200			{object}	TokenResponse
-// @Failure		400			{object}	map[string]string	"Неверный формат запроса"
-// @Failure		401			{object}	map[string]string	"Неверный пароль"
-// @Failure		500			{object}	map[string]string	"Внутренняя ошибка сервера"
-// @Router			/login [post]
+// @Summary Вход пользователя
+// @Description Аутентификация пользователя и возврат JWT-токена
+// @Tags Аутентификация
+// @Accept json
+// @Produce json
+// @Param credentials body Credentials true "Учетные данные пользователя"
+// @Success 200 {object} TokenResponse
+// @Failure 400 {object} map[string]string "Неверный формат запроса"
+// @Failure 401 {object} map[string]string "Неверный пароль"
+// @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router /login [post]
 func login(w http.ResponseWriter, r *http.Request) {
 	var creds Credentials
 
@@ -119,7 +111,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		GetByEmail(r.Context(), creds.Email)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "Internal server error"+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -131,18 +123,14 @@ func login(w http.ResponseWriter, r *http.Request) {
 	_, tokenString, err := token.Encode(map[string]interface{}{"id": user.ID})
 
 	if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		http.Error(w, "Internal server error"+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	loginTime := time.Now()
-	_, err = service.Update(r.Context(), &services.UserUpdate{
-		ID:        user.ID,
-		LastLogin: &loginTime,
-	})
+	_, err = service.Update(r.Context(), &services.UserUpdate{ID: user.ID})
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "Internal server error"+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -151,15 +139,15 @@ func login(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(TokenResponse{Token: tokenString})
 }
 
-// @Summary		Регистрация пользователя
-// @Description	Регистрация нового пользователя
-// @Tags			Аутентификация
-// @Accept			json
-// @Produce		json
-// @Param			credentials	body		Credentials	true	"Учетные данные пользователя"
-// @Success		201			{object}	SignupResponse
-// @Failure		400			{object}	map[string]string	"Неверный формат запроса или ошибка при создании пользователя"
-// @Router			/signup [post]
+// @Summary Регистрация пользователя
+// @Description Регистрация нового пользователя
+// @Tags Аутентификация
+// @Accept json
+// @Produce json
+// @Param credentials body Credentials true "Учетные данные пользователя"
+// @Success 201 {object} int "Успешно создано, возвращает идентификатор созданного пользователя"
+// @Failure 400 {object} map[string]string "Неверный формат запроса или ошибка при создании пользователя"
+// @Router /signup [post]
 func signup(w http.ResponseWriter, r *http.Request) {
 	var creds Credentials
 
@@ -168,15 +156,16 @@ func signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := services.
-		NewUsers().
-		Create(r.Context(), &services.UserCreate{
-			Email:    creds.Email,
-			Password: creds.Password,
-		})
+	uc := services.UserCreate{
+		Email:       creds.Email,
+		Password:    creds.Password,
+		IsOrganizer: creds.IsOrganizer,
+	}
+
+	user, err := services.NewUsers().Create(r.Context(), &uc)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "Internal server error"+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -184,8 +173,5 @@ func signup(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 
-	json.NewEncoder(w).Encode(SignupResponse{
-		Message: "Пользователь успешно создан",
-		ID:      user.ID,
-	})
+	json.NewEncoder(w).Encode(map[string]int{"id": user.ID})
 }

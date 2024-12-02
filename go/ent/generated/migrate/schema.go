@@ -11,6 +11,8 @@ var (
 	// CandidatesColumns holds the columns for the "candidates" table.
 	CandidatesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "create_time", Type: field.TypeTime},
+		{Name: "update_time", Type: field.TypeTime},
 		{Name: "name", Type: field.TypeString, Size: 100},
 		{Name: "description", Type: field.TypeString, Size: 1000},
 		{Name: "photo_url", Type: field.TypeString, Nullable: true},
@@ -25,7 +27,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "candidates_elections_candidates",
-				Columns:    []*schema.Column{CandidatesColumns[5]},
+				Columns:    []*schema.Column{CandidatesColumns[7]},
 				RefColumns: []*schema.Column{ElectionsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -34,8 +36,9 @@ var (
 	// CommentsColumns holds the columns for the "comments" table.
 	CommentsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "create_time", Type: field.TypeTime},
+		{Name: "update_time", Type: field.TypeTime},
 		{Name: "contents", Type: field.TypeString, Size: 2000},
-		{Name: "timestamp", Type: field.TypeTime},
 		{Name: "comment_children", Type: field.TypeInt, Nullable: true},
 		{Name: "election_comments", Type: field.TypeInt, Nullable: true},
 		{Name: "user_comments", Type: field.TypeInt, Nullable: true},
@@ -48,21 +51,21 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "comments_comments_children",
-				Columns:    []*schema.Column{CommentsColumns[3]},
+				Columns:    []*schema.Column{CommentsColumns[4]},
 				RefColumns: []*schema.Column{CommentsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "comments_elections_comments",
-				Columns:    []*schema.Column{CommentsColumns[4]},
+				Columns:    []*schema.Column{CommentsColumns[5]},
 				RefColumns: []*schema.Column{ElectionsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "comments_users_comments",
-				Columns:    []*schema.Column{CommentsColumns[5]},
+				Columns:    []*schema.Column{CommentsColumns[6]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.Cascade,
 			},
 		},
 	}
@@ -134,28 +137,7 @@ var (
 				Symbol:     "profiles_users_profile",
 				Columns:    []*schema.Column{ProfilesColumns[8]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
-	}
-	// RolesColumns holds the columns for the "roles" table.
-	RolesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "is_voter", Type: field.TypeBool, Default: true},
-		{Name: "is_organizer", Type: field.TypeBool, Default: false},
-		{Name: "user_role", Type: field.TypeInt, Unique: true},
-	}
-	// RolesTable holds the schema information for the "roles" table.
-	RolesTable = &schema.Table{
-		Name:       "roles",
-		Columns:    RolesColumns,
-		PrimaryKey: []*schema.Column{RolesColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "roles_users_role",
-				Columns:    []*schema.Column{RolesColumns[3]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.Cascade,
 			},
 		},
 	}
@@ -173,10 +155,13 @@ var (
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "create_time", Type: field.TypeTime},
+		{Name: "update_time", Type: field.TypeTime},
 		{Name: "email", Type: field.TypeString, Unique: true},
 		{Name: "password", Type: field.TypeString},
-		{Name: "created_at", Type: field.TypeTime},
 		{Name: "last_login", Type: field.TypeTime},
+		{Name: "is_active", Type: field.TypeBool, Default: true},
+		{Name: "is_organizer", Type: field.TypeBool, Default: false},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
@@ -187,7 +172,7 @@ var (
 	// VotesColumns holds the columns for the "votes" table.
 	VotesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "timestamp", Type: field.TypeTime},
+		{Name: "create_time", Type: field.TypeTime},
 		{Name: "is_active", Type: field.TypeBool, Default: true},
 		{Name: "candidate_votes", Type: field.TypeInt, Nullable: true},
 		{Name: "user_votes", Type: field.TypeInt, Nullable: true},
@@ -244,7 +229,6 @@ var (
 		ElectionsTable,
 		ElectionSettingsTable,
 		ProfilesTable,
-		RolesTable,
 		TagsTable,
 		UsersTable,
 		VotesTable,
@@ -260,7 +244,6 @@ func init() {
 	ElectionsTable.ForeignKeys[0].RefTable = UsersTable
 	ElectionSettingsTable.ForeignKeys[0].RefTable = ElectionsTable
 	ProfilesTable.ForeignKeys[0].RefTable = UsersTable
-	RolesTable.ForeignKeys[0].RefTable = UsersTable
 	VotesTable.ForeignKeys[0].RefTable = CandidatesTable
 	VotesTable.ForeignKeys[1].RefTable = UsersTable
 	TagElectionsTable.ForeignKeys[0].RefTable = TagsTable

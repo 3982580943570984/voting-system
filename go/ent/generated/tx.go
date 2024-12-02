@@ -22,8 +22,6 @@ type Tx struct {
 	ElectionSettings *ElectionSettingsClient
 	// Profile is the client for interacting with the Profile builders.
 	Profile *ProfileClient
-	// Role is the client for interacting with the Role builders.
-	Role *RoleClient
 	// Tag is the client for interacting with the Tag builders.
 	Tag *TagClient
 	// User is the client for interacting with the User builders.
@@ -166,7 +164,6 @@ func (tx *Tx) init() {
 	tx.Election = NewElectionClient(tx.config)
 	tx.ElectionSettings = NewElectionSettingsClient(tx.config)
 	tx.Profile = NewProfileClient(tx.config)
-	tx.Role = NewRoleClient(tx.config)
 	tx.Tag = NewTagClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 	tx.Vote = NewVoteClient(tx.config)

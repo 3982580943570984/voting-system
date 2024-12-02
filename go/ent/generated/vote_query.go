@@ -335,12 +335,12 @@ func (vq *VoteQuery) WithUser(opts ...func(*UserQuery)) *VoteQuery {
 // Example:
 //
 //	var v []struct {
-//		Timestamp time.Time `json:"timestamp,omitempty"`
+//		CreateTime time.Time `json:"create_time,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Vote.Query().
-//		GroupBy(vote.FieldTimestamp).
+//		GroupBy(vote.FieldCreateTime).
 //		Aggregate(generated.Count()).
 //		Scan(ctx, &v)
 func (vq *VoteQuery) GroupBy(field string, fields ...string) *VoteGroupBy {
@@ -358,11 +358,11 @@ func (vq *VoteQuery) GroupBy(field string, fields ...string) *VoteGroupBy {
 // Example:
 //
 //	var v []struct {
-//		Timestamp time.Time `json:"timestamp,omitempty"`
+//		CreateTime time.Time `json:"create_time,omitempty"`
 //	}
 //
 //	client.Vote.Query().
-//		Select(vote.FieldTimestamp).
+//		Select(vote.FieldCreateTime).
 //		Scan(ctx, &v)
 func (vq *VoteQuery) Select(fields ...string) *VoteSelect {
 	vq.ctx.Fields = append(vq.ctx.Fields, fields...)

@@ -30,6 +30,12 @@ func (cu *CommentUpdate) Where(ps ...predicate.Comment) *CommentUpdate {
 	return cu
 }
 
+// SetUpdateTime sets the "update_time" field.
+func (cu *CommentUpdate) SetUpdateTime(t time.Time) *CommentUpdate {
+	cu.mutation.SetUpdateTime(t)
+	return cu
+}
+
 // SetContents sets the "contents" field.
 func (cu *CommentUpdate) SetContents(s string) *CommentUpdate {
 	cu.mutation.SetContents(s)
@@ -40,20 +46,6 @@ func (cu *CommentUpdate) SetContents(s string) *CommentUpdate {
 func (cu *CommentUpdate) SetNillableContents(s *string) *CommentUpdate {
 	if s != nil {
 		cu.SetContents(*s)
-	}
-	return cu
-}
-
-// SetTimestamp sets the "timestamp" field.
-func (cu *CommentUpdate) SetTimestamp(t time.Time) *CommentUpdate {
-	cu.mutation.SetTimestamp(t)
-	return cu
-}
-
-// SetNillableTimestamp sets the "timestamp" field if the given value is not nil.
-func (cu *CommentUpdate) SetNillableTimestamp(t *time.Time) *CommentUpdate {
-	if t != nil {
-		cu.SetTimestamp(*t)
 	}
 	return cu
 }
@@ -176,6 +168,7 @@ func (cu *CommentUpdate) ClearElection() *CommentUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (cu *CommentUpdate) Save(ctx context.Context) (int, error) {
+	cu.defaults()
 	return withHooks(ctx, cu.sqlSave, cu.mutation, cu.hooks)
 }
 
@@ -201,6 +194,14 @@ func (cu *CommentUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (cu *CommentUpdate) defaults() {
+	if _, ok := cu.mutation.UpdateTime(); !ok {
+		v := comment.UpdateDefaultUpdateTime()
+		cu.mutation.SetUpdateTime(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (cu *CommentUpdate) check() error {
 	if v, ok := cu.mutation.Contents(); ok {
@@ -223,11 +224,11 @@ func (cu *CommentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := cu.mutation.UpdateTime(); ok {
+		_spec.SetField(comment.FieldUpdateTime, field.TypeTime, value)
+	}
 	if value, ok := cu.mutation.Contents(); ok {
 		_spec.SetField(comment.FieldContents, field.TypeString, value)
-	}
-	if value, ok := cu.mutation.Timestamp(); ok {
-		_spec.SetField(comment.FieldTimestamp, field.TypeTime, value)
 	}
 	if cu.mutation.ParentCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -381,6 +382,12 @@ type CommentUpdateOne struct {
 	mutation *CommentMutation
 }
 
+// SetUpdateTime sets the "update_time" field.
+func (cuo *CommentUpdateOne) SetUpdateTime(t time.Time) *CommentUpdateOne {
+	cuo.mutation.SetUpdateTime(t)
+	return cuo
+}
+
 // SetContents sets the "contents" field.
 func (cuo *CommentUpdateOne) SetContents(s string) *CommentUpdateOne {
 	cuo.mutation.SetContents(s)
@@ -391,20 +398,6 @@ func (cuo *CommentUpdateOne) SetContents(s string) *CommentUpdateOne {
 func (cuo *CommentUpdateOne) SetNillableContents(s *string) *CommentUpdateOne {
 	if s != nil {
 		cuo.SetContents(*s)
-	}
-	return cuo
-}
-
-// SetTimestamp sets the "timestamp" field.
-func (cuo *CommentUpdateOne) SetTimestamp(t time.Time) *CommentUpdateOne {
-	cuo.mutation.SetTimestamp(t)
-	return cuo
-}
-
-// SetNillableTimestamp sets the "timestamp" field if the given value is not nil.
-func (cuo *CommentUpdateOne) SetNillableTimestamp(t *time.Time) *CommentUpdateOne {
-	if t != nil {
-		cuo.SetTimestamp(*t)
 	}
 	return cuo
 }
@@ -540,6 +533,7 @@ func (cuo *CommentUpdateOne) Select(field string, fields ...string) *CommentUpda
 
 // Save executes the query and returns the updated Comment entity.
 func (cuo *CommentUpdateOne) Save(ctx context.Context) (*Comment, error) {
+	cuo.defaults()
 	return withHooks(ctx, cuo.sqlSave, cuo.mutation, cuo.hooks)
 }
 
@@ -562,6 +556,14 @@ func (cuo *CommentUpdateOne) Exec(ctx context.Context) error {
 func (cuo *CommentUpdateOne) ExecX(ctx context.Context) {
 	if err := cuo.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (cuo *CommentUpdateOne) defaults() {
+	if _, ok := cuo.mutation.UpdateTime(); !ok {
+		v := comment.UpdateDefaultUpdateTime()
+		cuo.mutation.SetUpdateTime(v)
 	}
 }
 
@@ -604,11 +606,11 @@ func (cuo *CommentUpdateOne) sqlSave(ctx context.Context) (_node *Comment, err e
 			}
 		}
 	}
+	if value, ok := cuo.mutation.UpdateTime(); ok {
+		_spec.SetField(comment.FieldUpdateTime, field.TypeTime, value)
+	}
 	if value, ok := cuo.mutation.Contents(); ok {
 		_spec.SetField(comment.FieldContents, field.TypeString, value)
-	}
-	if value, ok := cuo.mutation.Timestamp(); ok {
-		_spec.SetField(comment.FieldTimestamp, field.TypeTime, value)
 	}
 	if cuo.mutation.ParentCleared() {
 		edge := &sqlgraph.EdgeSpec{

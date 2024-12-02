@@ -336,12 +336,12 @@ func (cq *CandidateQuery) WithVotes(opts ...func(*VoteQuery)) *CandidateQuery {
 // Example:
 //
 //	var v []struct {
-//		Name string `json:"name,omitempty"`
+//		CreateTime time.Time `json:"create_time,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Candidate.Query().
-//		GroupBy(candidate.FieldName).
+//		GroupBy(candidate.FieldCreateTime).
 //		Aggregate(generated.Count()).
 //		Scan(ctx, &v)
 func (cq *CandidateQuery) GroupBy(field string, fields ...string) *CandidateGroupBy {
@@ -359,11 +359,11 @@ func (cq *CandidateQuery) GroupBy(field string, fields ...string) *CandidateGrou
 // Example:
 //
 //	var v []struct {
-//		Name string `json:"name,omitempty"`
+//		CreateTime time.Time `json:"create_time,omitempty"`
 //	}
 //
 //	client.Candidate.Query().
-//		Select(candidate.FieldName).
+//		Select(candidate.FieldCreateTime).
 //		Scan(ctx, &v)
 func (cq *CandidateQuery) Select(fields ...string) *CandidateSelect {
 	cq.ctx.Fields = append(cq.ctx.Fields, fields...)

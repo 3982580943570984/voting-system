@@ -11,7 +11,6 @@ import (
 	"voting-system/ent/generated/election"
 	"voting-system/ent/generated/predicate"
 	"voting-system/ent/generated/profile"
-	"voting-system/ent/generated/role"
 	"voting-system/ent/generated/user"
 	"voting-system/ent/generated/vote"
 
@@ -30,6 +29,12 @@ type UserUpdate struct {
 // Where appends a list predicates to the UserUpdate builder.
 func (uu *UserUpdate) Where(ps ...predicate.User) *UserUpdate {
 	uu.mutation.Where(ps...)
+	return uu
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (uu *UserUpdate) SetUpdateTime(t time.Time) *UserUpdate {
+	uu.mutation.SetUpdateTime(t)
 	return uu
 }
 
@@ -67,10 +72,30 @@ func (uu *UserUpdate) SetLastLogin(t time.Time) *UserUpdate {
 	return uu
 }
 
-// SetNillableLastLogin sets the "last_login" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableLastLogin(t *time.Time) *UserUpdate {
-	if t != nil {
-		uu.SetLastLogin(*t)
+// SetIsActive sets the "is_active" field.
+func (uu *UserUpdate) SetIsActive(b bool) *UserUpdate {
+	uu.mutation.SetIsActive(b)
+	return uu
+}
+
+// SetNillableIsActive sets the "is_active" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableIsActive(b *bool) *UserUpdate {
+	if b != nil {
+		uu.SetIsActive(*b)
+	}
+	return uu
+}
+
+// SetIsOrganizer sets the "is_organizer" field.
+func (uu *UserUpdate) SetIsOrganizer(b bool) *UserUpdate {
+	uu.mutation.SetIsOrganizer(b)
+	return uu
+}
+
+// SetNillableIsOrganizer sets the "is_organizer" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableIsOrganizer(b *bool) *UserUpdate {
+	if b != nil {
+		uu.SetIsOrganizer(*b)
 	}
 	return uu
 }
@@ -94,23 +119,19 @@ func (uu *UserUpdate) SetProfile(p *Profile) *UserUpdate {
 	return uu.SetProfileID(p.ID)
 }
 
-// SetRoleID sets the "role" edge to the Role entity by ID.
-func (uu *UserUpdate) SetRoleID(id int) *UserUpdate {
-	uu.mutation.SetRoleID(id)
+// AddCommentIDs adds the "comments" edge to the Comment entity by IDs.
+func (uu *UserUpdate) AddCommentIDs(ids ...int) *UserUpdate {
+	uu.mutation.AddCommentIDs(ids...)
 	return uu
 }
 
-// SetNillableRoleID sets the "role" edge to the Role entity by ID if the given value is not nil.
-func (uu *UserUpdate) SetNillableRoleID(id *int) *UserUpdate {
-	if id != nil {
-		uu = uu.SetRoleID(*id)
+// AddComments adds the "comments" edges to the Comment entity.
+func (uu *UserUpdate) AddComments(c ...*Comment) *UserUpdate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
 	}
-	return uu
-}
-
-// SetRole sets the "role" edge to the Role entity.
-func (uu *UserUpdate) SetRole(r *Role) *UserUpdate {
-	return uu.SetRoleID(r.ID)
+	return uu.AddCommentIDs(ids...)
 }
 
 // AddElectionIDs adds the "elections" edge to the Election entity by IDs.
@@ -126,21 +147,6 @@ func (uu *UserUpdate) AddElections(e ...*Election) *UserUpdate {
 		ids[i] = e[i].ID
 	}
 	return uu.AddElectionIDs(ids...)
-}
-
-// AddCommentIDs adds the "comments" edge to the Comment entity by IDs.
-func (uu *UserUpdate) AddCommentIDs(ids ...int) *UserUpdate {
-	uu.mutation.AddCommentIDs(ids...)
-	return uu
-}
-
-// AddComments adds the "comments" edges to the Comment entity.
-func (uu *UserUpdate) AddComments(c ...*Comment) *UserUpdate {
-	ids := make([]int, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return uu.AddCommentIDs(ids...)
 }
 
 // AddVoteIDs adds the "votes" edge to the Vote entity by IDs.
@@ -169,10 +175,25 @@ func (uu *UserUpdate) ClearProfile() *UserUpdate {
 	return uu
 }
 
-// ClearRole clears the "role" edge to the Role entity.
-func (uu *UserUpdate) ClearRole() *UserUpdate {
-	uu.mutation.ClearRole()
+// ClearComments clears all "comments" edges to the Comment entity.
+func (uu *UserUpdate) ClearComments() *UserUpdate {
+	uu.mutation.ClearComments()
 	return uu
+}
+
+// RemoveCommentIDs removes the "comments" edge to Comment entities by IDs.
+func (uu *UserUpdate) RemoveCommentIDs(ids ...int) *UserUpdate {
+	uu.mutation.RemoveCommentIDs(ids...)
+	return uu
+}
+
+// RemoveComments removes "comments" edges to Comment entities.
+func (uu *UserUpdate) RemoveComments(c ...*Comment) *UserUpdate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uu.RemoveCommentIDs(ids...)
 }
 
 // ClearElections clears all "elections" edges to the Election entity.
@@ -194,27 +215,6 @@ func (uu *UserUpdate) RemoveElections(e ...*Election) *UserUpdate {
 		ids[i] = e[i].ID
 	}
 	return uu.RemoveElectionIDs(ids...)
-}
-
-// ClearComments clears all "comments" edges to the Comment entity.
-func (uu *UserUpdate) ClearComments() *UserUpdate {
-	uu.mutation.ClearComments()
-	return uu
-}
-
-// RemoveCommentIDs removes the "comments" edge to Comment entities by IDs.
-func (uu *UserUpdate) RemoveCommentIDs(ids ...int) *UserUpdate {
-	uu.mutation.RemoveCommentIDs(ids...)
-	return uu
-}
-
-// RemoveComments removes "comments" edges to Comment entities.
-func (uu *UserUpdate) RemoveComments(c ...*Comment) *UserUpdate {
-	ids := make([]int, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return uu.RemoveCommentIDs(ids...)
 }
 
 // ClearVotes clears all "votes" edges to the Vote entity.
@@ -240,6 +240,9 @@ func (uu *UserUpdate) RemoveVotes(v ...*Vote) *UserUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (uu *UserUpdate) Save(ctx context.Context) (int, error) {
+	if err := uu.defaults(); err != nil {
+		return 0, err
+	}
 	return withHooks(ctx, uu.sqlSave, uu.mutation, uu.hooks)
 }
 
@@ -263,6 +266,25 @@ func (uu *UserUpdate) ExecX(ctx context.Context) {
 	if err := uu.Exec(ctx); err != nil {
 		panic(err)
 	}
+}
+
+// defaults sets the default values of the builder before save.
+func (uu *UserUpdate) defaults() error {
+	if _, ok := uu.mutation.UpdateTime(); !ok {
+		if user.UpdateDefaultUpdateTime == nil {
+			return fmt.Errorf("generated: uninitialized user.UpdateDefaultUpdateTime (forgotten import generated/runtime?)")
+		}
+		v := user.UpdateDefaultUpdateTime()
+		uu.mutation.SetUpdateTime(v)
+	}
+	if _, ok := uu.mutation.LastLogin(); !ok {
+		if user.UpdateDefaultLastLogin == nil {
+			return fmt.Errorf("generated: uninitialized user.UpdateDefaultLastLogin (forgotten import generated/runtime?)")
+		}
+		v := user.UpdateDefaultLastLogin()
+		uu.mutation.SetLastLogin(v)
+	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -292,6 +314,9 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := uu.mutation.UpdateTime(); ok {
+		_spec.SetField(user.FieldUpdateTime, field.TypeTime, value)
+	}
 	if value, ok := uu.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
 	}
@@ -300,6 +325,12 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := uu.mutation.LastLogin(); ok {
 		_spec.SetField(user.FieldLastLogin, field.TypeTime, value)
+	}
+	if value, ok := uu.mutation.IsActive(); ok {
+		_spec.SetField(user.FieldIsActive, field.TypeBool, value)
+	}
+	if value, ok := uu.mutation.IsOrganizer(); ok {
+		_spec.SetField(user.FieldIsOrganizer, field.TypeBool, value)
 	}
 	if uu.mutation.ProfileCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -323,80 +354,6 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(profile.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if uu.mutation.RoleCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
-			Table:   user.RoleTable,
-			Columns: []string{user.RoleColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uu.mutation.RoleIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
-			Table:   user.RoleTable,
-			Columns: []string{user.RoleColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if uu.mutation.ElectionsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.ElectionsTable,
-			Columns: []string{user.ElectionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(election.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uu.mutation.RemovedElectionsIDs(); len(nodes) > 0 && !uu.mutation.ElectionsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.ElectionsTable,
-			Columns: []string{user.ElectionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(election.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uu.mutation.ElectionsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.ElectionsTable,
-			Columns: []string{user.ElectionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(election.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -442,6 +399,51 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(comment.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uu.mutation.ElectionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ElectionsTable,
+			Columns: []string{user.ElectionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(election.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedElectionsIDs(); len(nodes) > 0 && !uu.mutation.ElectionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ElectionsTable,
+			Columns: []string{user.ElectionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(election.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.ElectionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ElectionsTable,
+			Columns: []string{user.ElectionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(election.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -514,6 +516,12 @@ type UserUpdateOne struct {
 	mutation *UserMutation
 }
 
+// SetUpdateTime sets the "update_time" field.
+func (uuo *UserUpdateOne) SetUpdateTime(t time.Time) *UserUpdateOne {
+	uuo.mutation.SetUpdateTime(t)
+	return uuo
+}
+
 // SetEmail sets the "email" field.
 func (uuo *UserUpdateOne) SetEmail(s string) *UserUpdateOne {
 	uuo.mutation.SetEmail(s)
@@ -548,10 +556,30 @@ func (uuo *UserUpdateOne) SetLastLogin(t time.Time) *UserUpdateOne {
 	return uuo
 }
 
-// SetNillableLastLogin sets the "last_login" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableLastLogin(t *time.Time) *UserUpdateOne {
-	if t != nil {
-		uuo.SetLastLogin(*t)
+// SetIsActive sets the "is_active" field.
+func (uuo *UserUpdateOne) SetIsActive(b bool) *UserUpdateOne {
+	uuo.mutation.SetIsActive(b)
+	return uuo
+}
+
+// SetNillableIsActive sets the "is_active" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableIsActive(b *bool) *UserUpdateOne {
+	if b != nil {
+		uuo.SetIsActive(*b)
+	}
+	return uuo
+}
+
+// SetIsOrganizer sets the "is_organizer" field.
+func (uuo *UserUpdateOne) SetIsOrganizer(b bool) *UserUpdateOne {
+	uuo.mutation.SetIsOrganizer(b)
+	return uuo
+}
+
+// SetNillableIsOrganizer sets the "is_organizer" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableIsOrganizer(b *bool) *UserUpdateOne {
+	if b != nil {
+		uuo.SetIsOrganizer(*b)
 	}
 	return uuo
 }
@@ -575,23 +603,19 @@ func (uuo *UserUpdateOne) SetProfile(p *Profile) *UserUpdateOne {
 	return uuo.SetProfileID(p.ID)
 }
 
-// SetRoleID sets the "role" edge to the Role entity by ID.
-func (uuo *UserUpdateOne) SetRoleID(id int) *UserUpdateOne {
-	uuo.mutation.SetRoleID(id)
+// AddCommentIDs adds the "comments" edge to the Comment entity by IDs.
+func (uuo *UserUpdateOne) AddCommentIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.AddCommentIDs(ids...)
 	return uuo
 }
 
-// SetNillableRoleID sets the "role" edge to the Role entity by ID if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableRoleID(id *int) *UserUpdateOne {
-	if id != nil {
-		uuo = uuo.SetRoleID(*id)
+// AddComments adds the "comments" edges to the Comment entity.
+func (uuo *UserUpdateOne) AddComments(c ...*Comment) *UserUpdateOne {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
 	}
-	return uuo
-}
-
-// SetRole sets the "role" edge to the Role entity.
-func (uuo *UserUpdateOne) SetRole(r *Role) *UserUpdateOne {
-	return uuo.SetRoleID(r.ID)
+	return uuo.AddCommentIDs(ids...)
 }
 
 // AddElectionIDs adds the "elections" edge to the Election entity by IDs.
@@ -607,21 +631,6 @@ func (uuo *UserUpdateOne) AddElections(e ...*Election) *UserUpdateOne {
 		ids[i] = e[i].ID
 	}
 	return uuo.AddElectionIDs(ids...)
-}
-
-// AddCommentIDs adds the "comments" edge to the Comment entity by IDs.
-func (uuo *UserUpdateOne) AddCommentIDs(ids ...int) *UserUpdateOne {
-	uuo.mutation.AddCommentIDs(ids...)
-	return uuo
-}
-
-// AddComments adds the "comments" edges to the Comment entity.
-func (uuo *UserUpdateOne) AddComments(c ...*Comment) *UserUpdateOne {
-	ids := make([]int, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return uuo.AddCommentIDs(ids...)
 }
 
 // AddVoteIDs adds the "votes" edge to the Vote entity by IDs.
@@ -650,10 +659,25 @@ func (uuo *UserUpdateOne) ClearProfile() *UserUpdateOne {
 	return uuo
 }
 
-// ClearRole clears the "role" edge to the Role entity.
-func (uuo *UserUpdateOne) ClearRole() *UserUpdateOne {
-	uuo.mutation.ClearRole()
+// ClearComments clears all "comments" edges to the Comment entity.
+func (uuo *UserUpdateOne) ClearComments() *UserUpdateOne {
+	uuo.mutation.ClearComments()
 	return uuo
+}
+
+// RemoveCommentIDs removes the "comments" edge to Comment entities by IDs.
+func (uuo *UserUpdateOne) RemoveCommentIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.RemoveCommentIDs(ids...)
+	return uuo
+}
+
+// RemoveComments removes "comments" edges to Comment entities.
+func (uuo *UserUpdateOne) RemoveComments(c ...*Comment) *UserUpdateOne {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uuo.RemoveCommentIDs(ids...)
 }
 
 // ClearElections clears all "elections" edges to the Election entity.
@@ -675,27 +699,6 @@ func (uuo *UserUpdateOne) RemoveElections(e ...*Election) *UserUpdateOne {
 		ids[i] = e[i].ID
 	}
 	return uuo.RemoveElectionIDs(ids...)
-}
-
-// ClearComments clears all "comments" edges to the Comment entity.
-func (uuo *UserUpdateOne) ClearComments() *UserUpdateOne {
-	uuo.mutation.ClearComments()
-	return uuo
-}
-
-// RemoveCommentIDs removes the "comments" edge to Comment entities by IDs.
-func (uuo *UserUpdateOne) RemoveCommentIDs(ids ...int) *UserUpdateOne {
-	uuo.mutation.RemoveCommentIDs(ids...)
-	return uuo
-}
-
-// RemoveComments removes "comments" edges to Comment entities.
-func (uuo *UserUpdateOne) RemoveComments(c ...*Comment) *UserUpdateOne {
-	ids := make([]int, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return uuo.RemoveCommentIDs(ids...)
 }
 
 // ClearVotes clears all "votes" edges to the Vote entity.
@@ -734,6 +737,9 @@ func (uuo *UserUpdateOne) Select(field string, fields ...string) *UserUpdateOne 
 
 // Save executes the query and returns the updated User entity.
 func (uuo *UserUpdateOne) Save(ctx context.Context) (*User, error) {
+	if err := uuo.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, uuo.sqlSave, uuo.mutation, uuo.hooks)
 }
 
@@ -757,6 +763,25 @@ func (uuo *UserUpdateOne) ExecX(ctx context.Context) {
 	if err := uuo.Exec(ctx); err != nil {
 		panic(err)
 	}
+}
+
+// defaults sets the default values of the builder before save.
+func (uuo *UserUpdateOne) defaults() error {
+	if _, ok := uuo.mutation.UpdateTime(); !ok {
+		if user.UpdateDefaultUpdateTime == nil {
+			return fmt.Errorf("generated: uninitialized user.UpdateDefaultUpdateTime (forgotten import generated/runtime?)")
+		}
+		v := user.UpdateDefaultUpdateTime()
+		uuo.mutation.SetUpdateTime(v)
+	}
+	if _, ok := uuo.mutation.LastLogin(); !ok {
+		if user.UpdateDefaultLastLogin == nil {
+			return fmt.Errorf("generated: uninitialized user.UpdateDefaultLastLogin (forgotten import generated/runtime?)")
+		}
+		v := user.UpdateDefaultLastLogin()
+		uuo.mutation.SetLastLogin(v)
+	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -803,6 +828,9 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			}
 		}
 	}
+	if value, ok := uuo.mutation.UpdateTime(); ok {
+		_spec.SetField(user.FieldUpdateTime, field.TypeTime, value)
+	}
 	if value, ok := uuo.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
 	}
@@ -811,6 +839,12 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if value, ok := uuo.mutation.LastLogin(); ok {
 		_spec.SetField(user.FieldLastLogin, field.TypeTime, value)
+	}
+	if value, ok := uuo.mutation.IsActive(); ok {
+		_spec.SetField(user.FieldIsActive, field.TypeBool, value)
+	}
+	if value, ok := uuo.mutation.IsOrganizer(); ok {
+		_spec.SetField(user.FieldIsOrganizer, field.TypeBool, value)
 	}
 	if uuo.mutation.ProfileCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -834,80 +868,6 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(profile.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if uuo.mutation.RoleCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
-			Table:   user.RoleTable,
-			Columns: []string{user.RoleColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uuo.mutation.RoleIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
-			Table:   user.RoleTable,
-			Columns: []string{user.RoleColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if uuo.mutation.ElectionsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.ElectionsTable,
-			Columns: []string{user.ElectionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(election.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uuo.mutation.RemovedElectionsIDs(); len(nodes) > 0 && !uuo.mutation.ElectionsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.ElectionsTable,
-			Columns: []string{user.ElectionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(election.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uuo.mutation.ElectionsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.ElectionsTable,
-			Columns: []string{user.ElectionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(election.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -953,6 +913,51 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(comment.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.ElectionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ElectionsTable,
+			Columns: []string{user.ElectionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(election.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedElectionsIDs(); len(nodes) > 0 && !uuo.mutation.ElectionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ElectionsTable,
+			Columns: []string{user.ElectionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(election.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.ElectionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ElectionsTable,
+			Columns: []string{user.ElectionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(election.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

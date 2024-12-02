@@ -15,22 +15,26 @@ const (
 	Label = "user"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldCreateTime holds the string denoting the create_time field in the database.
+	FieldCreateTime = "create_time"
+	// FieldUpdateTime holds the string denoting the update_time field in the database.
+	FieldUpdateTime = "update_time"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
 	// FieldPassword holds the string denoting the password field in the database.
 	FieldPassword = "password"
-	// FieldCreatedAt holds the string denoting the created_at field in the database.
-	FieldCreatedAt = "created_at"
 	// FieldLastLogin holds the string denoting the last_login field in the database.
 	FieldLastLogin = "last_login"
+	// FieldIsActive holds the string denoting the is_active field in the database.
+	FieldIsActive = "is_active"
+	// FieldIsOrganizer holds the string denoting the is_organizer field in the database.
+	FieldIsOrganizer = "is_organizer"
 	// EdgeProfile holds the string denoting the profile edge name in mutations.
 	EdgeProfile = "profile"
-	// EdgeRole holds the string denoting the role edge name in mutations.
-	EdgeRole = "role"
-	// EdgeElections holds the string denoting the elections edge name in mutations.
-	EdgeElections = "elections"
 	// EdgeComments holds the string denoting the comments edge name in mutations.
 	EdgeComments = "comments"
+	// EdgeElections holds the string denoting the elections edge name in mutations.
+	EdgeElections = "elections"
 	// EdgeVotes holds the string denoting the votes edge name in mutations.
 	EdgeVotes = "votes"
 	// Table holds the table name of the user in the database.
@@ -42,20 +46,6 @@ const (
 	ProfileInverseTable = "profiles"
 	// ProfileColumn is the table column denoting the profile relation/edge.
 	ProfileColumn = "user_profile"
-	// RoleTable is the table that holds the role relation/edge.
-	RoleTable = "roles"
-	// RoleInverseTable is the table name for the Role entity.
-	// It exists in this package in order to avoid circular dependency with the "role" package.
-	RoleInverseTable = "roles"
-	// RoleColumn is the table column denoting the role relation/edge.
-	RoleColumn = "user_role"
-	// ElectionsTable is the table that holds the elections relation/edge.
-	ElectionsTable = "elections"
-	// ElectionsInverseTable is the table name for the Election entity.
-	// It exists in this package in order to avoid circular dependency with the "election" package.
-	ElectionsInverseTable = "elections"
-	// ElectionsColumn is the table column denoting the elections relation/edge.
-	ElectionsColumn = "user_elections"
 	// CommentsTable is the table that holds the comments relation/edge.
 	CommentsTable = "comments"
 	// CommentsInverseTable is the table name for the Comment entity.
@@ -63,6 +53,13 @@ const (
 	CommentsInverseTable = "comments"
 	// CommentsColumn is the table column denoting the comments relation/edge.
 	CommentsColumn = "user_comments"
+	// ElectionsTable is the table that holds the elections relation/edge.
+	ElectionsTable = "elections"
+	// ElectionsInverseTable is the table name for the Election entity.
+	// It exists in this package in order to avoid circular dependency with the "election" package.
+	ElectionsInverseTable = "elections"
+	// ElectionsColumn is the table column denoting the elections relation/edge.
+	ElectionsColumn = "user_elections"
 	// VotesTable is the table that holds the votes relation/edge.
 	VotesTable = "votes"
 	// VotesInverseTable is the table name for the Vote entity.
@@ -75,10 +72,13 @@ const (
 // Columns holds all SQL columns for user fields.
 var Columns = []string{
 	FieldID,
+	FieldCreateTime,
+	FieldUpdateTime,
 	FieldEmail,
 	FieldPassword,
-	FieldCreatedAt,
 	FieldLastLogin,
+	FieldIsActive,
+	FieldIsOrganizer,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -97,15 +97,25 @@ func ValidColumn(column string) bool {
 //
 //	import _ "voting-system/ent/generated/runtime"
 var (
-	Hooks [2]ent.Hook
+	Hooks [1]ent.Hook
+	// DefaultCreateTime holds the default value on creation for the "create_time" field.
+	DefaultCreateTime func() time.Time
+	// DefaultUpdateTime holds the default value on creation for the "update_time" field.
+	DefaultUpdateTime func() time.Time
+	// UpdateDefaultUpdateTime holds the default value on update for the "update_time" field.
+	UpdateDefaultUpdateTime func() time.Time
 	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	EmailValidator func(string) error
 	// PasswordValidator is a validator for the "password" field. It is called by the builders before save.
 	PasswordValidator func(string) error
-	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
-	DefaultCreatedAt func() time.Time
 	// DefaultLastLogin holds the default value on creation for the "last_login" field.
 	DefaultLastLogin func() time.Time
+	// UpdateDefaultLastLogin holds the default value on update for the "last_login" field.
+	UpdateDefaultLastLogin func() time.Time
+	// DefaultIsActive holds the default value on creation for the "is_active" field.
+	DefaultIsActive bool
+	// DefaultIsOrganizer holds the default value on creation for the "is_organizer" field.
+	DefaultIsOrganizer bool
 )
 
 // OrderOption defines the ordering options for the User queries.
@@ -114,6 +124,16 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByCreateTime orders the results by the create_time field.
+func ByCreateTime(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreateTime, opts...).ToFunc()
+}
+
+// ByUpdateTime orders the results by the update_time field.
+func ByUpdateTime(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdateTime, opts...).ToFunc()
 }
 
 // ByEmail orders the results by the email field.
@@ -126,41 +146,25 @@ func ByPassword(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPassword, opts...).ToFunc()
 }
 
-// ByCreatedAt orders the results by the created_at field.
-func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
-}
-
 // ByLastLogin orders the results by the last_login field.
 func ByLastLogin(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLastLogin, opts...).ToFunc()
+}
+
+// ByIsActive orders the results by the is_active field.
+func ByIsActive(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsActive, opts...).ToFunc()
+}
+
+// ByIsOrganizer orders the results by the is_organizer field.
+func ByIsOrganizer(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsOrganizer, opts...).ToFunc()
 }
 
 // ByProfileField orders the results by profile field.
 func ByProfileField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newProfileStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByRoleField orders the results by role field.
-func ByRoleField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newRoleStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByElectionsCount orders the results by elections count.
-func ByElectionsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newElectionsStep(), opts...)
-	}
-}
-
-// ByElections orders the results by elections terms.
-func ByElections(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newElectionsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -175,6 +179,20 @@ func ByCommentsCount(opts ...sql.OrderTermOption) OrderOption {
 func ByComments(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newCommentsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByElectionsCount orders the results by elections count.
+func ByElectionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newElectionsStep(), opts...)
+	}
+}
+
+// ByElections orders the results by elections terms.
+func ByElections(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newElectionsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -198,11 +216,11 @@ func newProfileStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.O2O, false, ProfileTable, ProfileColumn),
 	)
 }
-func newRoleStep() *sqlgraph.Step {
+func newCommentsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(RoleInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, false, RoleTable, RoleColumn),
+		sqlgraph.To(CommentsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, CommentsTable, CommentsColumn),
 	)
 }
 func newElectionsStep() *sqlgraph.Step {
@@ -210,13 +228,6 @@ func newElectionsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ElectionsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, ElectionsTable, ElectionsColumn),
-	)
-}
-func newCommentsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CommentsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, CommentsTable, CommentsColumn),
 	)
 }
 func newVotesStep() *sqlgraph.Step {

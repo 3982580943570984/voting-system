@@ -22,16 +22,16 @@ type VoteCreate struct {
 	hooks    []Hook
 }
 
-// SetTimestamp sets the "timestamp" field.
-func (vc *VoteCreate) SetTimestamp(t time.Time) *VoteCreate {
-	vc.mutation.SetTimestamp(t)
+// SetCreateTime sets the "create_time" field.
+func (vc *VoteCreate) SetCreateTime(t time.Time) *VoteCreate {
+	vc.mutation.SetCreateTime(t)
 	return vc
 }
 
-// SetNillableTimestamp sets the "timestamp" field if the given value is not nil.
-func (vc *VoteCreate) SetNillableTimestamp(t *time.Time) *VoteCreate {
+// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
+func (vc *VoteCreate) SetNillableCreateTime(t *time.Time) *VoteCreate {
 	if t != nil {
-		vc.SetTimestamp(*t)
+		vc.SetCreateTime(*t)
 	}
 	return vc
 }
@@ -95,7 +95,9 @@ func (vc *VoteCreate) Mutation() *VoteMutation {
 
 // Save creates the Vote in the database.
 func (vc *VoteCreate) Save(ctx context.Context) (*Vote, error) {
-	vc.defaults()
+	if err := vc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, vc.sqlSave, vc.mutation, vc.hooks)
 }
 
@@ -122,21 +124,25 @@ func (vc *VoteCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (vc *VoteCreate) defaults() {
-	if _, ok := vc.mutation.Timestamp(); !ok {
-		v := vote.DefaultTimestamp()
-		vc.mutation.SetTimestamp(v)
+func (vc *VoteCreate) defaults() error {
+	if _, ok := vc.mutation.CreateTime(); !ok {
+		if vote.DefaultCreateTime == nil {
+			return fmt.Errorf("generated: uninitialized vote.DefaultCreateTime (forgotten import generated/runtime?)")
+		}
+		v := vote.DefaultCreateTime()
+		vc.mutation.SetCreateTime(v)
 	}
 	if _, ok := vc.mutation.IsActive(); !ok {
 		v := vote.DefaultIsActive
 		vc.mutation.SetIsActive(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (vc *VoteCreate) check() error {
-	if _, ok := vc.mutation.Timestamp(); !ok {
-		return &ValidationError{Name: "timestamp", err: errors.New(`generated: missing required field "Vote.timestamp"`)}
+	if _, ok := vc.mutation.CreateTime(); !ok {
+		return &ValidationError{Name: "create_time", err: errors.New(`generated: missing required field "Vote.create_time"`)}
 	}
 	if _, ok := vc.mutation.IsActive(); !ok {
 		return &ValidationError{Name: "is_active", err: errors.New(`generated: missing required field "Vote.is_active"`)}
@@ -167,9 +173,9 @@ func (vc *VoteCreate) createSpec() (*Vote, *sqlgraph.CreateSpec) {
 		_node = &Vote{config: vc.config}
 		_spec = sqlgraph.NewCreateSpec(vote.Table, sqlgraph.NewFieldSpec(vote.FieldID, field.TypeInt))
 	)
-	if value, ok := vc.mutation.Timestamp(); ok {
-		_spec.SetField(vote.FieldTimestamp, field.TypeTime, value)
-		_node.Timestamp = value
+	if value, ok := vc.mutation.CreateTime(); ok {
+		_spec.SetField(vote.FieldCreateTime, field.TypeTime, value)
+		_node.CreateTime = value
 	}
 	if value, ok := vc.mutation.IsActive(); ok {
 		_spec.SetField(vote.FieldIsActive, field.TypeBool, value)

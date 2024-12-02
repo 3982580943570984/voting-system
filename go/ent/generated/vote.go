@@ -19,8 +19,8 @@ type Vote struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
-	// Timestamp holds the value of the "timestamp" field.
-	Timestamp time.Time `json:"timestamp,omitempty"`
+	// CreateTime holds the value of the "create_time" field.
+	CreateTime time.Time `json:"create_time,omitempty"`
 	// IsActive holds the value of the "is_active" field.
 	IsActive bool `json:"is_active,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -73,7 +73,7 @@ func (*Vote) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case vote.FieldID:
 			values[i] = new(sql.NullInt64)
-		case vote.FieldTimestamp:
+		case vote.FieldCreateTime:
 			values[i] = new(sql.NullTime)
 		case vote.ForeignKeys[0]: // candidate_votes
 			values[i] = new(sql.NullInt64)
@@ -100,11 +100,11 @@ func (v *Vote) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			v.ID = int(value.Int64)
-		case vote.FieldTimestamp:
+		case vote.FieldCreateTime:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field timestamp", values[i])
+				return fmt.Errorf("unexpected type %T for field create_time", values[i])
 			} else if value.Valid {
-				v.Timestamp = value.Time
+				v.CreateTime = value.Time
 			}
 		case vote.FieldIsActive:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -172,8 +172,8 @@ func (v *Vote) String() string {
 	var builder strings.Builder
 	builder.WriteString("Vote(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", v.ID))
-	builder.WriteString("timestamp=")
-	builder.WriteString(v.Timestamp.Format(time.ANSIC))
+	builder.WriteString("create_time=")
+	builder.WriteString(v.CreateTime.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("is_active=")
 	builder.WriteString(fmt.Sprintf("%v", v.IsActive))

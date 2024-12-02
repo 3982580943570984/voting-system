@@ -19,10 +19,12 @@ type Comment struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// CreateTime holds the value of the "create_time" field.
+	CreateTime time.Time `json:"create_time,omitempty"`
+	// UpdateTime holds the value of the "update_time" field.
+	UpdateTime time.Time `json:"update_time,omitempty"`
 	// Contents holds the value of the "contents" field.
 	Contents string `json:"contents,omitempty"`
-	// Timestamp holds the value of the "timestamp" field.
-	Timestamp time.Time `json:"timestamp,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the CommentQuery when eager-loading is set.
 	Edges             CommentEdges `json:"edges"`
@@ -98,7 +100,7 @@ func (*Comment) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case comment.FieldContents:
 			values[i] = new(sql.NullString)
-		case comment.FieldTimestamp:
+		case comment.FieldCreateTime, comment.FieldUpdateTime:
 			values[i] = new(sql.NullTime)
 		case comment.ForeignKeys[0]: // comment_children
 			values[i] = new(sql.NullInt64)
@@ -127,17 +129,23 @@ func (c *Comment) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			c.ID = int(value.Int64)
+		case comment.FieldCreateTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field create_time", values[i])
+			} else if value.Valid {
+				c.CreateTime = value.Time
+			}
+		case comment.FieldUpdateTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field update_time", values[i])
+			} else if value.Valid {
+				c.UpdateTime = value.Time
+			}
 		case comment.FieldContents:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field contents", values[i])
 			} else if value.Valid {
 				c.Contents = value.String
-			}
-		case comment.FieldTimestamp:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field timestamp", values[i])
-			} else if value.Valid {
-				c.Timestamp = value.Time
 			}
 		case comment.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -216,11 +224,14 @@ func (c *Comment) String() string {
 	var builder strings.Builder
 	builder.WriteString("Comment(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", c.ID))
+	builder.WriteString("create_time=")
+	builder.WriteString(c.CreateTime.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("update_time=")
+	builder.WriteString(c.UpdateTime.Format(time.ANSIC))
+	builder.WriteString(", ")
 	builder.WriteString("contents=")
 	builder.WriteString(c.Contents)
-	builder.WriteString(", ")
-	builder.WriteString("timestamp=")
-	builder.WriteString(c.Timestamp.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

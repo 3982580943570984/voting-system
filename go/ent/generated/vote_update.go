@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 	"voting-system/ent/generated/candidate"
 	"voting-system/ent/generated/predicate"
 	"voting-system/ent/generated/user"
@@ -27,20 +26,6 @@ type VoteUpdate struct {
 // Where appends a list predicates to the VoteUpdate builder.
 func (vu *VoteUpdate) Where(ps ...predicate.Vote) *VoteUpdate {
 	vu.mutation.Where(ps...)
-	return vu
-}
-
-// SetTimestamp sets the "timestamp" field.
-func (vu *VoteUpdate) SetTimestamp(t time.Time) *VoteUpdate {
-	vu.mutation.SetTimestamp(t)
-	return vu
-}
-
-// SetNillableTimestamp sets the "timestamp" field if the given value is not nil.
-func (vu *VoteUpdate) SetNillableTimestamp(t *time.Time) *VoteUpdate {
-	if t != nil {
-		vu.SetTimestamp(*t)
-	}
 	return vu
 }
 
@@ -149,9 +134,6 @@ func (vu *VoteUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := vu.mutation.Timestamp(); ok {
-		_spec.SetField(vote.FieldTimestamp, field.TypeTime, value)
-	}
 	if value, ok := vu.mutation.IsActive(); ok {
 		_spec.SetField(vote.FieldIsActive, field.TypeBool, value)
 	}
@@ -231,20 +213,6 @@ type VoteUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *VoteMutation
-}
-
-// SetTimestamp sets the "timestamp" field.
-func (vuo *VoteUpdateOne) SetTimestamp(t time.Time) *VoteUpdateOne {
-	vuo.mutation.SetTimestamp(t)
-	return vuo
-}
-
-// SetNillableTimestamp sets the "timestamp" field if the given value is not nil.
-func (vuo *VoteUpdateOne) SetNillableTimestamp(t *time.Time) *VoteUpdateOne {
-	if t != nil {
-		vuo.SetTimestamp(*t)
-	}
-	return vuo
 }
 
 // SetIsActive sets the "is_active" field.
@@ -381,9 +349,6 @@ func (vuo *VoteUpdateOne) sqlSave(ctx context.Context) (_node *Vote, err error) 
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := vuo.mutation.Timestamp(); ok {
-		_spec.SetField(vote.FieldTimestamp, field.TypeTime, value)
 	}
 	if value, ok := vuo.mutation.IsActive(); ok {
 		_spec.SetField(vote.FieldIsActive, field.TypeBool, value)

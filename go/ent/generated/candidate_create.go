@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 	"voting-system/ent/generated/candidate"
 	"voting-system/ent/generated/election"
 	"voting-system/ent/generated/vote"
@@ -19,6 +20,34 @@ type CandidateCreate struct {
 	config
 	mutation *CandidateMutation
 	hooks    []Hook
+}
+
+// SetCreateTime sets the "create_time" field.
+func (cc *CandidateCreate) SetCreateTime(t time.Time) *CandidateCreate {
+	cc.mutation.SetCreateTime(t)
+	return cc
+}
+
+// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
+func (cc *CandidateCreate) SetNillableCreateTime(t *time.Time) *CandidateCreate {
+	if t != nil {
+		cc.SetCreateTime(*t)
+	}
+	return cc
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (cc *CandidateCreate) SetUpdateTime(t time.Time) *CandidateCreate {
+	cc.mutation.SetUpdateTime(t)
+	return cc
+}
+
+// SetNillableUpdateTime sets the "update_time" field if the given value is not nil.
+func (cc *CandidateCreate) SetNillableUpdateTime(t *time.Time) *CandidateCreate {
+	if t != nil {
+		cc.SetUpdateTime(*t)
+	}
+	return cc
 }
 
 // SetName sets the "name" field.
@@ -130,6 +159,14 @@ func (cc *CandidateCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (cc *CandidateCreate) defaults() {
+	if _, ok := cc.mutation.CreateTime(); !ok {
+		v := candidate.DefaultCreateTime()
+		cc.mutation.SetCreateTime(v)
+	}
+	if _, ok := cc.mutation.UpdateTime(); !ok {
+		v := candidate.DefaultUpdateTime()
+		cc.mutation.SetUpdateTime(v)
+	}
 	if _, ok := cc.mutation.VotesCount(); !ok {
 		v := candidate.DefaultVotesCount
 		cc.mutation.SetVotesCount(v)
@@ -138,6 +175,12 @@ func (cc *CandidateCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (cc *CandidateCreate) check() error {
+	if _, ok := cc.mutation.CreateTime(); !ok {
+		return &ValidationError{Name: "create_time", err: errors.New(`generated: missing required field "Candidate.create_time"`)}
+	}
+	if _, ok := cc.mutation.UpdateTime(); !ok {
+		return &ValidationError{Name: "update_time", err: errors.New(`generated: missing required field "Candidate.update_time"`)}
+	}
 	if _, ok := cc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`generated: missing required field "Candidate.name"`)}
 	}
@@ -188,6 +231,14 @@ func (cc *CandidateCreate) createSpec() (*Candidate, *sqlgraph.CreateSpec) {
 		_node = &Candidate{config: cc.config}
 		_spec = sqlgraph.NewCreateSpec(candidate.Table, sqlgraph.NewFieldSpec(candidate.FieldID, field.TypeInt))
 	)
+	if value, ok := cc.mutation.CreateTime(); ok {
+		_spec.SetField(candidate.FieldCreateTime, field.TypeTime, value)
+		_node.CreateTime = value
+	}
+	if value, ok := cc.mutation.UpdateTime(); ok {
+		_spec.SetField(candidate.FieldUpdateTime, field.TypeTime, value)
+		_node.UpdateTime = value
+	}
 	if value, ok := cc.mutation.Name(); ok {
 		_spec.SetField(candidate.FieldName, field.TypeString, value)
 		_node.Name = value

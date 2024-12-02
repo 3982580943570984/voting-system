@@ -55,14 +55,99 @@ func IDLTE(id int) predicate.Comment {
 	return predicate.Comment(sql.FieldLTE(FieldID, id))
 }
 
+// CreateTime applies equality check predicate on the "create_time" field. It's identical to CreateTimeEQ.
+func CreateTime(v time.Time) predicate.Comment {
+	return predicate.Comment(sql.FieldEQ(FieldCreateTime, v))
+}
+
+// UpdateTime applies equality check predicate on the "update_time" field. It's identical to UpdateTimeEQ.
+func UpdateTime(v time.Time) predicate.Comment {
+	return predicate.Comment(sql.FieldEQ(FieldUpdateTime, v))
+}
+
 // Contents applies equality check predicate on the "contents" field. It's identical to ContentsEQ.
 func Contents(v string) predicate.Comment {
 	return predicate.Comment(sql.FieldEQ(FieldContents, v))
 }
 
-// Timestamp applies equality check predicate on the "timestamp" field. It's identical to TimestampEQ.
-func Timestamp(v time.Time) predicate.Comment {
-	return predicate.Comment(sql.FieldEQ(FieldTimestamp, v))
+// CreateTimeEQ applies the EQ predicate on the "create_time" field.
+func CreateTimeEQ(v time.Time) predicate.Comment {
+	return predicate.Comment(sql.FieldEQ(FieldCreateTime, v))
+}
+
+// CreateTimeNEQ applies the NEQ predicate on the "create_time" field.
+func CreateTimeNEQ(v time.Time) predicate.Comment {
+	return predicate.Comment(sql.FieldNEQ(FieldCreateTime, v))
+}
+
+// CreateTimeIn applies the In predicate on the "create_time" field.
+func CreateTimeIn(vs ...time.Time) predicate.Comment {
+	return predicate.Comment(sql.FieldIn(FieldCreateTime, vs...))
+}
+
+// CreateTimeNotIn applies the NotIn predicate on the "create_time" field.
+func CreateTimeNotIn(vs ...time.Time) predicate.Comment {
+	return predicate.Comment(sql.FieldNotIn(FieldCreateTime, vs...))
+}
+
+// CreateTimeGT applies the GT predicate on the "create_time" field.
+func CreateTimeGT(v time.Time) predicate.Comment {
+	return predicate.Comment(sql.FieldGT(FieldCreateTime, v))
+}
+
+// CreateTimeGTE applies the GTE predicate on the "create_time" field.
+func CreateTimeGTE(v time.Time) predicate.Comment {
+	return predicate.Comment(sql.FieldGTE(FieldCreateTime, v))
+}
+
+// CreateTimeLT applies the LT predicate on the "create_time" field.
+func CreateTimeLT(v time.Time) predicate.Comment {
+	return predicate.Comment(sql.FieldLT(FieldCreateTime, v))
+}
+
+// CreateTimeLTE applies the LTE predicate on the "create_time" field.
+func CreateTimeLTE(v time.Time) predicate.Comment {
+	return predicate.Comment(sql.FieldLTE(FieldCreateTime, v))
+}
+
+// UpdateTimeEQ applies the EQ predicate on the "update_time" field.
+func UpdateTimeEQ(v time.Time) predicate.Comment {
+	return predicate.Comment(sql.FieldEQ(FieldUpdateTime, v))
+}
+
+// UpdateTimeNEQ applies the NEQ predicate on the "update_time" field.
+func UpdateTimeNEQ(v time.Time) predicate.Comment {
+	return predicate.Comment(sql.FieldNEQ(FieldUpdateTime, v))
+}
+
+// UpdateTimeIn applies the In predicate on the "update_time" field.
+func UpdateTimeIn(vs ...time.Time) predicate.Comment {
+	return predicate.Comment(sql.FieldIn(FieldUpdateTime, vs...))
+}
+
+// UpdateTimeNotIn applies the NotIn predicate on the "update_time" field.
+func UpdateTimeNotIn(vs ...time.Time) predicate.Comment {
+	return predicate.Comment(sql.FieldNotIn(FieldUpdateTime, vs...))
+}
+
+// UpdateTimeGT applies the GT predicate on the "update_time" field.
+func UpdateTimeGT(v time.Time) predicate.Comment {
+	return predicate.Comment(sql.FieldGT(FieldUpdateTime, v))
+}
+
+// UpdateTimeGTE applies the GTE predicate on the "update_time" field.
+func UpdateTimeGTE(v time.Time) predicate.Comment {
+	return predicate.Comment(sql.FieldGTE(FieldUpdateTime, v))
+}
+
+// UpdateTimeLT applies the LT predicate on the "update_time" field.
+func UpdateTimeLT(v time.Time) predicate.Comment {
+	return predicate.Comment(sql.FieldLT(FieldUpdateTime, v))
+}
+
+// UpdateTimeLTE applies the LTE predicate on the "update_time" field.
+func UpdateTimeLTE(v time.Time) predicate.Comment {
+	return predicate.Comment(sql.FieldLTE(FieldUpdateTime, v))
 }
 
 // ContentsEQ applies the EQ predicate on the "contents" field.
@@ -128,46 +213,6 @@ func ContentsEqualFold(v string) predicate.Comment {
 // ContentsContainsFold applies the ContainsFold predicate on the "contents" field.
 func ContentsContainsFold(v string) predicate.Comment {
 	return predicate.Comment(sql.FieldContainsFold(FieldContents, v))
-}
-
-// TimestampEQ applies the EQ predicate on the "timestamp" field.
-func TimestampEQ(v time.Time) predicate.Comment {
-	return predicate.Comment(sql.FieldEQ(FieldTimestamp, v))
-}
-
-// TimestampNEQ applies the NEQ predicate on the "timestamp" field.
-func TimestampNEQ(v time.Time) predicate.Comment {
-	return predicate.Comment(sql.FieldNEQ(FieldTimestamp, v))
-}
-
-// TimestampIn applies the In predicate on the "timestamp" field.
-func TimestampIn(vs ...time.Time) predicate.Comment {
-	return predicate.Comment(sql.FieldIn(FieldTimestamp, vs...))
-}
-
-// TimestampNotIn applies the NotIn predicate on the "timestamp" field.
-func TimestampNotIn(vs ...time.Time) predicate.Comment {
-	return predicate.Comment(sql.FieldNotIn(FieldTimestamp, vs...))
-}
-
-// TimestampGT applies the GT predicate on the "timestamp" field.
-func TimestampGT(v time.Time) predicate.Comment {
-	return predicate.Comment(sql.FieldGT(FieldTimestamp, v))
-}
-
-// TimestampGTE applies the GTE predicate on the "timestamp" field.
-func TimestampGTE(v time.Time) predicate.Comment {
-	return predicate.Comment(sql.FieldGTE(FieldTimestamp, v))
-}
-
-// TimestampLT applies the LT predicate on the "timestamp" field.
-func TimestampLT(v time.Time) predicate.Comment {
-	return predicate.Comment(sql.FieldLT(FieldTimestamp, v))
-}
-
-// TimestampLTE applies the LTE predicate on the "timestamp" field.
-func TimestampLTE(v time.Time) predicate.Comment {
-	return predicate.Comment(sql.FieldLTE(FieldTimestamp, v))
 }
 
 // HasParent applies the HasEdge predicate on the "parent" edge.

@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/mixin"
 )
 
 // Candidate holds the schema definition for the Candidate entity.
@@ -27,7 +28,14 @@ func (Candidate) Fields() []ent.Field {
 
 		field.Int("votes_count").
 			Default(0).
-			Positive(),
+			NonNegative(),
+	}
+}
+
+// Mixins of the Candidate.
+func (Candidate) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		mixin.Time{},
 	}
 }
 

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Election Details</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .candidate-card {
+        padding: 15px;
+        margin: 10px 0;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .vote-btn {
+        background-color: #28a745;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .vote-btn:hover {
+        background-color: #218838;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Election Details</h1>
+
+    <!-- Election title and description will be loaded here -->
+    <h2 id="election-title"></h2>
+    <p id="election-description"></p>
+
+    <h3>Candidates</h3>
+    <div id="candidate-list"></div>
+
+    <button onclick="window.location.href='elections.html';">
+      Back to Elections
+    </button>
+
+    <script>
+      const electionId = new URLSearchParams(window.location.search).get("id");
+
+      // Fetch election details and candidates
+      function fetchElectionDetails() {
+        fetch(`http://localhost:3000/elections/${electionId}`, {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+          },
+        })
+          .then((response) => response.json())
+          .then((election) => {
+            document.getElementById("election-title").innerText =
+              election.title;
+            document.getElementById("election-description").innerText =
+              election.description;
+          })
+          .catch((error) =>
+            console.error("Error fetching election details:", error)
+          );
+
+        fetch(`http://localhost:3000/elections/${electionId}/candidates`, {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+          },
+        })
+          .then((response) => response.json())
+          .then((candidates) => {
+            const candidateList = document.getElementById("candidate-list");
+            candidateList.innerHTML = ""; // Clear previous candidates
+            candidates.forEach((candidate) => {
+              const card = document.createElement("div");
+              card.classList.add("candidate-card");
+              card.innerHTML = `
+              <span>${candidate.name}</span>
+              <button class="vote-btn" onclick="voteForCandidate(${candidate.id})">Vote</button>
+            `;
+              candidateList.appendChild(card);
+            });
+          })
+          .catch((error) => console.error("Error fetching candidates:", error));
+      }
+
+      // Vote for a candidate
+      function voteForCandidate(candidateId) {
+        fetch("http://localhost:3000/votes", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+          },
+          body: JSON.stringify({ candidateId }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Failed to cast vote");
+            }
+            alert("Vote cast successfully!");
+          })
+          .catch((error) => console.error("Error casting vote:", error));
+      }
+
+      // Load election details when the page loads
+      window.onload = fetchElectionDetails;
+    </script>
+  </body>
+</html>

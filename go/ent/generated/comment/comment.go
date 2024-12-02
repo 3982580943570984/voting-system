@@ -14,10 +14,12 @@ const (
 	Label = "comment"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldCreateTime holds the string denoting the create_time field in the database.
+	FieldCreateTime = "create_time"
+	// FieldUpdateTime holds the string denoting the update_time field in the database.
+	FieldUpdateTime = "update_time"
 	// FieldContents holds the string denoting the contents field in the database.
 	FieldContents = "contents"
-	// FieldTimestamp holds the string denoting the timestamp field in the database.
-	FieldTimestamp = "timestamp"
 	// EdgeParent holds the string denoting the parent edge name in mutations.
 	EdgeParent = "parent"
 	// EdgeChildren holds the string denoting the children edge name in mutations.
@@ -55,8 +57,9 @@ const (
 // Columns holds all SQL columns for comment fields.
 var Columns = []string{
 	FieldID,
+	FieldCreateTime,
+	FieldUpdateTime,
 	FieldContents,
-	FieldTimestamp,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "comments"
@@ -83,10 +86,14 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// DefaultCreateTime holds the default value on creation for the "create_time" field.
+	DefaultCreateTime func() time.Time
+	// DefaultUpdateTime holds the default value on creation for the "update_time" field.
+	DefaultUpdateTime func() time.Time
+	// UpdateDefaultUpdateTime holds the default value on update for the "update_time" field.
+	UpdateDefaultUpdateTime func() time.Time
 	// ContentsValidator is a validator for the "contents" field. It is called by the builders before save.
 	ContentsValidator func(string) error
-	// DefaultTimestamp holds the default value on creation for the "timestamp" field.
-	DefaultTimestamp func() time.Time
 )
 
 // OrderOption defines the ordering options for the Comment queries.
@@ -97,14 +104,19 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
+// ByCreateTime orders the results by the create_time field.
+func ByCreateTime(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreateTime, opts...).ToFunc()
+}
+
+// ByUpdateTime orders the results by the update_time field.
+func ByUpdateTime(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdateTime, opts...).ToFunc()
+}
+
 // ByContents orders the results by the contents field.
 func ByContents(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldContents, opts...).ToFunc()
-}
-
-// ByTimestamp orders the results by the timestamp field.
-func ByTimestamp(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTimestamp, opts...).ToFunc()
 }
 
 // ByParentField orders the results by parent field.

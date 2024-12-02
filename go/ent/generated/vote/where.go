@@ -55,9 +55,9 @@ func IDLTE(id int) predicate.Vote {
 	return predicate.Vote(sql.FieldLTE(FieldID, id))
 }
 
-// Timestamp applies equality check predicate on the "timestamp" field. It's identical to TimestampEQ.
-func Timestamp(v time.Time) predicate.Vote {
-	return predicate.Vote(sql.FieldEQ(FieldTimestamp, v))
+// CreateTime applies equality check predicate on the "create_time" field. It's identical to CreateTimeEQ.
+func CreateTime(v time.Time) predicate.Vote {
+	return predicate.Vote(sql.FieldEQ(FieldCreateTime, v))
 }
 
 // IsActive applies equality check predicate on the "is_active" field. It's identical to IsActiveEQ.
@@ -65,44 +65,44 @@ func IsActive(v bool) predicate.Vote {
 	return predicate.Vote(sql.FieldEQ(FieldIsActive, v))
 }
 
-// TimestampEQ applies the EQ predicate on the "timestamp" field.
-func TimestampEQ(v time.Time) predicate.Vote {
-	return predicate.Vote(sql.FieldEQ(FieldTimestamp, v))
+// CreateTimeEQ applies the EQ predicate on the "create_time" field.
+func CreateTimeEQ(v time.Time) predicate.Vote {
+	return predicate.Vote(sql.FieldEQ(FieldCreateTime, v))
 }
 
-// TimestampNEQ applies the NEQ predicate on the "timestamp" field.
-func TimestampNEQ(v time.Time) predicate.Vote {
-	return predicate.Vote(sql.FieldNEQ(FieldTimestamp, v))
+// CreateTimeNEQ applies the NEQ predicate on the "create_time" field.
+func CreateTimeNEQ(v time.Time) predicate.Vote {
+	return predicate.Vote(sql.FieldNEQ(FieldCreateTime, v))
 }
 
-// TimestampIn applies the In predicate on the "timestamp" field.
-func TimestampIn(vs ...time.Time) predicate.Vote {
-	return predicate.Vote(sql.FieldIn(FieldTimestamp, vs...))
+// CreateTimeIn applies the In predicate on the "create_time" field.
+func CreateTimeIn(vs ...time.Time) predicate.Vote {
+	return predicate.Vote(sql.FieldIn(FieldCreateTime, vs...))
 }
 
-// TimestampNotIn applies the NotIn predicate on the "timestamp" field.
-func TimestampNotIn(vs ...time.Time) predicate.Vote {
-	return predicate.Vote(sql.FieldNotIn(FieldTimestamp, vs...))
+// CreateTimeNotIn applies the NotIn predicate on the "create_time" field.
+func CreateTimeNotIn(vs ...time.Time) predicate.Vote {
+	return predicate.Vote(sql.FieldNotIn(FieldCreateTime, vs...))
 }
 
-// TimestampGT applies the GT predicate on the "timestamp" field.
-func TimestampGT(v time.Time) predicate.Vote {
-	return predicate.Vote(sql.FieldGT(FieldTimestamp, v))
+// CreateTimeGT applies the GT predicate on the "create_time" field.
+func CreateTimeGT(v time.Time) predicate.Vote {
+	return predicate.Vote(sql.FieldGT(FieldCreateTime, v))
 }
 
-// TimestampGTE applies the GTE predicate on the "timestamp" field.
-func TimestampGTE(v time.Time) predicate.Vote {
-	return predicate.Vote(sql.FieldGTE(FieldTimestamp, v))
+// CreateTimeGTE applies the GTE predicate on the "create_time" field.
+func CreateTimeGTE(v time.Time) predicate.Vote {
+	return predicate.Vote(sql.FieldGTE(FieldCreateTime, v))
 }
 
-// TimestampLT applies the LT predicate on the "timestamp" field.
-func TimestampLT(v time.Time) predicate.Vote {
-	return predicate.Vote(sql.FieldLT(FieldTimestamp, v))
+// CreateTimeLT applies the LT predicate on the "create_time" field.
+func CreateTimeLT(v time.Time) predicate.Vote {
+	return predicate.Vote(sql.FieldLT(FieldCreateTime, v))
 }
 
-// TimestampLTE applies the LTE predicate on the "timestamp" field.
-func TimestampLTE(v time.Time) predicate.Vote {
-	return predicate.Vote(sql.FieldLTE(FieldTimestamp, v))
+// CreateTimeLTE applies the LTE predicate on the "create_time" field.
+func CreateTimeLTE(v time.Time) predicate.Vote {
+	return predicate.Vote(sql.FieldLTE(FieldCreateTime, v))
 }
 
 // IsActiveEQ applies the EQ predicate on the "is_active" field.

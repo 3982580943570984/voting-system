@@ -9,7 +9,6 @@ import (
 	"voting-system/ent/generated/election"
 	"voting-system/ent/generated/electionsettings"
 	"voting-system/ent/generated/profile"
-	"voting-system/ent/generated/role"
 	"voting-system/ent/generated/tag"
 	"voting-system/ent/generated/user"
 	"voting-system/ent/generated/vote"
@@ -20,8 +19,21 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	candidateMixin := schema.Candidate{}.Mixin()
+	candidateMixinFields0 := candidateMixin[0].Fields()
+	_ = candidateMixinFields0
 	candidateFields := schema.Candidate{}.Fields()
 	_ = candidateFields
+	// candidateDescCreateTime is the schema descriptor for create_time field.
+	candidateDescCreateTime := candidateMixinFields0[0].Descriptor()
+	// candidate.DefaultCreateTime holds the default value on creation for the create_time field.
+	candidate.DefaultCreateTime = candidateDescCreateTime.Default.(func() time.Time)
+	// candidateDescUpdateTime is the schema descriptor for update_time field.
+	candidateDescUpdateTime := candidateMixinFields0[1].Descriptor()
+	// candidate.DefaultUpdateTime holds the default value on creation for the update_time field.
+	candidate.DefaultUpdateTime = candidateDescUpdateTime.Default.(func() time.Time)
+	// candidate.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	candidate.UpdateDefaultUpdateTime = candidateDescUpdateTime.UpdateDefault.(func() time.Time)
 	// candidateDescName is the schema descriptor for name field.
 	candidateDescName := candidateFields[0].Descriptor()
 	// candidate.NameValidator is a validator for the "name" field. It is called by the builders before save.
@@ -64,8 +76,21 @@ func init() {
 	candidate.DefaultVotesCount = candidateDescVotesCount.Default.(int)
 	// candidate.VotesCountValidator is a validator for the "votes_count" field. It is called by the builders before save.
 	candidate.VotesCountValidator = candidateDescVotesCount.Validators[0].(func(int) error)
+	commentMixin := schema.Comment{}.Mixin()
+	commentMixinFields0 := commentMixin[0].Fields()
+	_ = commentMixinFields0
 	commentFields := schema.Comment{}.Fields()
 	_ = commentFields
+	// commentDescCreateTime is the schema descriptor for create_time field.
+	commentDescCreateTime := commentMixinFields0[0].Descriptor()
+	// comment.DefaultCreateTime holds the default value on creation for the create_time field.
+	comment.DefaultCreateTime = commentDescCreateTime.Default.(func() time.Time)
+	// commentDescUpdateTime is the schema descriptor for update_time field.
+	commentDescUpdateTime := commentMixinFields0[1].Descriptor()
+	// comment.DefaultUpdateTime holds the default value on creation for the update_time field.
+	comment.DefaultUpdateTime = commentDescUpdateTime.Default.(func() time.Time)
+	// comment.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	comment.UpdateDefaultUpdateTime = commentDescUpdateTime.UpdateDefault.(func() time.Time)
 	// commentDescContents is the schema descriptor for contents field.
 	commentDescContents := commentFields[0].Descriptor()
 	// comment.ContentsValidator is a validator for the "contents" field. It is called by the builders before save.
@@ -84,10 +109,6 @@ func init() {
 			return nil
 		}
 	}()
-	// commentDescTimestamp is the schema descriptor for timestamp field.
-	commentDescTimestamp := commentFields[1].Descriptor()
-	// comment.DefaultTimestamp holds the default value on creation for the timestamp field.
-	comment.DefaultTimestamp = commentDescTimestamp.Default.(func() time.Time)
 	electionHooks := schema.Election{}.Hooks()
 	election.Hooks[0] = electionHooks[0]
 	electionFields := schema.Election{}.Fields()
@@ -206,27 +227,29 @@ func init() {
 	profileDescAddress := profileFields[5].Descriptor()
 	// profile.AddressValidator is a validator for the "address" field. It is called by the builders before save.
 	profile.AddressValidator = profileDescAddress.Validators[0].(func(string) error)
-	roleFields := schema.Role{}.Fields()
-	_ = roleFields
-	// roleDescIsVoter is the schema descriptor for is_voter field.
-	roleDescIsVoter := roleFields[0].Descriptor()
-	// role.DefaultIsVoter holds the default value on creation for the is_voter field.
-	role.DefaultIsVoter = roleDescIsVoter.Default.(bool)
-	// roleDescIsOrganizer is the schema descriptor for is_organizer field.
-	roleDescIsOrganizer := roleFields[1].Descriptor()
-	// role.DefaultIsOrganizer holds the default value on creation for the is_organizer field.
-	role.DefaultIsOrganizer = roleDescIsOrganizer.Default.(bool)
 	tagFields := schema.Tag{}.Fields()
 	_ = tagFields
 	// tagDescName is the schema descriptor for name field.
 	tagDescName := tagFields[0].Descriptor()
 	// tag.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	tag.NameValidator = tagDescName.Validators[0].(func(string) error)
+	userMixin := schema.User{}.Mixin()
 	userHooks := schema.User{}.Hooks()
 	user.Hooks[0] = userHooks[0]
-	user.Hooks[1] = userHooks[1]
+	userMixinFields0 := userMixin[0].Fields()
+	_ = userMixinFields0
 	userFields := schema.User{}.Fields()
 	_ = userFields
+	// userDescCreateTime is the schema descriptor for create_time field.
+	userDescCreateTime := userMixinFields0[0].Descriptor()
+	// user.DefaultCreateTime holds the default value on creation for the create_time field.
+	user.DefaultCreateTime = userDescCreateTime.Default.(func() time.Time)
+	// userDescUpdateTime is the schema descriptor for update_time field.
+	userDescUpdateTime := userMixinFields0[1].Descriptor()
+	// user.DefaultUpdateTime holds the default value on creation for the update_time field.
+	user.DefaultUpdateTime = userDescUpdateTime.Default.(func() time.Time)
+	// user.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	user.UpdateDefaultUpdateTime = userDescUpdateTime.UpdateDefault.(func() time.Time)
 	// userDescEmail is the schema descriptor for email field.
 	userDescEmail := userFields[0].Descriptor()
 	// user.EmailValidator is a validator for the "email" field. It is called by the builders before save.
@@ -249,22 +272,34 @@ func init() {
 	userDescPassword := userFields[1].Descriptor()
 	// user.PasswordValidator is a validator for the "password" field. It is called by the builders before save.
 	user.PasswordValidator = userDescPassword.Validators[0].(func(string) error)
-	// userDescCreatedAt is the schema descriptor for created_at field.
-	userDescCreatedAt := userFields[2].Descriptor()
-	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
-	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
 	// userDescLastLogin is the schema descriptor for last_login field.
-	userDescLastLogin := userFields[3].Descriptor()
+	userDescLastLogin := userFields[2].Descriptor()
 	// user.DefaultLastLogin holds the default value on creation for the last_login field.
 	user.DefaultLastLogin = userDescLastLogin.Default.(func() time.Time)
+	// user.UpdateDefaultLastLogin holds the default value on update for the last_login field.
+	user.UpdateDefaultLastLogin = userDescLastLogin.UpdateDefault.(func() time.Time)
+	// userDescIsActive is the schema descriptor for is_active field.
+	userDescIsActive := userFields[3].Descriptor()
+	// user.DefaultIsActive holds the default value on creation for the is_active field.
+	user.DefaultIsActive = userDescIsActive.Default.(bool)
+	// userDescIsOrganizer is the schema descriptor for is_organizer field.
+	userDescIsOrganizer := userFields[4].Descriptor()
+	// user.DefaultIsOrganizer holds the default value on creation for the is_organizer field.
+	user.DefaultIsOrganizer = userDescIsOrganizer.Default.(bool)
+	voteMixin := schema.Vote{}.Mixin()
+	voteHooks := schema.Vote{}.Hooks()
+	vote.Hooks[0] = voteHooks[0]
+	vote.Hooks[1] = voteHooks[1]
+	voteMixinFields0 := voteMixin[0].Fields()
+	_ = voteMixinFields0
 	voteFields := schema.Vote{}.Fields()
 	_ = voteFields
-	// voteDescTimestamp is the schema descriptor for timestamp field.
-	voteDescTimestamp := voteFields[0].Descriptor()
-	// vote.DefaultTimestamp holds the default value on creation for the timestamp field.
-	vote.DefaultTimestamp = voteDescTimestamp.Default.(func() time.Time)
+	// voteDescCreateTime is the schema descriptor for create_time field.
+	voteDescCreateTime := voteMixinFields0[0].Descriptor()
+	// vote.DefaultCreateTime holds the default value on creation for the create_time field.
+	vote.DefaultCreateTime = voteDescCreateTime.Default.(func() time.Time)
 	// voteDescIsActive is the schema descriptor for is_active field.
-	voteDescIsActive := voteFields[1].Descriptor()
+	voteDescIsActive := voteFields[0].Descriptor()
 	// vote.DefaultIsActive holds the default value on creation for the is_active field.
 	vote.DefaultIsActive = voteDescIsActive.Default.(bool)
 }

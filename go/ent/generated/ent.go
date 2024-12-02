@@ -13,7 +13,6 @@ import (
 	"voting-system/ent/generated/election"
 	"voting-system/ent/generated/electionsettings"
 	"voting-system/ent/generated/profile"
-	"voting-system/ent/generated/role"
 	"voting-system/ent/generated/tag"
 	"voting-system/ent/generated/user"
 	"voting-system/ent/generated/vote"
@@ -86,7 +85,6 @@ func checkColumn(table, column string) error {
 			election.Table:         election.ValidColumn,
 			electionsettings.Table: electionsettings.ValidColumn,
 			profile.Table:          profile.ValidColumn,
-			role.Table:             role.ValidColumn,
 			tag.Table:              tag.ValidColumn,
 			user.Table:             user.ValidColumn,
 			vote.Table:             vote.ValidColumn,

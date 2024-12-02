@@ -5,6 +5,7 @@ package vote
 import (
 	"time"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 )
@@ -14,8 +15,8 @@ const (
 	Label = "vote"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldTimestamp holds the string denoting the timestamp field in the database.
-	FieldTimestamp = "timestamp"
+	// FieldCreateTime holds the string denoting the create_time field in the database.
+	FieldCreateTime = "create_time"
 	// FieldIsActive holds the string denoting the is_active field in the database.
 	FieldIsActive = "is_active"
 	// EdgeCandidate holds the string denoting the candidate edge name in mutations.
@@ -43,7 +44,7 @@ const (
 // Columns holds all SQL columns for vote fields.
 var Columns = []string{
 	FieldID,
-	FieldTimestamp,
+	FieldCreateTime,
 	FieldIsActive,
 }
 
@@ -69,9 +70,15 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+// Note that the variables below are initialized by the runtime
+// package on the initialization of the application. Therefore,
+// it should be imported in the main as follows:
+//
+//	import _ "voting-system/ent/generated/runtime"
 var (
-	// DefaultTimestamp holds the default value on creation for the "timestamp" field.
-	DefaultTimestamp func() time.Time
+	Hooks [2]ent.Hook
+	// DefaultCreateTime holds the default value on creation for the "create_time" field.
+	DefaultCreateTime func() time.Time
 	// DefaultIsActive holds the default value on creation for the "is_active" field.
 	DefaultIsActive bool
 )
@@ -84,9 +91,9 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByTimestamp orders the results by the timestamp field.
-func ByTimestamp(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTimestamp, opts...).ToFunc()
+// ByCreateTime orders the results by the create_time field.
+func ByCreateTime(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreateTime, opts...).ToFunc()
 }
 
 // ByIsActive orders the results by the is_active field.

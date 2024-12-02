@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 	"voting-system/ent/generated/candidate"
 	"voting-system/ent/generated/election"
 	"voting-system/ent/generated/predicate"
@@ -26,6 +27,12 @@ type CandidateUpdate struct {
 // Where appends a list predicates to the CandidateUpdate builder.
 func (cu *CandidateUpdate) Where(ps ...predicate.Candidate) *CandidateUpdate {
 	cu.mutation.Where(ps...)
+	return cu
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (cu *CandidateUpdate) SetUpdateTime(t time.Time) *CandidateUpdate {
+	cu.mutation.SetUpdateTime(t)
 	return cu
 }
 
@@ -166,6 +173,7 @@ func (cu *CandidateUpdate) RemoveVotes(v ...*Vote) *CandidateUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (cu *CandidateUpdate) Save(ctx context.Context) (int, error) {
+	cu.defaults()
 	return withHooks(ctx, cu.sqlSave, cu.mutation, cu.hooks)
 }
 
@@ -188,6 +196,14 @@ func (cu *CandidateUpdate) Exec(ctx context.Context) error {
 func (cu *CandidateUpdate) ExecX(ctx context.Context) {
 	if err := cu.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (cu *CandidateUpdate) defaults() {
+	if _, ok := cu.mutation.UpdateTime(); !ok {
+		v := candidate.UpdateDefaultUpdateTime()
+		cu.mutation.SetUpdateTime(v)
 	}
 }
 
@@ -222,6 +238,9 @@ func (cu *CandidateUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := cu.mutation.UpdateTime(); ok {
+		_spec.SetField(candidate.FieldUpdateTime, field.TypeTime, value)
 	}
 	if value, ok := cu.mutation.Name(); ok {
 		_spec.SetField(candidate.FieldName, field.TypeString, value)
@@ -333,6 +352,12 @@ type CandidateUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *CandidateMutation
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (cuo *CandidateUpdateOne) SetUpdateTime(t time.Time) *CandidateUpdateOne {
+	cuo.mutation.SetUpdateTime(t)
+	return cuo
 }
 
 // SetName sets the "name" field.
@@ -485,6 +510,7 @@ func (cuo *CandidateUpdateOne) Select(field string, fields ...string) *Candidate
 
 // Save executes the query and returns the updated Candidate entity.
 func (cuo *CandidateUpdateOne) Save(ctx context.Context) (*Candidate, error) {
+	cuo.defaults()
 	return withHooks(ctx, cuo.sqlSave, cuo.mutation, cuo.hooks)
 }
 
@@ -507,6 +533,14 @@ func (cuo *CandidateUpdateOne) Exec(ctx context.Context) error {
 func (cuo *CandidateUpdateOne) ExecX(ctx context.Context) {
 	if err := cuo.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (cuo *CandidateUpdateOne) defaults() {
+	if _, ok := cuo.mutation.UpdateTime(); !ok {
+		v := candidate.UpdateDefaultUpdateTime()
+		cuo.mutation.SetUpdateTime(v)
 	}
 }
 
@@ -558,6 +592,9 @@ func (cuo *CandidateUpdateOne) sqlSave(ctx context.Context) (_node *Candidate, e
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := cuo.mutation.UpdateTime(); ok {
+		_spec.SetField(candidate.FieldUpdateTime, field.TypeTime, value)
 	}
 	if value, ok := cuo.mutation.Name(); ok {
 		_spec.SetField(candidate.FieldName, field.TypeString, value)

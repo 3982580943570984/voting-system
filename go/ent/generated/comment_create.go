@@ -22,23 +22,37 @@ type CommentCreate struct {
 	hooks    []Hook
 }
 
+// SetCreateTime sets the "create_time" field.
+func (cc *CommentCreate) SetCreateTime(t time.Time) *CommentCreate {
+	cc.mutation.SetCreateTime(t)
+	return cc
+}
+
+// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
+func (cc *CommentCreate) SetNillableCreateTime(t *time.Time) *CommentCreate {
+	if t != nil {
+		cc.SetCreateTime(*t)
+	}
+	return cc
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (cc *CommentCreate) SetUpdateTime(t time.Time) *CommentCreate {
+	cc.mutation.SetUpdateTime(t)
+	return cc
+}
+
+// SetNillableUpdateTime sets the "update_time" field if the given value is not nil.
+func (cc *CommentCreate) SetNillableUpdateTime(t *time.Time) *CommentCreate {
+	if t != nil {
+		cc.SetUpdateTime(*t)
+	}
+	return cc
+}
+
 // SetContents sets the "contents" field.
 func (cc *CommentCreate) SetContents(s string) *CommentCreate {
 	cc.mutation.SetContents(s)
-	return cc
-}
-
-// SetTimestamp sets the "timestamp" field.
-func (cc *CommentCreate) SetTimestamp(t time.Time) *CommentCreate {
-	cc.mutation.SetTimestamp(t)
-	return cc
-}
-
-// SetNillableTimestamp sets the "timestamp" field if the given value is not nil.
-func (cc *CommentCreate) SetNillableTimestamp(t *time.Time) *CommentCreate {
-	if t != nil {
-		cc.SetTimestamp(*t)
-	}
 	return cc
 }
 
@@ -149,14 +163,24 @@ func (cc *CommentCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (cc *CommentCreate) defaults() {
-	if _, ok := cc.mutation.Timestamp(); !ok {
-		v := comment.DefaultTimestamp()
-		cc.mutation.SetTimestamp(v)
+	if _, ok := cc.mutation.CreateTime(); !ok {
+		v := comment.DefaultCreateTime()
+		cc.mutation.SetCreateTime(v)
+	}
+	if _, ok := cc.mutation.UpdateTime(); !ok {
+		v := comment.DefaultUpdateTime()
+		cc.mutation.SetUpdateTime(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (cc *CommentCreate) check() error {
+	if _, ok := cc.mutation.CreateTime(); !ok {
+		return &ValidationError{Name: "create_time", err: errors.New(`generated: missing required field "Comment.create_time"`)}
+	}
+	if _, ok := cc.mutation.UpdateTime(); !ok {
+		return &ValidationError{Name: "update_time", err: errors.New(`generated: missing required field "Comment.update_time"`)}
+	}
 	if _, ok := cc.mutation.Contents(); !ok {
 		return &ValidationError{Name: "contents", err: errors.New(`generated: missing required field "Comment.contents"`)}
 	}
@@ -164,9 +188,6 @@ func (cc *CommentCreate) check() error {
 		if err := comment.ContentsValidator(v); err != nil {
 			return &ValidationError{Name: "contents", err: fmt.Errorf(`generated: validator failed for field "Comment.contents": %w`, err)}
 		}
-	}
-	if _, ok := cc.mutation.Timestamp(); !ok {
-		return &ValidationError{Name: "timestamp", err: errors.New(`generated: missing required field "Comment.timestamp"`)}
 	}
 	return nil
 }
@@ -194,13 +215,17 @@ func (cc *CommentCreate) createSpec() (*Comment, *sqlgraph.CreateSpec) {
 		_node = &Comment{config: cc.config}
 		_spec = sqlgraph.NewCreateSpec(comment.Table, sqlgraph.NewFieldSpec(comment.FieldID, field.TypeInt))
 	)
+	if value, ok := cc.mutation.CreateTime(); ok {
+		_spec.SetField(comment.FieldCreateTime, field.TypeTime, value)
+		_node.CreateTime = value
+	}
+	if value, ok := cc.mutation.UpdateTime(); ok {
+		_spec.SetField(comment.FieldUpdateTime, field.TypeTime, value)
+		_node.UpdateTime = value
+	}
 	if value, ok := cc.mutation.Contents(); ok {
 		_spec.SetField(comment.FieldContents, field.TypeString, value)
 		_node.Contents = value
-	}
-	if value, ok := cc.mutation.Timestamp(); ok {
-		_spec.SetField(comment.FieldTimestamp, field.TypeTime, value)
-		_node.Timestamp = value
 	}
 	if nodes := cc.mutation.ParentIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

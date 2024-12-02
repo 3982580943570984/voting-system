@@ -5,6 +5,7 @@ package generated
 import (
 	"fmt"
 	"strings"
+	"time"
 	"voting-system/ent/generated/candidate"
 	"voting-system/ent/generated/election"
 
@@ -17,6 +18,10 @@ type Candidate struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// CreateTime holds the value of the "create_time" field.
+	CreateTime time.Time `json:"create_time,omitempty"`
+	// UpdateTime holds the value of the "update_time" field.
+	UpdateTime time.Time `json:"update_time,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Description holds the value of the "description" field.
@@ -72,6 +77,8 @@ func (*Candidate) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case candidate.FieldName, candidate.FieldDescription, candidate.FieldPhotoURL:
 			values[i] = new(sql.NullString)
+		case candidate.FieldCreateTime, candidate.FieldUpdateTime:
+			values[i] = new(sql.NullTime)
 		case candidate.ForeignKeys[0]: // election_candidates
 			values[i] = new(sql.NullInt64)
 		default:
@@ -95,6 +102,18 @@ func (c *Candidate) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			c.ID = int(value.Int64)
+		case candidate.FieldCreateTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field create_time", values[i])
+			} else if value.Valid {
+				c.CreateTime = value.Time
+			}
+		case candidate.FieldUpdateTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field update_time", values[i])
+			} else if value.Valid {
+				c.UpdateTime = value.Time
+			}
 		case candidate.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
@@ -172,6 +191,12 @@ func (c *Candidate) String() string {
 	var builder strings.Builder
 	builder.WriteString("Candidate(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", c.ID))
+	builder.WriteString("create_time=")
+	builder.WriteString(c.CreateTime.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("update_time=")
+	builder.WriteString(c.UpdateTime.Format(time.ANSIC))
+	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(c.Name)
 	builder.WriteString(", ")

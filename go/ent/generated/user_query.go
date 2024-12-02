@@ -11,7 +11,6 @@ import (
 	"voting-system/ent/generated/election"
 	"voting-system/ent/generated/predicate"
 	"voting-system/ent/generated/profile"
-	"voting-system/ent/generated/role"
 	"voting-system/ent/generated/user"
 	"voting-system/ent/generated/vote"
 
@@ -29,9 +28,8 @@ type UserQuery struct {
 	inters        []Interceptor
 	predicates    []predicate.User
 	withProfile   *ProfileQuery
-	withRole      *RoleQuery
-	withElections *ElectionQuery
 	withComments  *CommentQuery
+	withElections *ElectionQuery
 	withVotes     *VoteQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -91,9 +89,9 @@ func (uq *UserQuery) QueryProfile() *ProfileQuery {
 	return query
 }
 
-// QueryRole chains the current query on the "role" edge.
-func (uq *UserQuery) QueryRole() *RoleQuery {
-	query := (&RoleClient{config: uq.config}).Query()
+// QueryComments chains the current query on the "comments" edge.
+func (uq *UserQuery) QueryComments() *CommentQuery {
+	query := (&CommentClient{config: uq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := uq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -104,8 +102,8 @@ func (uq *UserQuery) QueryRole() *RoleQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(role.Table, role.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, user.RoleTable, user.RoleColumn),
+			sqlgraph.To(comment.Table, comment.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.CommentsTable, user.CommentsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -128,28 +126,6 @@ func (uq *UserQuery) QueryElections() *ElectionQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(election.Table, election.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.ElectionsTable, user.ElectionsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryComments chains the current query on the "comments" edge.
-func (uq *UserQuery) QueryComments() *CommentQuery {
-	query := (&CommentClient{config: uq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := uq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := uq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(comment.Table, comment.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.CommentsTable, user.CommentsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -372,9 +348,8 @@ func (uq *UserQuery) Clone() *UserQuery {
 		inters:        append([]Interceptor{}, uq.inters...),
 		predicates:    append([]predicate.User{}, uq.predicates...),
 		withProfile:   uq.withProfile.Clone(),
-		withRole:      uq.withRole.Clone(),
-		withElections: uq.withElections.Clone(),
 		withComments:  uq.withComments.Clone(),
+		withElections: uq.withElections.Clone(),
 		withVotes:     uq.withVotes.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
@@ -393,14 +368,14 @@ func (uq *UserQuery) WithProfile(opts ...func(*ProfileQuery)) *UserQuery {
 	return uq
 }
 
-// WithRole tells the query-builder to eager-load the nodes that are connected to
-// the "role" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithRole(opts ...func(*RoleQuery)) *UserQuery {
-	query := (&RoleClient{config: uq.config}).Query()
+// WithComments tells the query-builder to eager-load the nodes that are connected to
+// the "comments" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithComments(opts ...func(*CommentQuery)) *UserQuery {
+	query := (&CommentClient{config: uq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	uq.withRole = query
+	uq.withComments = query
 	return uq
 }
 
@@ -412,17 +387,6 @@ func (uq *UserQuery) WithElections(opts ...func(*ElectionQuery)) *UserQuery {
 		opt(query)
 	}
 	uq.withElections = query
-	return uq
-}
-
-// WithComments tells the query-builder to eager-load the nodes that are connected to
-// the "comments" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithComments(opts ...func(*CommentQuery)) *UserQuery {
-	query := (&CommentClient{config: uq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	uq.withComments = query
 	return uq
 }
 
@@ -443,12 +407,12 @@ func (uq *UserQuery) WithVotes(opts ...func(*VoteQuery)) *UserQuery {
 // Example:
 //
 //	var v []struct {
-//		Email string `json:"email,omitempty"`
+//		CreateTime time.Time `json:"create_time,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.User.Query().
-//		GroupBy(user.FieldEmail).
+//		GroupBy(user.FieldCreateTime).
 //		Aggregate(generated.Count()).
 //		Scan(ctx, &v)
 func (uq *UserQuery) GroupBy(field string, fields ...string) *UserGroupBy {
@@ -466,11 +430,11 @@ func (uq *UserQuery) GroupBy(field string, fields ...string) *UserGroupBy {
 // Example:
 //
 //	var v []struct {
-//		Email string `json:"email,omitempty"`
+//		CreateTime time.Time `json:"create_time,omitempty"`
 //	}
 //
 //	client.User.Query().
-//		Select(user.FieldEmail).
+//		Select(user.FieldCreateTime).
 //		Scan(ctx, &v)
 func (uq *UserQuery) Select(fields ...string) *UserSelect {
 	uq.ctx.Fields = append(uq.ctx.Fields, fields...)
@@ -515,11 +479,10 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = uq.querySpec()
-		loadedTypes = [5]bool{
+		loadedTypes = [4]bool{
 			uq.withProfile != nil,
-			uq.withRole != nil,
-			uq.withElections != nil,
 			uq.withComments != nil,
+			uq.withElections != nil,
 			uq.withVotes != nil,
 		}
 	)
@@ -547,9 +510,10 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			return nil, err
 		}
 	}
-	if query := uq.withRole; query != nil {
-		if err := uq.loadRole(ctx, query, nodes, nil,
-			func(n *User, e *Role) { n.Edges.Role = e }); err != nil {
+	if query := uq.withComments; query != nil {
+		if err := uq.loadComments(ctx, query, nodes,
+			func(n *User) { n.Edges.Comments = []*Comment{} },
+			func(n *User, e *Comment) { n.Edges.Comments = append(n.Edges.Comments, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -557,13 +521,6 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		if err := uq.loadElections(ctx, query, nodes,
 			func(n *User) { n.Edges.Elections = []*Election{} },
 			func(n *User, e *Election) { n.Edges.Elections = append(n.Edges.Elections, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := uq.withComments; query != nil {
-		if err := uq.loadComments(ctx, query, nodes,
-			func(n *User) { n.Edges.Comments = []*Comment{} },
-			func(n *User, e *Comment) { n.Edges.Comments = append(n.Edges.Comments, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -605,29 +562,32 @@ func (uq *UserQuery) loadProfile(ctx context.Context, query *ProfileQuery, nodes
 	}
 	return nil
 }
-func (uq *UserQuery) loadRole(ctx context.Context, query *RoleQuery, nodes []*User, init func(*User), assign func(*User, *Role)) error {
+func (uq *UserQuery) loadComments(ctx context.Context, query *CommentQuery, nodes []*User, init func(*User), assign func(*User, *Comment)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*User)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
 	}
 	query.withFKs = true
-	query.Where(predicate.Role(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(user.RoleColumn), fks...))
+	query.Where(predicate.Comment(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.CommentsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.user_role
+		fk := n.user_comments
 		if fk == nil {
-			return fmt.Errorf(`foreign-key "user_role" is nil for node %v`, n.ID)
+			return fmt.Errorf(`foreign-key "user_comments" is nil for node %v`, n.ID)
 		}
 		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_role" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "user_comments" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -659,37 +619,6 @@ func (uq *UserQuery) loadElections(ctx context.Context, query *ElectionQuery, no
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "user_elections" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (uq *UserQuery) loadComments(ctx context.Context, query *CommentQuery, nodes []*User, init func(*User), assign func(*User, *Comment)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*User)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.withFKs = true
-	query.Where(predicate.Comment(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(user.CommentsColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.user_comments
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "user_comments" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_comments" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}
