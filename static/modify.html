@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Manage Elections</title>
+    <title>Modify Election</title>
+    <!-- Font Awesome for Icons -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
@@ -25,13 +26,13 @@
         --color-danger-hover: #c82333;
         --color-success: #28a745;
         --color-success-hover: #218838;
+        --color-modify: #17a2b8; /* Bootstrap's info color */
+        --color-modify-hover: #117a8b;
         --color-text: #333;
         --color-text-secondary: #555;
         --transition-speed: 0.3s;
         --transition-speed-fast: 0.2s;
         --border-radius: 10px;
-        --color-modify: #17a2b8;
-        --color-modify-hover: #117a8b;
       }
 
       /* ======= Global Styles ======= */
@@ -49,48 +50,16 @@
         color: var(--color-text);
       }
 
-      /* ======= Election List Container ======= */
-      .election-list {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr); /* 2 columns layout */
-        gap: 20px; /* Space between cards */
-        margin-top: 20px;
-      }
-
-      /* ======= Election Card Styling ======= */
-      .election-card {
+      /* ======= Header Styling ======= */
+      header {
         display: flex;
-        flex-direction: column;
-        padding: 20px;
-        border: 1px solid var(--color-border);
-        border-radius: var(--border-radius);
-        box-shadow: 0 4px 10px var(--color-shadow);
-        background-color: var(--color-card-bg); /* White background for cards */
-        transition: transform var(--transition-speed) ease,
-          box-shadow var(--transition-speed) ease;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
       }
 
-      .election-card:hover {
-        transform: translateY(-5px); /* Subtle lift effect */
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-      }
-
-      /* ======= Card Title and Description ======= */
-      .election-card h3 {
-        margin-bottom: 10px;
-        font-size: 1.25rem;
-        color: var(--color-text);
-      }
-
-      .election-card p {
-        margin-bottom: 10px;
-        font-size: 14px;
-        color: var(--color-text-secondary);
-        line-height: 1.5;
-      }
-
-      .election-card button {
-        margin-top: auto;
+      header h1 {
+        font-size: 2rem;
       }
 
       /* ======= Button Styling ======= */
@@ -98,7 +67,9 @@
       .delete-btn,
       .create-btn,
       .modify-btn,
-      .logout-btn {
+      .edit-btn,
+      .logout-btn,
+      #back-btn {
         margin-top: 10px;
         padding: 10px 16px;
         border: none;
@@ -129,26 +100,18 @@
         transform: scale(1.05);
       }
 
-      .create-btn {
+      .create-btn,
+      .edit-btn {
         background-color: var(--color-success);
       }
 
-      .create-btn:hover {
+      .create-btn:hover,
+      .edit-btn:hover {
         background-color: var(--color-success-hover);
         transform: scale(1.05);
       }
 
       .modify-btn {
-        margin-top: 10px;
-        padding: 10px 16px;
-        border: none;
-        border-radius: 8px;
-        color: #fff;
-        font-weight: bold;
-        cursor: pointer;
-        text-decoration: none;
-        transition: background-color var(--transition-speed),
-          transform var(--transition-speed-fast);
         background-color: var(--color-modify);
       }
 
@@ -166,8 +129,17 @@
         transform: scale(1.05);
       }
 
-      /* ======= Create Election Form Styling ======= */
-      .create-election-form {
+      #back-btn {
+        background-color: var(--color-primary);
+      }
+
+      #back-btn:hover {
+        background-color: var(--color-primary-hover);
+        transform: scale(1.05);
+      }
+
+      /* ======= Create Candidate Form Styling ======= */
+      .add-candidate-form {
         display: flex;
         flex-direction: column; /* Align child elements in a column */
         align-items: center; /* Center content horizontally */
@@ -182,19 +154,19 @@
         transition: box-shadow var(--transition-speed); /* Smooth shadow transition */
       }
 
-      .create-election-form:hover {
+      .add-candidate-form:hover {
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); /* Increased shadow on hover */
       }
 
       /* Prevent horizontal resizing of textarea */
-      .create-election-form textarea {
+      .add-candidate-form textarea {
         resize: vertical; /* Allow only vertical resizing */
       }
 
       /* ======= Form Inputs and Textarea Styling ======= */
-      .create-election-form input,
-      .create-election-form textarea,
-      .create-election-form button {
+      .add-candidate-form input,
+      .add-candidate-form textarea,
+      .add-candidate-form button {
         width: 100%; /* Full width within the form */
         padding: 12px 20px; /* Comfortable padding */
         border: 1px solid #ccc; /* Softer border color */
@@ -208,20 +180,20 @@
       }
 
       /* ======= Spacing Between Inputs ======= */
-      .create-election-form input:not(:last-of-type),
-      .create-election-form textarea:not(:last-of-type) {
+      .add-candidate-form input:not(:last-of-type),
+      .add-candidate-form textarea:not(:last-of-type) {
         margin-bottom: 15px; /* Space between inputs */
       }
 
       /* ======= Focus States for Inputs and Textarea ======= */
-      .create-election-form input:focus,
-      .create-election-form textarea:focus {
+      .add-candidate-form input:focus,
+      .add-candidate-form textarea:focus {
         border-color: var(--color-primary); /* Blue border on focus */
         box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
       }
 
       /* ======= Form Button Styling ======= */
-      .create-election-form button {
+      .add-candidate-form button {
         background-color: var(--color-success);
         color: #ffffff;
         font-weight: 600; /* Slightly bold for emphasis */
@@ -232,7 +204,7 @@
         display: inline-block;
       }
 
-      .create-election-form button:hover {
+      .add-candidate-form button:hover {
         background-color: var(
           --color-success-hover
         ); /* Darker green on hover */
@@ -241,214 +213,299 @@
       }
 
       /* ======= Button Focus Styling for Accessibility ======= */
-      .create-election-form button:focus {
+      .add-candidate-form button:focus {
         outline: none;
         box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Blue shadow for focus */
+      }
+
+      /* ======= Candidate List Container ======= */
+      .candidate-list {
+        margin: 20px auto;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* 2 columns layout */
+        gap: 20px;
+      }
+
+      /* ======= Candidate Card Styling ======= */
+      .candidate-card {
+        border: 1px solid var(--color-border);
+        border-radius: var(--border-radius);
+        padding: 20px;
+        box-shadow: 0 4px 10px var(--color-shadow);
+        background-color: var(--color-card-bg);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .candidate-card h3 {
+        margin-bottom: 10px;
+        font-size: 1.25rem;
+        color: var(--color-text);
+      }
+
+      .candidate-card p {
+        margin-bottom: 10px;
+        font-size: 14px;
+        color: var(--color-text-secondary);
+        line-height: 1.5;
+      }
+
+      .candidate-card button {
+        margin-top: auto;
+      }
+
+      /* ======= Responsive Design ======= */
+      @media (max-width: 768px) {
+        .candidate-list {
+          max-width: 100%;
+          padding: 0 10px;
+        }
+
+        .add-candidate-form {
+          padding: 20px;
+        }
       }
     </style>
   </head>
   <body>
-    <!-- Header Section with Logout Button -->
-    <header
-      style="display: flex; justify-content: space-between; align-items: center"
-    >
-      <h1>Manage Elections</h1>
-      <button id="logout-btn" class="logout-btn">
-        <i class="fa fa-sign-out-alt"></i> Logout
-      </button>
+    <!-- Header Section with Back and Logout Buttons -->
+    <header>
+      <h1>Modify Election</h1>
+      <div>
+        <button id="back-btn" class="view-btn">
+          <i class="fa fa-arrow-left"></i> Back to Elections
+        </button>
+        <button id="logout-btn" class="logout-btn">
+          <i class="fa fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
     </header>
 
-    <!-- Create Election Form -->
-    <div class="create-election-form" id="create-election-form">
-      <h2>Create a New Election</h2>
-      <form id="create-election">
-        <input type="text" id="election-title" placeholder="Title" required />
+    <!-- Add Candidate Form -->
+    <div class="add-candidate-form" id="add-candidate-form">
+      <h2>Add New Candidate</h2>
+      <form id="create-candidate">
+        <input
+          type="text"
+          id="candidate-name"
+          placeholder="Candidate Name"
+          required
+        />
         <textarea
-          id="election-description"
-          placeholder="Description"
+          id="candidate-description"
+          placeholder="Candidate Description"
           required
         ></textarea>
-        <button type="submit">
-          <i class="fa fa-plus"></i> Create Election
+        <button type="submit" class="create-btn">
+          <i class="fa fa-plus"></i> Add Candidate
         </button>
       </form>
     </div>
 
-    <h2>All Available Elections</h2>
-    <div class="election-list" id="election-list">
-      <!-- Election Cards will be populated here -->
+    <!-- List of Candidates -->
+    <h2>All Candidates</h2>
+    <div class="candidate-list" id="candidate-list">
+      <!-- Candidate Cards will be populated here -->
     </div>
 
     <script>
+      // Retrieve election ID from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const electionId = urlParams.get("id");
+
+      if (!electionId) {
+        alert("No election ID provided.");
+        window.location.href = "elections.html";
+      }
+
       // Logout Functionality
       document
         .getElementById("logout-btn")
         .addEventListener("click", function () {
-          // Confirm Logout Action
           if (confirm("Are you sure you want to logout?")) {
-            // Remove JWT token from localStorage
             localStorage.removeItem("jwt_token");
-            // Redirect to the authentication page
             window.location.href = "index.html"; // Replace with your actual login page
           }
         });
 
-      // Fetch all elections from the API and display them
-      function fetchElections() {
-        fetch("http://localhost:3000/elections", {
+      // Back Button Functionality
+      document
+        .getElementById("back-btn")
+        .addEventListener("click", function () {
+          window.location.href = "elections.html";
+        });
+
+      // Fetch all candidates for the election and display them
+      function fetchCandidates() {
+        fetch(`http://localhost:3000/elections/${electionId}/candidates`, {
           method: "GET",
           headers: {
-            Authorization: "Bearer " + localStorage.getItem("jwt_token"), // Assuming JWT is used for authentication
+            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
           },
         })
           .then((response) => {
             if (!response.ok) {
-              throw new Error("Failed to fetch elections");
+              throw new Error("Failed to fetch candidates");
             }
             return response.json();
           })
-          .then((elections) => {
-            const electionList = document.getElementById("election-list");
-            electionList.innerHTML = ""; // Clear any previous elections
+          .then((candidates) => {
+            const candidateList = document.getElementById("candidate-list");
+            candidateList.innerHTML = ""; // Clear existing candidates
 
-            if (elections.length === 0) {
-              electionList.innerHTML =
-                "<p>No elections available. Create one!</p>";
+            if (candidates.length === 0) {
+              candidateList.innerHTML =
+                "<p>No candidates available. Add one!</p>";
               return;
             }
 
-            elections.forEach((election) => {
-              // Create the election card
+            candidates.forEach((candidate) => {
+              // Create candidate card
               const card = document.createElement("div");
-              card.className = "election-card";
+              card.className = "candidate-card";
 
-              // Title
-              const title = document.createElement("h3");
-              title.innerText = election.title;
-              card.appendChild(title);
+              // Name
+              const name = document.createElement("h3");
+              name.innerText = candidate.name;
+              card.appendChild(name);
 
               // Description
               const description = document.createElement("p");
               description.innerText =
-                election.description.length > 100
-                  ? election.description.substring(0, 100) + "..."
-                  : election.description;
+                candidate.description.length > 100
+                  ? candidate.description.substring(0, 100) + "..."
+                  : candidate.description;
               card.appendChild(description);
 
               // Button Container
               const buttonContainer = document.createElement("div");
               buttonContainer.style.display = "flex";
               buttonContainer.style.gap = "10px";
-              buttonContainer.style.marginTop = "auto"; // Push buttons to the bottom
 
-              // View Election Button
-              const viewButton = document.createElement("a");
-              viewButton.href = "view.html?id=" + election.id; // Direct to candidates page
-              viewButton.className = "view-btn";
-              viewButton.innerHTML =
-                '<i class="fa-solid fa-eye"></i> View Election';
-              buttonContainer.appendChild(viewButton);
+              // Edit Candidate Button
+              const editButton = document.createElement("button");
+              editButton.className = "edit-btn";
+              editButton.innerHTML =
+                '<i class="fa fa-edit"></i> Edit Candidate';
+              editButton.onclick = function () {
+                editCandidate(candidate.id);
+              };
+              buttonContainer.appendChild(editButton);
 
-              // Modify Election Button
-              const modifyButton = document.createElement("a");
-              modifyButton.href = "modify.html?id=" + election.id; // Direct to modify candidates page
-              modifyButton.className = "modify-btn";
-              modifyButton.innerHTML =
-                '<i class="fa-solid fa-edit"></i> Modify Election';
-              buttonContainer.appendChild(modifyButton);
-
-              // Delete Election Button (already includes icon)
+              // Delete Candidate Button
               const deleteButton = document.createElement("button");
               deleteButton.className = "delete-btn";
               deleteButton.innerHTML =
-                '<i class="fa-solid fa-trash-alt"></i> Delete Election';
+                '<i class="fa fa-trash-alt"></i> Delete Candidate';
               deleteButton.onclick = function () {
-                deleteElection(election.id);
+                deleteCandidate(candidate.id);
               };
               buttonContainer.appendChild(deleteButton);
 
-              // Append the button container to the card
+              // Append button container to card
               card.appendChild(buttonContainer);
 
-              // Append the card to the list
-              electionList.appendChild(card);
+              // Append card to list
+              candidateList.appendChild(card);
             });
           })
           .catch((error) => {
-            console.error("Error fetching elections:", error);
-            alert("Failed to load elections");
+            console.error("Error fetching candidates:", error);
+            alert("Failed to load candidates");
           });
       }
 
-      // Create Election function
+      // Add Candidate function
       document
-        .getElementById("create-election")
+        .getElementById("create-candidate")
         .addEventListener("submit", function (e) {
           e.preventDefault();
 
-          const title = document.getElementById("election-title").value.trim();
+          const name = document.getElementById("candidate-name").value.trim();
           const description = document
-            .getElementById("election-description")
+            .getElementById("candidate-description")
             .value.trim();
 
-          if (title === "" || description === "") {
+          if (name === "" || description === "") {
             alert("Please fill in all fields.");
             return;
           }
 
-          fetch("http://localhost:3000/elections", {
+          fetch(`http://localhost:3000/elections/${electionId}/candidates`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               Authorization: "Bearer " + localStorage.getItem("jwt_token"),
             },
             body: JSON.stringify({
-              title: title,
+              name: name,
               description: description,
             }),
           })
             .then((response) => {
               if (!response.ok) {
-                throw new Error("Failed to create election");
+                throw new Error("Failed to add candidate");
               }
               return response.json();
             })
             .then((data) => {
-              alert("Election created successfully!");
-              fetchElections(); // Refresh the list of elections
-              document.getElementById("create-election").reset(); // Clear the form
+              alert("Candidate added successfully!");
+              fetchCandidates(); // Refresh the list of candidates
+              document.getElementById("create-candidate").reset(); // Clear the form
             })
             .catch((error) => {
-              console.error("Error creating election:", error);
-              alert("Failed to create election");
+              console.error("Error adding candidate:", error);
+              alert("Failed to add candidate");
             });
         });
 
-      // Delete Election function
-      function deleteElection(id) {
-        if (confirm("Are you sure you want to delete this election?")) {
-          fetch("http://localhost:3000/elections/" + id, {
-            method: "DELETE",
-            headers: {
-              Authorization: "Bearer " + localStorage.getItem("jwt_token"),
-            },
-          })
+      // Edit Candidate function (Placeholder for actual implementation)
+      function editCandidate(candidateId) {
+        // Implement the edit functionality as needed
+        alert(
+          "Edit functionality for candidate ID " +
+            candidateId +
+            " is not implemented yet."
+        );
+      }
+
+      // Delete Candidate function
+      function deleteCandidate(candidateId) {
+        if (confirm("Are you sure you want to delete this candidate?")) {
+          fetch(
+            `http://localhost:3000/elections/${electionId}/candidates/${candidateId}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+              },
+            }
+          )
             .then((response) => {
               if (!response.ok) {
-                throw new Error("Failed to delete election");
+                throw new Error("Failed to delete candidate");
               }
-              alert("Election deleted successfully!");
-              fetchElections(); // Refresh the list of elections
+              alert("Candidate deleted successfully!");
+              fetchCandidates(); // Refresh the list of candidates
             })
             .catch((error) => {
-              console.error("Error deleting election:", error);
-              alert("Failed to delete election");
+              console.error("Error deleting candidate:", error);
+              alert("Failed to delete candidate");
             });
         }
       }
 
-      // On page load, fetch the elections
-      window.onload = fetchElections;
+      // On page load, fetch the candidates
+      window.onload = function () {
+        // Check if the user is authenticated
+        const token = localStorage.getItem("jwt_token");
+        if (!token) {
+          window.location.href = "index.html"; // Redirect to login if not authenticated
+          return;
+        }
+
+        fetchCandidates();
+      };
     </script>
   </body>
 </html>

@@ -1,51 +1,254 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
     <title>JWT Authentication Example with Sign-Up</title>
-  </head>
+    <style>
+      /* ======= Variables ======= */
+      :root {
+        --font-family: "Arial", sans-serif;
+        --color-background: #f8f9fa;
+        --color-card-bg: #ffffff;
+        --color-border: #ddd;
+        --color-shadow: rgba(0, 0, 0, 0.1);
+        --color-primary: #007bff;
+        --color-primary-hover: #0056b3;
+        --color-danger: #dc3545;
+        --color-danger-hover: #c82333;
+        --color-success: #28a745;
+        --color-success-hover: #218838;
+        --color-text: #333;
+        --color-text-secondary: #555;
+        --transition-speed: 0.3s;
+        --transition-speed-fast: 0.2s;
+        --border-radius: 10px;
+      }
 
+      /* ======= Global Styles ======= */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: var(--font-family);
+        margin: 20px;
+        background-color: var(
+          --color-background
+        ); /* Light background color for a clean look */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      h1,
+      h2,
+      h3 {
+        color: var(--color-text);
+      }
+
+      h1 {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        text-align: center;
+        color: var(--color-primary);
+      }
+
+      /* ======= Form Container Styling ======= */
+      .form-container {
+        background-color: var(--color-card-bg);
+        border: 1px solid var(--color-border);
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 15px var(--color-shadow);
+        padding: 30px;
+        max-width: 400px;
+        width: 100%;
+        margin-bottom: 30px;
+        transition: box-shadow var(--transition-speed);
+      }
+
+      .form-container:hover {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      /* ======= Form Styling ======= */
+      form {
+        display: flex;
+        flex-direction: column;
+      }
+
+      label {
+        font-size: 1rem;
+        margin-bottom: 5px;
+        color: var(--color-text);
+      }
+
+      input {
+        padding: 12px 20px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        transition: border-color var(--transition-speed),
+          box-shadow var(--transition-speed);
+      }
+
+      input:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+        outline: none;
+      }
+
+      button {
+        padding: 10px 16px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color var(--transition-speed),
+          transform var(--transition-speed-fast);
+        color: #fff;
+        background-color: var(--color-primary);
+      }
+
+      button:hover {
+        background-color: var(--color-primary-hover);
+        transform: scale(1.05);
+      }
+
+      /* ======= Toggle Links ======= */
+      .toggle-link {
+        text-align: center;
+        margin-top: 10px;
+      }
+
+      .toggle-link a {
+        color: var(--color-primary);
+        text-decoration: none;
+        font-weight: bold;
+        transition: color var(--transition-speed);
+      }
+
+      .toggle-link a:hover {
+        color: var(--color-primary-hover);
+      }
+
+      /* ======= Responsive Design ======= */
+      @media (max-width: 480px) {
+        .form-container {
+          padding: 20px;
+          max-width: 100%;
+        }
+
+        h1 {
+          font-size: 1.75rem;
+        }
+
+        h2 {
+          font-size: 1.25rem;
+        }
+
+        button {
+          padding: 8px 14px;
+        }
+      }
+    </style>
+  </head>
   <body>
-    <h1>JWT Authentication with Go Service</h1>
+    <h1>Authentication</h1>
 
     <!-- Sign-Up Section -->
-    <div id="signup-section">
+    <div class="form-container" id="signup-section" style="display: none">
       <h2>Sign Up</h2>
       <form id="signup-form">
-        <label>
-          Email:
-          <input type="text" id="signup-email" required />
-        </label>
-        <br /><br />
-        <label>
-          Password:
-          <input type="password" id="signup-password" required />
-        </label>
-        <br /><br />
+        <label for="signup-email">Email:</label>
+        <input
+          type="email"
+          id="signup-email"
+          placeholder="Enter your email"
+          required
+        />
+
+        <label for="signup-password">Password:</label>
+        <input
+          type="password"
+          id="signup-password"
+          placeholder="Enter your password"
+          required
+        />
+
         <button type="submit">Sign Up</button>
       </form>
-      <p>Already have an account? <a href="#" id="show-login">Log In</a></p>
+      <div class="toggle-link">
+        <p>
+          Already have an account?
+          <a href="#" id="show-login">Log In</a>
+        </p>
+      </div>
     </div>
 
     <!-- Login Section -->
-    <div id="login-section" style="display: none">
+    <div class="form-container" id="login-section">
       <h2>Login</h2>
       <form id="login-form">
-        <label>
-          Email:
-          <input type="text" id="login-email" required />
-        </label>
-        <br /><br />
-        <label>
-          Password:
-          <input type="password" id="login-password" required />
-        </label>
-        <br /><br />
+        <label for="login-email">Email:</label>
+        <input
+          type="email"
+          id="login-email"
+          placeholder="Enter your email"
+          required
+        />
+
+        <label for="login-password">Password:</label>
+        <input
+          type="password"
+          id="login-password"
+          placeholder="Enter your password"
+          required
+        />
+
         <button type="submit">Login</button>
       </form>
-      <p>Don't have an account? <a href="#" id="show-signup">Sign Up</a></p>
+      <div class="toggle-link">
+        <p>
+          Don't have an account?
+          <a href="#" id="show-signup">Sign Up</a>
+        </p>
+      </div>
     </div>
 
+    <!-- JavaScript for Form Handling and Redirection -->
     <script>
+      // Function to check JWT token and redirect if present
+      function checkAuthentication() {
+        const token = localStorage.getItem("jwt_token");
+        if (token) {
+          // Optionally, you can verify the token's validity here
+          // For simplicity, we'll assume it's valid and redirect
+          window.location.href = "elections.html";
+        }
+      }
+
+      // Execute the check on page load
+      window.onload = function () {
+        checkAuthentication();
+      };
+
       // Show Login Form
       document
         .getElementById("show-login")
@@ -70,8 +273,15 @@
         .addEventListener("submit", function (e) {
           e.preventDefault();
 
-          const email = document.getElementById("signup-email").value;
-          const password = document.getElementById("signup-password").value;
+          const email = document.getElementById("signup-email").value.trim();
+          const password = document
+            .getElementById("signup-password")
+            .value.trim();
+
+          if (email === "" || password === "") {
+            alert("Please fill in all fields.");
+            return;
+          }
 
           fetch("http://localhost:3000/signup", {
             method: "POST",
@@ -105,8 +315,15 @@
         .addEventListener("submit", function (e) {
           e.preventDefault();
 
-          const email = document.getElementById("login-email").value;
-          const password = document.getElementById("login-password").value;
+          const email = document.getElementById("login-email").value.trim();
+          const password = document
+            .getElementById("login-password")
+            .value.trim();
+
+          if (email === "" || password === "") {
+            alert("Please fill in all fields.");
+            return;
+          }
 
           fetch("http://localhost:3000/login", {
             method: "POST",
@@ -132,26 +349,6 @@
               alert(error.message);
             });
         });
-
-      // Logout Functionality
-      document.getElementById("logout").addEventListener("click", function () {
-        localStorage.removeItem("jwt_token");
-        document.getElementById("protected-section").style.display = "none";
-        document.getElementById("login-section").style.display = "block";
-        document.getElementById("login-form").reset();
-      });
-
-      // Check if user is already logged in
-      window.onload = function () {
-        const token = localStorage.getItem("jwt_token");
-        if (token) {
-          document.getElementById("signup-section").style.display = "none";
-          document.getElementById("login-section").style.display = "none";
-          document.getElementById("protected-section").style.display = "block";
-        } else {
-          document.getElementById("signup-section").style.display = "block";
-        }
-      };
     </script>
   </body>
 </html>

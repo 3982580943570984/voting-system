@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Election Details</title>
+    <!-- Font Awesome for Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+      integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <style>
+      /* ======= Variables ======= */
+      :root {
+        --font-family: "Arial", sans-serif;
+        --color-background: #f8f9fa;
+        --color-card-bg: #ffffff;
+        --color-border: #ddd;
+        --color-shadow: rgba(0, 0, 0, 0.1);
+        --color-primary: #007bff;
+        --color-primary-hover: #0056b3;
+        --color-danger: #dc3545;
+        --color-danger-hover: #c82333;
+        --color-success: #28a745;
+        --color-success-hover: #218838;
+        --color-modify: #17a2b8;
+        --color-modify-hover: #117a8b;
+        --color-text: #333;
+        --color-text-secondary: #555;
+        --transition-speed: 0.3s;
+        --transition-speed-fast: 0.2s;
+        --border-radius: 10px;
+      }
+
+      /* ======= Global Styles ======= */
+      body {
+        font-family: var(--font-family);
+        margin: 20px;
+        background-color: var(
+          --color-background
+        ); /* Light background color for a clean look */
+      }
+
+      h1,
+      h2,
+      h3 {
+        color: var(--color-text);
+      }
+
+      /* ======= Header Styling ======= */
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+      }
+
+      header h1 {
+        font-size: 2rem;
+      }
+
+      /* ======= Button Styling ======= */
+      .logout-btn,
+      #back-btn {
+        margin-top: 10px;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color var(--transition-speed),
+          transform var(--transition-speed-fast);
+      }
+
+      .logout-btn {
+        background-color: var(--color-danger);
+      }
+
+      .logout-btn:hover {
+        background-color: var(--color-danger-hover);
+        transform: scale(1.05);
+      }
+
+      #back-btn {
+        background-color: var(--color-primary);
+      }
+
+      #back-btn:hover {
+        background-color: var(--color-primary-hover);
+        transform: scale(1.05);
+      }
+
+      /* ======= Button Icon Styling ======= */
+      .logout-btn i,
+      #create-candidate i,
+      #back-btn i {
+        margin-right: 8px; /* Space between icon and text */
+        vertical-align: middle; /* Align icon vertically with text */
+      }
+
+      /* ======= Candidate Card Styling ======= */
+      .candidate-card {
+        border: 1px solid var(--color-border);
+        border-radius: var(--border-radius);
+        padding: 20px;
+        box-shadow: 0 4px 10px var(--color-shadow);
+        background-color: var(--color-card-bg);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .candidate-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .vote-btn {
+        background-color: var(--color-success);
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        border: none;
+        font-weight: bold;
+        transition: background-color var(--transition-speed),
+          transform var(--transition-speed-fast);
+        display: flex;
+        align-items: center;
+      }
+
+      .vote-btn:hover {
+        background-color: var(--color-success-hover);
+        transform: scale(1.05);
+      }
+
+      .vote-btn i {
+        margin-right: 8px;
+      }
+
+      .vote-count {
+        font-size: 1.1em;
+        color: var(--color-text-secondary);
+      }
+
+      /* ======= Back Button Styling ======= */
+      button.back-btn {
+        background-color: var(--color-primary);
+        color: #fff;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        text-decoration: none;
+        transition: background-color var(--transition-speed),
+          transform var(--transition-speed-fast);
+        align-items: center;
+      }
+
+      button.back-btn:hover {
+        background-color: var(--color-primary-hover);
+        transform: scale(1.05);
+      }
+
+      button.back-btn i {
+        margin-right: 8px;
+      }
+
+      /* ======= Responsive Design ======= */
+      @media (max-width: 768px) {
+        .candidate-card {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .vote-btn {
+          margin-top: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header Section with Back and Logout Buttons -->
+    <header>
+      <h1>Election Details</h1>
+      <div>
+        <button
+          class="back-btn"
+          onclick="window.location.href='elections.html';"
+        >
+          <i class="fa-solid fa-arrow-left"></i> Back to Elections
+        </button>
+        <button id="logout-btn" class="logout-btn">
+          <i class="fa-solid fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </header>
+
+    <!-- Election Title and Description -->
+    <h2 id="election-title">Title: Loading...</h2>
+    <p id="election-description">Description: Loading...</p>
+
+    <!-- List of Candidates -->
+    <h3>Candidates</h3>
+    <div id="candidate-list">
+      <!-- Candidate Cards will be populated here -->
+    </div>
+
+    <script>
+      const electionId = new URLSearchParams(window.location.search).get("id");
+
+      // Fetch election details and candidates
+      function fetchElectionDetails() {
+        // Fetch Election Details
+        fetch(`http://localhost:3000/elections/${electionId}`, {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+          },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Failed to fetch election details");
+            }
+            return response.json();
+          })
+          .then((election) => {
+            document.getElementById(
+              "election-title"
+            ).innerText = `Title: ${election.title}`;
+            document.getElementById(
+              "election-description"
+            ).innerText = `Description: ${election.description}`;
+          })
+          .catch((error) => {
+            console.error("Error fetching election details:", error);
+            alert("Failed to load election details.");
+            document.getElementById("election-title").innerText = "Title: N/A";
+            document.getElementById("election-description").innerText =
+              "Description: N/A";
+          });
+
+        // Fetch Candidates
+        fetch(`http://localhost:3000/elections/${electionId}/candidates`, {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+          },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Failed to fetch candidates");
+            }
+            return response.json();
+          })
+          .then((candidates) => {
+            const candidateList = document.getElementById("candidate-list");
+            candidateList.innerHTML = ""; // Clear previous candidates
+
+            if (candidates.length === 0) {
+              candidateList.innerHTML =
+                "<p>No candidates available. Add one!</p>";
+              return;
+            }
+
+            candidates.forEach((candidate) => {
+              // Create candidate card
+              const card = document.createElement("div");
+              card.className = "candidate-card";
+
+              // Candidate Info
+              const candidateInfo = document.createElement("div");
+              candidateInfo.className = "candidate-info";
+
+              const name = document.createElement("span");
+              name.innerText = `Name: ${candidate.name}`;
+              candidateInfo.appendChild(name);
+
+              const voteCount = document.createElement("div");
+              voteCount.className = "vote-count";
+              voteCount.innerText = `Votes: ${candidate.votes_count || 0}`;
+              candidateInfo.appendChild(voteCount);
+
+              // Vote Button
+              const voteButton = document.createElement("button");
+              voteButton.className = "vote-btn";
+              voteButton.innerHTML =
+                '<i class="fa-solid fa-thumbs-up"></i> Vote';
+              voteButton.onclick = () =>
+                voteForCandidate(candidate.id, voteCount);
+
+              // Append info and button to card
+              card.appendChild(candidateInfo);
+              card.appendChild(voteButton);
+
+              // Append card to list
+              candidateList.appendChild(card);
+            });
+          })
+          .catch((error) => {
+            console.error("Error fetching candidates:", error);
+            alert("Failed to load candidates.");
+            const candidateList = document.getElementById("candidate-list");
+            candidateList.innerHTML = "<p>Error loading candidates.</p>";
+          });
+      }
+
+      // Vote for a candidate
+      function voteForCandidate(candidateId, voteCountElement) {
+        fetch("http://localhost:3000/votes", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+          },
+          body: JSON.stringify({ candidate_id: candidateId }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Failed to cast vote");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            alert("Vote cast successfully!");
+            // Increment the vote count on the page after successful vote
+            const currentVoteCount = parseInt(
+              voteCountElement.innerText.split(": ")[1]
+            );
+            voteCountElement.innerText = `Votes: ${currentVoteCount + 1}`;
+          })
+          .catch((error) => {
+            console.error("Error casting vote:", error);
+            alert("Error casting vote: " + error.message);
+          });
+      }
+
+      // Load election details when the page loads
+      window.onload = fetchElectionDetails;
+    </script>
+  </body>
+</html>
