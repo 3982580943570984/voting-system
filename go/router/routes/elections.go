@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"voting-system/ent/generated"
@@ -231,8 +230,6 @@ func RetrieveIdFromToken(ctx context.Context) (int, error) {
 	if err != nil {
 		return -1, err
 	}
-
-	log.Print(claims)
 
 	idFloat, ok := claims["id"].(float64)
 

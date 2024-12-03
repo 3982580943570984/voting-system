@@ -31,6 +31,8 @@ func Router() http.Handler {
 
 	router.Mount("/votes", routes.VotesRoutes())
 
+	router.Mount("/profiles", routes.ProfileRoutes())
+
 	router.Get("/swagger", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		http.ServeFile(w, r, "swagger.json")

@@ -27,6 +27,8 @@
         --color-success-hover: #218838;
         --color-modify: #17a2b8; /* Bootstrap's info color */
         --color-modify-hover: #117a8b;
+        --color-profile: #6f42c1; /* Vibrant Purple */
+        --color-profile-hover: #5936a3; /* Darker Purple for Hover Effect */
         --color-text: #333;
         --color-text-secondary: #555;
         --transition-speed: 0.3s;
@@ -64,6 +66,48 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 30px;
+      }
+
+      /* ======= Button Container ======= */
+      .button-container {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      /* ======= Button Styling ======= */
+      .logout-btn,
+      .back-btn {
+        padding: 10px 16px;
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color var(--transition-speed),
+          transform var(--transition-speed-fast);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .logout-btn {
+        background-color: var(--color-danger);
+      }
+
+      .logout-btn:hover {
+        background-color: var(--color-danger-hover);
+        transform: scale(1.05);
+      }
+
+      .back-btn {
+        background-color: var(--color-primary);
+      }
+
+      .back-btn:hover {
+        background-color: var(--color-primary-hover);
+        transform: scale(1.05);
       }
 
       /* ======= Profile Form Styling ======= */
@@ -132,52 +176,11 @@
         outline: none;
         box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
       }
-
-      /* ======= Button Styling ======= */
-      .logout-btn,
-      .back-btn {
-        padding: 10px 16px;
-        border: none;
-        border-radius: 8px;
-        color: #fff;
-        font-weight: bold;
-        cursor: pointer;
-        text-decoration: none;
-        transition: background-color var(--transition-speed),
-          transform var(--transition-speed-fast);
-        display: flex;
-        align-items: center;
-        gap: 5px;
-      }
-
-      .logout-btn {
-        background-color: var(--color-danger);
-      }
-
-      .logout-btn:hover {
-        background-color: var(--color-danger-hover);
-        transform: scale(1.05);
-      }
-
-      #back-btn {
-        background-color: var(--color-primary);
-      }
-
-      #back-btn:hover {
-        background-color: var(--color-primary-hover);
-        transform: scale(1.05);
-      }
-
-      /* ======= Button Container ======= */
-      .button-container {
-        display: flex;
-        gap: 10px;
-      }
     </style>
   </head>
   <body>
     <div class="container">
-      <!-- Header Section with Back and Logout Buttons -->
+      <!-- Header Section with Back, Profile, and Logout Buttons -->
       <header>
         <h1>Manage Your Profile</h1>
         <div class="button-container">
@@ -251,7 +254,8 @@
 
       // Fetch Profile Data and Populate the Form
       function fetchProfile() {
-        fetch("http://localhost:3000/profile", {
+        fetch("http://localhost:3000/profiles", {
+          // Ensure this matches your backend route
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -269,10 +273,15 @@
               profile.first_name || "";
             document.getElementById("last_name").value =
               profile.last_name || "";
-            if (profile.birthdate) {
+            if (
+              profile.birthdate &&
+              profile.birthdate !== "0001-01-01T00:00:00Z"
+            ) {
               const birthdate = new Date(profile.birthdate);
               const formattedDate = birthdate.toISOString().split("T")[0];
               document.getElementById("birthdate").value = formattedDate;
+            } else {
+              document.getElementById("birthdate").value = "";
             }
             document.getElementById("phone_number").value =
               profile.phone_number || "";
@@ -295,7 +304,7 @@
 
           const firstName = document.getElementById("first_name").value.trim();
           const lastName = document.getElementById("last_name").value.trim();
-          const birthdate = document.getElementById("birthdate").value;
+          const birthdateInput = document.getElementById("birthdate").value;
           const phoneNumber = document
             .getElementById("phone_number")
             .value.trim();
@@ -310,7 +319,20 @@
             return;
           }
 
-          fetch("http://localhost:3000/profile", {
+          // Prepare birthdate
+          let birthdate = null;
+          if (birthdateInput) {
+            // Convert to ISO string with time component
+            const dateObj = new Date(birthdateInput);
+            if (isNaN(dateObj.getTime())) {
+              alert("Please enter a valid birthdate.");
+              return;
+            }
+            birthdate = dateObj.toISOString();
+          }
+
+          fetch("http://localhost:3000/profiles", {
+            // Ensure this matches your backend route
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
@@ -319,7 +341,7 @@
             body: JSON.stringify({
               first_name: firstName || null,
               last_name: lastName || null,
-              birthdate: birthdate || null,
+              birthdate: birthdate, // Already null or ISO string
               phone_number: phoneNumber || null,
               bio: bio || null,
               address: address || null,
@@ -330,10 +352,12 @@
               if (!response.ok) {
                 throw new Error("Failed to update profile");
               }
-              return response.json();
+              return response.ok;
             })
-            .then((data) => {
+            .then(() => {
               alert("Profile updated successfully!");
+              // Optionally, refresh the form with updated data
+              fetchProfile();
             })
             .catch((error) => {
               console.error("Error updating profile:", error);
