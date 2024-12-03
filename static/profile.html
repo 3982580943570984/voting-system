@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Profile</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+      integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <style>
+      /* ======= Variables ======= */
+      :root {
+        --font-family: "Arial", sans-serif;
+        --color-background: #f8f9fa;
+        --color-card-bg: #ffffff;
+        --color-border: #ddd;
+        --color-shadow: rgba(0, 0, 0, 0.1);
+        --color-primary: #007bff;
+        --color-primary-hover: #0056b3;
+        --color-danger: #dc3545;
+        --color-danger-hover: #c82333;
+        --color-success: #28a745;
+        --color-success-hover: #218838;
+        --color-modify: #17a2b8; /* Bootstrap's info color */
+        --color-modify-hover: #117a8b;
+        --color-text: #333;
+        --color-text-secondary: #555;
+        --transition-speed: 0.3s;
+        --transition-speed-fast: 0.2s;
+        --border-radius: 10px;
+        --max-width: 1200px;
+      }
+
+      /* ======= Global Styles ======= */
+      body {
+        font-family: var(--font-family);
+        margin: 0;
+        padding: 0;
+        background-color: var(
+          --color-background
+        ); /* Light background color for a clean look */
+      }
+
+      h1,
+      h2,
+      h3 {
+        color: var(--color-text);
+      }
+
+      /* ======= Container ======= */
+      .container {
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      /* ======= Header Section ======= */
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+      }
+
+      /* ======= Profile Form Styling ======= */
+      .profile-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 30px;
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        box-shadow: 0 4px 15px var(--color-shadow);
+        background-color: var(--color-card-bg);
+        transition: box-shadow var(--transition-speed);
+      }
+
+      .profile-form:hover {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      .profile-form input,
+      .profile-form textarea,
+      .profile-form button {
+        width: 100%;
+        padding: 12px 20px;
+        border: 1px solid #ccc;
+        border-radius: var(--border-radius);
+        outline: none;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color var(--transition-speed),
+          box-shadow var(--transition-speed);
+        margin: 5px 0;
+      }
+
+      .profile-form input:not(:last-of-type),
+      .profile-form textarea:not(:last-of-type) {
+        margin-bottom: 15px;
+      }
+
+      .profile-form input:focus,
+      .profile-form textarea:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+      }
+
+      .profile-form button {
+        background-color: var(--color-success);
+        color: #ffffff;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color var(--transition-speed),
+          transform var(--transition-speed-fast),
+          box-shadow var(--transition-speed);
+        display: inline-block;
+      }
+
+      .profile-form button:hover {
+        background-color: var(--color-success-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .profile-form button:focus {
+        outline: none;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+      }
+
+      /* ======= Button Styling ======= */
+      .logout-btn,
+      .back-btn {
+        padding: 10px 16px;
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color var(--transition-speed),
+          transform var(--transition-speed-fast);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .logout-btn {
+        background-color: var(--color-danger);
+      }
+
+      .logout-btn:hover {
+        background-color: var(--color-danger-hover);
+        transform: scale(1.05);
+      }
+
+      #back-btn {
+        background-color: var(--color-primary);
+      }
+
+      #back-btn:hover {
+        background-color: var(--color-primary-hover);
+        transform: scale(1.05);
+      }
+
+      /* ======= Button Container ======= */
+      .button-container {
+        display: flex;
+        gap: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header Section with Back and Logout Buttons -->
+      <header>
+        <h1>Manage Your Profile</h1>
+        <div class="button-container">
+          <button id="back-btn" class="back-btn">
+            <i class="fa fa-arrow-left"></i> Back to Elections
+          </button>
+          <button id="logout-btn" class="logout-btn">
+            <i class="fa fa-sign-out-alt"></i> Logout
+          </button>
+        </div>
+      </header>
+
+      <!-- Profile Form -->
+      <div class="profile-form" id="profile-form">
+        <h2>Your Profile</h2>
+        <form id="update-profile">
+          <input
+            type="text"
+            id="first_name"
+            placeholder="First Name"
+            maxlength="50"
+          />
+          <input
+            type="text"
+            id="last_name"
+            placeholder="Last Name"
+            maxlength="50"
+          />
+          <input type="date" id="birthdate" placeholder="Birthdate" />
+          <input
+            type="text"
+            id="phone_number"
+            placeholder="Phone Number (e.g., +1234567890)"
+            maxlength="15"
+          />
+          <textarea
+            id="bio"
+            placeholder="Bio"
+            maxlength="500"
+            rows="4"
+          ></textarea>
+          <input
+            type="text"
+            id="address"
+            placeholder="Address"
+            maxlength="255"
+          />
+          <input type="url" id="photo_url" placeholder="Photo URL" />
+          <button type="submit"><i class="fa fa-save"></i> Save Changes</button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // Logout Functionality
+      document
+        .getElementById("logout-btn")
+        .addEventListener("click", function () {
+          if (confirm("Are you sure you want to logout?")) {
+            localStorage.removeItem("jwt_token");
+            window.location.href = "index.html"; // Replace with your actual login page
+          }
+        });
+
+      // Back to Elections Functionality
+      document
+        .getElementById("back-btn")
+        .addEventListener("click", function () {
+          window.location.href = "elections.html"; // Replace with your actual elections page URL
+        });
+
+      // Fetch Profile Data and Populate the Form
+      function fetchProfile() {
+        fetch("http://localhost:3000/profile", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+          },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Failed to fetch profile data");
+            }
+            return response.json();
+          })
+          .then((profile) => {
+            document.getElementById("first_name").value =
+              profile.first_name || "";
+            document.getElementById("last_name").value =
+              profile.last_name || "";
+            if (profile.birthdate) {
+              const birthdate = new Date(profile.birthdate);
+              const formattedDate = birthdate.toISOString().split("T")[0];
+              document.getElementById("birthdate").value = formattedDate;
+            }
+            document.getElementById("phone_number").value =
+              profile.phone_number || "";
+            document.getElementById("bio").value = profile.bio || "";
+            document.getElementById("address").value = profile.address || "";
+            document.getElementById("photo_url").value =
+              profile.photo_url || "";
+          })
+          .catch((error) => {
+            console.error("Error fetching profile:", error);
+            alert("Failed to load profile data. Please try again.");
+          });
+      }
+
+      // Update Profile Data
+      document
+        .getElementById("update-profile")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const firstName = document.getElementById("first_name").value.trim();
+          const lastName = document.getElementById("last_name").value.trim();
+          const birthdate = document.getElementById("birthdate").value;
+          const phoneNumber = document
+            .getElementById("phone_number")
+            .value.trim();
+          const bio = document.getElementById("bio").value.trim();
+          const address = document.getElementById("address").value.trim();
+          const photoUrl = document.getElementById("photo_url").value.trim();
+
+          // Client-side Validation
+          const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+          if (phoneNumber && !phoneRegex.test(phoneNumber)) {
+            alert("Please enter a valid phone number.");
+            return;
+          }
+
+          fetch("http://localhost:3000/profile", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+            },
+            body: JSON.stringify({
+              first_name: firstName || null,
+              last_name: lastName || null,
+              birthdate: birthdate || null,
+              phone_number: phoneNumber || null,
+              bio: bio || null,
+              address: address || null,
+              photo_url: photoUrl || null,
+            }),
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Failed to update profile");
+              }
+              return response.json();
+            })
+            .then((data) => {
+              alert("Profile updated successfully!");
+            })
+            .catch((error) => {
+              console.error("Error updating profile:", error);
+              alert("Failed to update profile. Please try again.");
+            });
+        });
+
+      // Initialize the Profile Page by Fetching Data
+      window.onload = fetchProfile;
+    </script>
+  </body>
+</html>

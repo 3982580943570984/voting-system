@@ -32,6 +32,8 @@
         --border-radius: 10px;
         --color-modify: #17a2b8;
         --color-modify-hover: #117a8b;
+        --color-profile: #6f42c1;
+        --color-profile-hover: #5936a3;
         --max-width: 1200px;
       }
 
@@ -56,6 +58,96 @@
         max-width: var(--max-width);
         margin: 0 auto;
         padding: 20px;
+      }
+
+      /* ======= Header Section ======= */
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+      }
+
+      /* ======= Button Container ======= */
+      .button-container {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+
+      /* ======= Button Styling ======= */
+      .view-btn,
+      .delete-btn,
+      .create-btn,
+      .modify-btn,
+      .logout-btn,
+      .profile-btn {
+        padding: 10px 16px;
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color var(--transition-speed),
+          transform var(--transition-speed-fast);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .view-btn {
+        background-color: var(--color-primary);
+      }
+
+      .view-btn:hover {
+        background-color: var(--color-primary-hover);
+        transform: scale(1.05);
+      }
+
+      .delete-btn {
+        background-color: var(--color-danger);
+      }
+
+      .delete-btn:hover {
+        background-color: var(--color-danger-hover);
+        transform: scale(1.05);
+      }
+
+      .create-btn {
+        background-color: var(--color-success);
+      }
+
+      .create-btn:hover {
+        background-color: var(--color-success-hover);
+        transform: scale(1.05);
+      }
+
+      .modify-btn {
+        background-color: var(--color-modify);
+      }
+
+      .modify-btn:hover {
+        background-color: var(--color-modify-hover);
+        transform: scale(1.05);
+      }
+
+      .logout-btn {
+        background-color: var(--color-danger);
+      }
+
+      .logout-btn:hover {
+        background-color: var(--color-danger-hover);
+        transform: scale(1.05);
+      }
+
+      .profile-btn {
+        background-color: var(--color-profile);
+      }
+
+      .profile-btn:hover {
+        background-color: var(--color-profile-hover);
+        transform: scale(1.05);
       }
 
       /* ======= Election List Container ======= */
@@ -100,79 +192,6 @@
 
       .election-card button {
         margin-top: auto;
-      }
-
-      /* ======= Button Styling ======= */
-      .view-btn,
-      .delete-btn,
-      .create-btn,
-      .modify-btn,
-      .logout-btn {
-        margin-top: 10px;
-        padding: 10px 16px;
-        border: none;
-        border-radius: 8px;
-        color: #fff;
-        font-weight: bold;
-        cursor: pointer;
-        text-decoration: none;
-        transition: background-color var(--transition-speed),
-          transform var(--transition-speed-fast);
-      }
-
-      .view-btn {
-        background-color: var(--color-primary);
-      }
-
-      .view-btn:hover {
-        background-color: var(--color-primary-hover);
-        transform: scale(1.05);
-      }
-
-      .delete-btn {
-        background-color: var(--color-danger);
-      }
-
-      .delete-btn:hover {
-        background-color: var(--color-danger-hover);
-        transform: scale(1.05);
-      }
-
-      .create-btn {
-        background-color: var(--color-success);
-      }
-
-      .create-btn:hover {
-        background-color: var(--color-success-hover);
-        transform: scale(1.05);
-      }
-
-      .modify-btn {
-        margin-top: 10px;
-        padding: 10px 16px;
-        border: none;
-        border-radius: 8px;
-        color: #fff;
-        font-weight: bold;
-        cursor: pointer;
-        text-decoration: none;
-        transition: background-color var(--transition-speed),
-          transform var(--transition-speed-fast);
-        background-color: var(--color-modify);
-      }
-
-      .modify-btn:hover {
-        background-color: var(--color-modify-hover);
-        transform: scale(1.05);
-      }
-
-      .logout-btn {
-        background-color: var(--color-danger);
-      }
-
-      .logout-btn:hover {
-        background-color: var(--color-danger-hover);
-        transform: scale(1.05);
       }
 
       /* ======= Create Election Form Styling ======= */
@@ -258,18 +277,17 @@
   </head>
   <body>
     <div class="container">
-      <!-- Header Section with Logout Button -->
-      <header
-        style="
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        "
-      >
+      <!-- Header Section with Back, Profile, and Logout Buttons -->
+      <header>
         <h1>Manage Elections</h1>
-        <button id="logout-btn" class="logout-btn">
-          <i class="fa fa-sign-out-alt"></i> Logout
-        </button>
+        <div class="button-container">
+          <button id="profile-btn" class="profile-btn">
+            <i class="fa fa-user"></i> Profile
+          </button>
+          <button id="logout-btn" class="logout-btn">
+            <i class="fa fa-sign-out-alt"></i> Logout
+          </button>
+        </div>
       </header>
 
       <!-- Create Election Form -->
@@ -306,6 +324,14 @@
             // Redirect to the authentication page
             window.location.href = "index.html"; // Replace with your actual login page
           }
+        });
+
+      // Profile Button Functionality
+      document
+        .getElementById("profile-btn")
+        .addEventListener("click", function () {
+          // Redirect to the profile page
+          window.location.href = "profile.html"; // Ensure this path is correct
         });
 
       // Fetch all elections from the API and display them
