@@ -32,12 +32,14 @@
         --border-radius: 10px;
         --color-modify: #17a2b8;
         --color-modify-hover: #117a8b;
+        --max-width: 1200px;
       }
 
       /* ======= Global Styles ======= */
       body {
         font-family: var(--font-family);
-        margin: 20px;
+        margin: 0;
+        padding: 0;
         background-color: var(
           --color-background
         ); /* Light background color for a clean look */
@@ -47,6 +49,13 @@
       h2,
       h3 {
         color: var(--color-text);
+      }
+
+      /* ======= Container ======= */
+      .container {
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 20px;
       }
 
       /* ======= Election List Container ======= */
@@ -248,35 +257,41 @@
     </style>
   </head>
   <body>
-    <!-- Header Section with Logout Button -->
-    <header
-      style="display: flex; justify-content: space-between; align-items: center"
-    >
-      <h1>Manage Elections</h1>
-      <button id="logout-btn" class="logout-btn">
-        <i class="fa fa-sign-out-alt"></i> Logout
-      </button>
-    </header>
-
-    <!-- Create Election Form -->
-    <div class="create-election-form" id="create-election-form">
-      <h2>Create a New Election</h2>
-      <form id="create-election">
-        <input type="text" id="election-title" placeholder="Title" required />
-        <textarea
-          id="election-description"
-          placeholder="Description"
-          required
-        ></textarea>
-        <button type="submit">
-          <i class="fa fa-plus"></i> Create Election
+    <div class="container">
+      <!-- Header Section with Logout Button -->
+      <header
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        "
+      >
+        <h1>Manage Elections</h1>
+        <button id="logout-btn" class="logout-btn">
+          <i class="fa fa-sign-out-alt"></i> Logout
         </button>
-      </form>
-    </div>
+      </header>
 
-    <h2>All Available Elections</h2>
-    <div class="election-list" id="election-list">
-      <!-- Election Cards will be populated here -->
+      <!-- Create Election Form -->
+      <div class="create-election-form" id="create-election-form">
+        <h2>Create a New Election</h2>
+        <form id="create-election">
+          <input type="text" id="election-title" placeholder="Title" required />
+          <textarea
+            id="election-description"
+            placeholder="Description"
+            required
+          ></textarea>
+          <button type="submit">
+            <i class="fa fa-plus"></i> Create Election
+          </button>
+        </form>
+      </div>
+
+      <h2>All Available Elections</h2>
+      <div class="election-list" id="election-list">
+        <!-- Election Cards will be populated here -->
+      </div>
     </div>
 
     <script>

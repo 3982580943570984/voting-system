@@ -33,12 +33,14 @@
         --transition-speed: 0.3s;
         --transition-speed-fast: 0.2s;
         --border-radius: 10px;
+        --max-width: 1200px;
       }
 
       /* ======= Global Styles ======= */
       body {
         font-family: var(--font-family);
-        margin: 20px;
+        margin: 0;
+        padding: 0;
         background-color: var(
           --color-background
         ); /* Light background color for a clean look */
@@ -48,6 +50,19 @@
       h2,
       h3 {
         color: var(--color-text);
+        margin-bottom: 10px;
+      }
+
+      p {
+        color: var(--color-text-secondary);
+        line-height: 1.6;
+      }
+
+      /* ======= Container ======= */
+      .container {
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 20px;
       }
 
       /* ======= Header Styling ======= */
@@ -60,6 +75,11 @@
 
       header h1 {
         font-size: 2rem;
+      }
+
+      header div {
+        display: flex;
+        gap: 20px;
       }
 
       /* ======= Button Styling ======= */
@@ -97,10 +117,26 @@
 
       /* ======= Button Icon Styling ======= */
       .logout-btn i,
-      #create-candidate i,
-      #back-btn i {
+      #back-btn i,
+      .vote-btn i {
         margin-right: 8px; /* Space between icon and text */
         vertical-align: middle; /* Align icon vertically with text */
+      }
+
+      /* ======= Election Details Styling ======= */
+      .election-details {
+        margin-bottom: 40px;
+      }
+
+      .election-details h2 {
+        font-size: 1.5rem;
+      }
+
+      /* ======= Candidates List Styling ======= */
+      .candidate-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px; /* Space between candidate cards */
       }
 
       /* ======= Candidate Card Styling ======= */
@@ -113,14 +149,39 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        transition: transform var(--transition-speed),
+          box-shadow var(--transition-speed);
+      }
+
+      .candidate-card:hover {
+        transform: translateY(-5px); /* Slight lift on hover */
+        box-shadow: 0 8px 20px var(--color-shadow);
       }
 
       .candidate-info {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
+        margin-bottom: 10px;
       }
 
+      .candidate-info h3 {
+        margin-bottom: 5px;
+        font-size: 1.25rem;
+        color: var(--color-text);
+      }
+
+      .candidate-info p {
+        font-size: 14px;
+        color: var(--color-text-secondary);
+      }
+
+      .vote-count {
+        font-size: 1.1em;
+        color: var(--color-text-secondary);
+      }
+
+      /* ======= Vote Button Styling ======= */
       .vote-btn {
         background-color: var(--color-success);
         color: #fff;
@@ -133,6 +194,7 @@
           transform var(--transition-speed-fast);
         display: flex;
         align-items: center;
+        justify-content: center;
       }
 
       .vote-btn:hover {
@@ -144,37 +206,22 @@
         margin-right: 8px;
       }
 
-      .vote-count {
-        font-size: 1.1em;
-        color: var(--color-text-secondary);
-      }
-
-      /* ======= Back Button Styling ======= */
-      button.back-btn {
-        background-color: var(--color-primary);
-        color: #fff;
-        padding: 10px 16px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: bold;
-        text-decoration: none;
-        transition: background-color var(--transition-speed),
-          transform var(--transition-speed-fast);
-        align-items: center;
-      }
-
-      button.back-btn:hover {
-        background-color: var(--color-primary-hover);
-        transform: scale(1.05);
-      }
-
-      button.back-btn i {
-        margin-right: 8px;
-      }
-
       /* ======= Responsive Design ======= */
       @media (max-width: 768px) {
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        header h1 {
+          margin-bottom: 20px;
+        }
+
+        header div {
+          display: flex;
+          gap: 10px;
+        }
+
         .candidate-card {
           flex-direction: column;
           align-items: flex-start;
@@ -187,30 +234,34 @@
     </style>
   </head>
   <body>
-    <!-- Header Section with Back and Logout Buttons -->
-    <header>
-      <h1>Election Details</h1>
-      <div>
-        <button
-          class="back-btn"
-          onclick="window.location.href='elections.html';"
-        >
-          <i class="fa-solid fa-arrow-left"></i> Back to Elections
-        </button>
-        <button id="logout-btn" class="logout-btn">
-          <i class="fa-solid fa-sign-out-alt"></i> Logout
-        </button>
+    <div class="container">
+      <!-- Header Section with Back and Logout Buttons -->
+      <header>
+        <h1>Election Details</h1>
+        <div>
+          <button
+            id="back-btn"
+            onclick="window.location.href='elections.html';"
+          >
+            <i class="fa-solid fa-arrow-left"></i> Back to Elections
+          </button>
+          <button id="logout-btn" class="logout-btn">
+            <i class="fa-solid fa-sign-out-alt"></i> Logout
+          </button>
+        </div>
+      </header>
+
+      <!-- Election Title and Description -->
+      <div class="election-details">
+        <h2 id="election-title">Title: Loading...</h2>
+        <p id="election-description">Description: Loading...</p>
       </div>
-    </header>
 
-    <!-- Election Title and Description -->
-    <h2 id="election-title">Title: Loading...</h2>
-    <p id="election-description">Description: Loading...</p>
-
-    <!-- List of Candidates -->
-    <h3>Candidates</h3>
-    <div id="candidate-list">
-      <!-- Candidate Cards will be populated here -->
+      <!-- List of Candidates -->
+      <h3>Candidates</h3>
+      <div class="candidate-list" id="candidate-list">
+        <!-- Candidate Cards will be populated here -->
+      </div>
     </div>
 
     <script>
@@ -279,9 +330,13 @@
               const candidateInfo = document.createElement("div");
               candidateInfo.className = "candidate-info";
 
-              const name = document.createElement("span");
-              name.innerText = `Name: ${candidate.name}`;
+              const name = document.createElement("h3");
+              name.innerText = candidate.name;
               candidateInfo.appendChild(name);
+
+              const description = document.createElement("p");
+              description.innerText = candidate.description;
+              candidateInfo.appendChild(description);
 
               const voteCount = document.createElement("div");
               voteCount.className = "vote-count";

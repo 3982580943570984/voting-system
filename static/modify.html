@@ -33,12 +33,14 @@
         --transition-speed: 0.3s;
         --transition-speed-fast: 0.2s;
         --border-radius: 10px;
+        --max-width: 1200px;
       }
 
       /* ======= Global Styles ======= */
       body {
         font-family: var(--font-family);
-        margin: 20px;
+        margin: 0;
+        padding: 0;
         background-color: var(
           --color-background
         ); /* Light background color for a clean look */
@@ -48,6 +50,13 @@
       h2,
       h3 {
         color: var(--color-text);
+      }
+
+      /* ======= Container ======= */
+      .container {
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 20px;
       }
 
       /* ======= Header Styling ======= */
@@ -60,6 +69,11 @@
 
       header h1 {
         font-size: 2rem;
+      }
+
+      header div {
+        display: flex;
+        gap: 20px;
       }
 
       /* ======= Button Styling ======= */
@@ -268,44 +282,46 @@
     </style>
   </head>
   <body>
-    <!-- Header Section with Back and Logout Buttons -->
-    <header>
-      <h1>Modify Election</h1>
-      <div>
-        <button id="back-btn" class="view-btn">
-          <i class="fa fa-arrow-left"></i> Back to Elections
-        </button>
-        <button id="logout-btn" class="logout-btn">
-          <i class="fa fa-sign-out-alt"></i> Logout
-        </button>
+    <div class="container">
+      <!-- Header Section with Back and Logout Buttons -->
+      <header>
+        <h1>Modify Election</h1>
+        <div>
+          <button id="back-btn" class="view-btn">
+            <i class="fa fa-arrow-left"></i> Back to Elections
+          </button>
+          <button id="logout-btn" class="logout-btn">
+            <i class="fa fa-sign-out-alt"></i> Logout
+          </button>
+        </div>
+      </header>
+
+      <!-- Add Candidate Form -->
+      <div class="add-candidate-form" id="add-candidate-form">
+        <h2>Add New Candidate</h2>
+        <form id="create-candidate">
+          <input
+            type="text"
+            id="candidate-name"
+            placeholder="Candidate Name"
+            required
+          />
+          <textarea
+            id="candidate-description"
+            placeholder="Candidate Description"
+            required
+          ></textarea>
+          <button type="submit" class="create-btn">
+            <i class="fa fa-plus"></i> Add Candidate
+          </button>
+        </form>
       </div>
-    </header>
 
-    <!-- Add Candidate Form -->
-    <div class="add-candidate-form" id="add-candidate-form">
-      <h2>Add New Candidate</h2>
-      <form id="create-candidate">
-        <input
-          type="text"
-          id="candidate-name"
-          placeholder="Candidate Name"
-          required
-        />
-        <textarea
-          id="candidate-description"
-          placeholder="Candidate Description"
-          required
-        ></textarea>
-        <button type="submit" class="create-btn">
-          <i class="fa fa-plus"></i> Add Candidate
-        </button>
-      </form>
-    </div>
-
-    <!-- List of Candidates -->
-    <h2>All Candidates</h2>
-    <div class="candidate-list" id="candidate-list">
-      <!-- Candidate Cards will be populated here -->
+      <!-- List of Candidates -->
+      <h2>All Candidates</h2>
+      <div class="candidate-list" id="candidate-list">
+        <!-- Candidate Cards will be populated here -->
+      </div>
     </div>
 
     <script>
