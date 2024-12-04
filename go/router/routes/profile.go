@@ -24,6 +24,16 @@ func ProfileRoutes() chi.Router {
 	return r
 }
 
+// @Summary Получить профиль пользователя
+// @Description Возвращает профиль текущего аутентифицированного пользователя.
+// @Tags Профиль
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Success 200 {object} generated.Profile "Профиль пользователя"
+// @Failure 401 {object} map[string]string "Неавторизованный доступ"
+// @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router /profile [get]
 func getProfile(w http.ResponseWriter, r *http.Request) {
 	id, err := RetrieveIdFromToken(r.Context())
 
@@ -44,6 +54,18 @@ func getProfile(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(profile)
 }
 
+// @Summary Обновить профиль пользователя
+// @Description Обновляет профиль текущего аутентифицированного пользователя.
+// @Tags Профиль
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param profile body services.ProfileUpdate true "Данные для обновления профиля"
+// @Success 204 {string} string "Профиль успешно обновлен"
+// @Failure 400 {object} map[string]string "Неверный формат запроса"
+// @Failure 401 {object} map[string]string "Неавторизованный доступ"
+// @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router /profile [put]
 func updateProfile(w http.ResponseWriter, r *http.Request) {
 	id, err := RetrieveIdFromToken(r.Context())
 

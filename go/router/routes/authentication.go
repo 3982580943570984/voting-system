@@ -2,7 +2,6 @@ package routes
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"voting-system/services"
 
@@ -47,42 +46,6 @@ func AuthenticationRoutes() chi.Router {
 
 	router.Post("/signup", signup)
 
-	// TODO: remove. was needed for debug purposes
-	router.Group(func(r chi.Router) {
-		r.Use(jwtauth.Verifier(token))
-
-		r.Use(jwtauth.Authenticator(token))
-
-		r.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
-			_, claims, err := jwtauth.FromContext(r.Context())
-
-			if err != nil {
-				http.Error(w, "Invalid token", http.StatusUnauthorized)
-				return
-			}
-
-			idFloat, ok := claims["id"].(float64)
-
-			if !ok {
-				http.Error(w, "Invalid or missing 'id' in token", http.StatusBadRequest)
-				return
-			}
-
-			id := int(idFloat)
-
-			user, err := services.
-				NewUsers().
-				GetById(r.Context(), id)
-
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
-			}
-
-			w.Write([]byte(fmt.Sprintf("Protected area. Hi %s", user.Email)))
-		})
-	})
-
 	return router
 }
 
@@ -120,7 +83,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, tokenString, err := token.Encode(map[string]interface{}{"id": user.ID})
+	_, tokenString, err := token.Encode(map[string]interface{}{"id": user.ID, "is_organizer": user.IsOrganizer})
 
 	if err != nil {
 		http.Error(w, "Internal server error"+err.Error(), http.StatusInternalServerError)

@@ -11,6 +11,8 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+    <!-- Include jwt-decode via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
     <style>
       /* ======= Variables ======= */
       :root {
@@ -273,11 +275,17 @@
         outline: none;
         box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Blue shadow for focus */
       }
+
+      /* ======= Disabled Button Styling ======= */
+      .disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
     </style>
   </head>
   <body>
     <div class="container">
-      <!-- Header Section with Back, Profile, and Logout Buttons -->
+      <!-- Header Section with Profile and Logout Buttons -->
       <header>
         <h1>Manage Elections</h1>
         <div class="button-container">
@@ -313,26 +321,72 @@
     </div>
 
     <script>
-      // Logout Functionality
-      document
-        .getElementById("logout-btn")
-        .addEventListener("click", function () {
-          // Confirm Logout Action
-          if (confirm("Are you sure you want to logout?")) {
-            // Remove JWT token from localStorage
-            localStorage.removeItem("jwt_token");
-            // Redirect to the authentication page
-            window.location.href = "index.html"; // Replace with your actual login page
-          }
-        });
+      // Function to decode JWT and retrieve claims
+      function getJwtClaims() {
+        const token = localStorage.getItem("jwt_token");
+        if (!token) return null;
 
-      // Profile Button Functionality
-      document
-        .getElementById("profile-btn")
-        .addEventListener("click", function () {
-          // Redirect to the profile page
-          window.location.href = "profile.html"; // Ensure this path is correct
-        });
+        try {
+          const decoded = jwt_decode(token);
+          return decoded;
+        } catch (error) {
+          console.error("Invalid JWT token", error);
+          return null;
+        }
+      }
+
+      // Function to check JWT token and redirect if not present or invalid
+      function checkAuthentication() {
+        const token = localStorage.getItem("jwt_token");
+        if (!token) {
+          alert("You are not logged in. Please log in first.");
+          window.location.href = "index.html"; // Replace with your actual login page
+          return;
+        }
+
+        const claims = getJwtClaims();
+        if (!claims) {
+          alert("Invalid token. Please log in again.");
+          localStorage.removeItem("jwt_token");
+          window.location.href = "index.html"; // Replace with your actual login page
+          return;
+        }
+
+        // Optional: Check token expiration if 'exp' claim exists
+        if (claims.exp) {
+          const currentTime = Date.now() / 1000; // in seconds
+          if (claims.exp < currentTime) {
+            alert("Session expired. Please log in again.");
+            localStorage.removeItem("jwt_token");
+            window.location.href = "index.html"; // Replace with your actual login page
+            return;
+          }
+        }
+      }
+
+      // Function to determine if the user is an organizer
+      function isUserOrganizer() {
+        const claims = getJwtClaims();
+        if (claims && claims.is_organizer) {
+          return true;
+        }
+        return false;
+      }
+
+      // Function to update UI based on user role
+      function updateUIBasedOnRole() {
+        const organizer = isUserOrganizer();
+
+        // Show or hide the Create Election form
+        const createForm = document.getElementById("create-election-form");
+        if (organizer) {
+          createForm.style.display = "flex";
+        } else {
+          createForm.style.display = "none";
+        }
+
+        // After elections are fetched and rendered, hide Modify/Delete buttons if not organizer
+      }
 
       // Fetch all elections from the API and display them
       function fetchElections() {
@@ -354,7 +408,7 @@
 
             if (elections.length === 0) {
               electionList.innerHTML =
-                "<p>No elections available. Create one!</p>";
+                "<p>No elections available. Create one if you have the permissions!</p>";
               return;
             }
 
@@ -414,11 +468,49 @@
               // Append the card to the list
               electionList.appendChild(card);
             });
+
+            // After rendering all election cards, adjust buttons based on role
+            adjustElectionButtons();
           })
           .catch((error) => {
             console.error("Error fetching elections:", error);
             alert("Failed to load elections");
           });
+      }
+
+      // Function to adjust election buttons based on user role
+      function adjustElectionButtons() {
+        const organizer = isUserOrganizer();
+
+        const electionList = document.getElementById("election-list");
+        const cards = electionList.getElementsByClassName("election-card");
+
+        Array.from(cards).forEach((card) => {
+          const modifyBtn = card.querySelector(".modify-btn");
+          const deleteBtn = card.querySelector(".delete-btn");
+
+          if (organizer) {
+            // If organizer, ensure buttons are visible and enabled
+            if (modifyBtn) {
+              modifyBtn.style.display = "flex";
+              modifyBtn.classList.remove("disabled");
+              modifyBtn.removeAttribute("disabled");
+            }
+            if (deleteBtn) {
+              deleteBtn.style.display = "flex";
+              deleteBtn.classList.remove("disabled");
+              deleteBtn.removeAttribute("disabled");
+            }
+          } else {
+            // If not organizer, hide or disable buttons
+            if (modifyBtn) {
+              modifyBtn.style.display = "none";
+            }
+            if (deleteBtn) {
+              deleteBtn.style.display = "none";
+            }
+          }
+        });
       }
 
       // Create Election function
@@ -488,8 +580,33 @@
         }
       }
 
-      // On page load, fetch the elections
-      window.onload = fetchElections;
+      // Logout Functionality
+      document
+        .getElementById("logout-btn")
+        .addEventListener("click", function () {
+          // Confirm Logout Action
+          if (confirm("Are you sure you want to logout?")) {
+            // Remove JWT token from localStorage
+            localStorage.removeItem("jwt_token");
+            // Redirect to the authentication page
+            window.location.href = "index.html"; // Replace with your actual login page
+          }
+        });
+
+      // Profile Button Functionality
+      document
+        .getElementById("profile-btn")
+        .addEventListener("click", function () {
+          // Redirect to the profile page
+          window.location.href = "profile.html"; // Ensure this path is correct
+        });
+
+      // On page load, check authentication and update UI
+      window.onload = function () {
+        checkAuthentication();
+        updateUIBasedOnRole();
+        fetchElections();
+      };
     </script>
   </body>
 </html>

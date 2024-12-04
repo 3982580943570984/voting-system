@@ -572,6 +572,116 @@
                 }
             }
         },
+        "/profile": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Возвращает профиль текущего аутентифицированного пользователя.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Профиль"
+                ],
+                "summary": "Получить профиль пользователя",
+                "responses": {
+                    "200": {
+                        "description": "Профиль пользователя",
+                        "schema": {
+                            "$ref": "#/definitions/generated.Profile"
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизованный доступ",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Обновляет профиль текущего аутентифицированного пользователя.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Профиль"
+                ],
+                "summary": "Обновить профиль пользователя",
+                "parameters": [
+                    {
+                        "description": "Данные для обновления профиля",
+                        "name": "profile",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.ProfileUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Профиль успешно обновлен",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизованный доступ",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/signup": {
             "post": {
                 "description": "Регистрация нового пользователя",
@@ -1241,18 +1351,18 @@
             "type": "object",
             "properties": {
                 "description": {
-                    "description": "Description — описание выборов\n@json: description\n@example: \"Описание президентских выборов.\"\n@required: true",
+                    "description": "Description — описание выборов\nЭто обязательное поле, максимальная длина 1000 символов.",
                     "type": "string",
                     "maxLength": 1000
                 },
                 "title": {
-                    "description": "Title — название выборов\n@json: title\n@example: \"Президентские выборы\"\n@required: true",
+                    "description": "Title — название выборов\nЭто обязательное поле, минимальная длина 8 символов, максимальная длина 64 символа.",
                     "type": "string",
                     "maxLength": 64,
                     "minLength": 8
                 },
                 "user_id": {
-                    "description": "UserID - идентификатор пользователя, который создает выборы\n@json: user_id\n@example: 123\n@required: false",
+                    "description": "UserID - идентификатор пользователя, которые создает выборы\nЭто обязательное поле.",
                     "type": "integer"
                 }
             }
@@ -1271,6 +1381,35 @@
                 "title": {
                     "description": "Title — новое название выборов\nЭто обязательное поле при обновлении данных.",
                     "type": "string"
+                }
+            }
+        },
+        "services.ProfileUpdate": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "bio": {
+                    "type": "string"
+                },
+                "birthdate": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "photo_url": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "integer"
                 }
             }
         },

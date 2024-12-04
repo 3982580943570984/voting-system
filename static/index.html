@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
     />
-    <title>JWT Authentication Example with Sign-Up</title>
+    <title>Authentication</title>
     <style>
       /* ======= Variables ======= */
       :root {
@@ -192,6 +192,12 @@
           required
         />
 
+        <!-- Add this block for the 'I'm organizer' checkbox -->
+        <label for="signup-is-organizer">
+          <input type="checkbox" id="signup-is-organizer" />
+          I'm organizer
+        </label>
+
         <button type="submit">Sign Up</button>
       </form>
       <div class="toggle-link">
@@ -277,6 +283,9 @@
           const password = document
             .getElementById("signup-password")
             .value.trim();
+          const isOrganizer = document.getElementById(
+            "signup-is-organizer"
+          ).checked; // Get the checkbox value
 
           if (email === "" || password === "") {
             alert("Please fill in all fields.");
@@ -288,7 +297,11 @@
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ email: email, password: password }),
+            body: JSON.stringify({
+              email: email,
+              password: password,
+              is_organizer: isOrganizer, // Include 'is_organizer' in the payload
+            }),
           })
             .then((response) => {
               if (!response.ok) {
