@@ -20,7 +20,7 @@ type CandidateCreate struct {
 
 type CandidateUpdate struct {
 	ID          int     `json:"id"`
-	Name        *string `json:"title,omitempty"`
+	Name        *string `json:"name,omitempty"`
 	Description *string `json:"description,omitempty"`
 	PhotoURL    *string `json:"photo_url,omitempty"`
 }
