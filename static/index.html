@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
     />
-    <title>Authentication</title>
+    <title>Аутентификация</title>
     <style>
-      /* ======= Variables ======= */
+      /* ======= Переменные ======= */
       :root {
         --font-family: "Arial", sans-serif;
         --color-background: #f8f9fa;
@@ -28,7 +28,7 @@
         --border-radius: 10px;
       }
 
-      /* ======= Global Styles ======= */
+      /* ======= Глобальные стили ======= */
       * {
         box-sizing: border-box;
         margin: 0;
@@ -40,7 +40,7 @@
         margin: 20px;
         background-color: var(
           --color-background
-        ); /* Light background color for a clean look */
+        ); /* Светлый фон для чистого вида */
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -68,7 +68,7 @@
         color: var(--color-primary);
       }
 
-      /* ======= Form Container Styling ======= */
+      /* ======= Стили контейнера формы ======= */
       .form-container {
         background-color: var(--color-card-bg);
         border: 1px solid var(--color-border);
@@ -85,7 +85,7 @@
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
       }
 
-      /* ======= Form Styling ======= */
+      /* ======= Стили формы ======= */
       form {
         display: flex;
         flex-direction: column;
@@ -131,7 +131,7 @@
         transform: scale(1.05);
       }
 
-      /* ======= Toggle Links ======= */
+      /* ======= Стили переключающих ссылок ======= */
       .toggle-link {
         text-align: center;
         margin-top: 10px;
@@ -148,7 +148,7 @@
         color: var(--color-primary-hover);
       }
 
-      /* ======= Responsive Design ======= */
+      /* ======= Адаптивный дизайн ======= */
       @media (max-width: 480px) {
         .form-container {
           padding: 20px;
@@ -170,92 +170,92 @@
     </style>
   </head>
   <body>
-    <h1>Authentication</h1>
+    <h1>Аутентификация</h1>
 
-    <!-- Sign-Up Section -->
+    <!-- Раздел регистрации -->
     <div class="form-container" id="signup-section" style="display: none">
-      <h2>Sign Up</h2>
+      <h2>Регистрация</h2>
       <form id="signup-form">
-        <label for="signup-email">Email:</label>
+        <label for="signup-email">Электронная почта:</label>
         <input
           type="email"
           id="signup-email"
-          placeholder="Enter your email"
+          placeholder="Введите вашу электронную почту"
           required
         />
 
-        <label for="signup-password">Password:</label>
+        <label for="signup-password">Пароль:</label>
         <input
           type="password"
           id="signup-password"
-          placeholder="Enter your password"
+          placeholder="Введите ваш пароль"
           required
         />
 
-        <!-- Add this block for the 'I'm organizer' checkbox -->
+        <!-- Блок для чекбокса 'Я организатор' -->
         <label for="signup-is-organizer">
           <input type="checkbox" id="signup-is-organizer" />
-          I'm organizer
+          Я организатор
         </label>
 
-        <button type="submit">Sign Up</button>
+        <button type="submit">Зарегистрироваться</button>
       </form>
       <div class="toggle-link">
         <p>
-          Already have an account?
-          <a href="#" id="show-login">Log In</a>
+          Уже есть аккаунт?
+          <a href="#" id="show-login">Войти</a>
         </p>
       </div>
     </div>
 
-    <!-- Login Section -->
+    <!-- Раздел входа -->
     <div class="form-container" id="login-section">
-      <h2>Login</h2>
+      <h2>Вход</h2>
       <form id="login-form">
-        <label for="login-email">Email:</label>
+        <label for="login-email">Электронная почта:</label>
         <input
           type="email"
           id="login-email"
-          placeholder="Enter your email"
+          placeholder="Введите вашу электронную почту"
           required
         />
 
-        <label for="login-password">Password:</label>
+        <label for="login-password">Пароль:</label>
         <input
           type="password"
           id="login-password"
-          placeholder="Enter your password"
+          placeholder="Введите ваш пароль"
           required
         />
 
-        <button type="submit">Login</button>
+        <button type="submit">Войти</button>
       </form>
       <div class="toggle-link">
         <p>
-          Don't have an account?
-          <a href="#" id="show-signup">Sign Up</a>
+          Нет аккаунта?
+          <a href="#" id="show-signup">Зарегистрироваться</a>
         </p>
       </div>
     </div>
 
-    <!-- JavaScript for Form Handling and Redirection -->
+    <!-- JavaScript для обработки форм и перенаправлений -->
     <script>
-      // Function to check JWT token and redirect if present
+      // Функция для проверки JWT-токена и перенаправления, если он присутствует
       function checkAuthentication() {
         const token = localStorage.getItem("jwt_token");
         if (token) {
-          // Optionally, you can verify the token's validity here
-          // For simplicity, we'll assume it's valid and redirect
+          // Опционально, можно проверить валидность токена здесь
+          // Для простоты предположим, что он валиден и перенаправляем
           window.location.href = "elections.html";
         }
       }
 
-      // Execute the check on page load
+      // Выполнить проверку при загрузке страницы
       window.onload = function () {
         checkAuthentication();
       };
 
-      // Show Login Form
+      // Показать форму входа
       document
         .getElementById("show-login")
         .addEventListener("click", function (e) {
@@ -264,7 +264,7 @@
           document.getElementById("login-section").style.display = "block";
         });
 
-      // Show Sign-Up Form
+      // Показать форму регистрации
       document
         .getElementById("show-signup")
         .addEventListener("click", function (e) {
@@ -273,7 +273,7 @@
           document.getElementById("signup-section").style.display = "block";
         });
 
-      // Sign-Up Form Submission
+      // Отправка формы регистрации
       document
         .getElementById("signup-form")
         .addEventListener("submit", function (e) {
@@ -285,10 +285,10 @@
             .value.trim();
           const isOrganizer = document.getElementById(
             "signup-is-organizer"
-          ).checked; // Get the checkbox value
+          ).checked; // Получить значение чекбокса
 
           if (email === "" || password === "") {
-            alert("Please fill in all fields.");
+            alert("Пожалуйста, заполните все поля.");
             return;
           }
 
@@ -300,20 +300,20 @@
             body: JSON.stringify({
               email: email,
               password: password,
-              is_organizer: isOrganizer, // Include 'is_organizer' in the payload
+              is_organizer: isOrganizer, // Включить 'is_organizer' в нагрузку
             }),
           })
             .then((response) => {
               if (!response.ok) {
-                throw new Error("Sign-up failed");
+                throw new Error("Регистрация не удалась");
               }
               return response.json();
             })
             .then((data) => {
-              alert("Sign-up successful! Please log in.");
-              // Clear the sign-up form
+              alert("Регистрация прошла успешно! Пожалуйста, войдите.");
+              // Очистить форму регистрации
               document.getElementById("signup-form").reset();
-              // Switch to login form
+              // Переключиться на форму входа
               document.getElementById("signup-section").style.display = "none";
               document.getElementById("login-section").style.display = "block";
             })
@@ -322,7 +322,7 @@
             });
         });
 
-      // Login Form Submission
+      // Отправка формы входа
       document
         .getElementById("login-form")
         .addEventListener("submit", function (e) {
@@ -334,7 +334,7 @@
             .value.trim();
 
           if (email === "" || password === "") {
-            alert("Please fill in all fields.");
+            alert("Пожалуйста, заполните все поля.");
             return;
           }
 
@@ -347,15 +347,15 @@
           })
             .then((response) => {
               if (!response.ok) {
-                throw new Error("Login failed");
+                throw new Error("Вход не удался");
               }
               return response.json();
             })
             .then((data) => {
-              // Store JWT token in localStorage
+              // Сохранить JWT-токен в localStorage
               localStorage.setItem("jwt_token", data.token);
 
-              // Redirect to elections page
+              // Перенаправить на страницу выборов
               window.location.href = "elections.html";
             })
             .catch((error) => {

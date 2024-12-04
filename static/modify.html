@@ -3,8 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Изменить выборы</title>
-    <!-- Font Awesome for Icons -->
+    <title>Управление Выборами</title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
@@ -12,6 +11,8 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+    <!-- Include jwt-decode via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
     <style>
       /* ======= Variables ======= */
       :root {
@@ -26,14 +27,23 @@
         --color-danger-hover: #c82333;
         --color-success: #28a745;
         --color-success-hover: #218838;
-        --color-modify: #17a2b8; /* Bootstrap's info color */
-        --color-modify-hover: #117a8b;
         --color-text: #333;
         --color-text-secondary: #555;
         --transition-speed: 0.3s;
         --transition-speed-fast: 0.2s;
         --border-radius: 10px;
+        --color-modify: #17a2b8;
+        --color-modify-hover: #117a8b;
+        --color-profile: #6f42c1;
+        --color-profile-hover: #5936a3;
         --max-width: 1200px;
+        --modal-background: rgba(0, 0, 0, 0.5);
+        --modal-content-bg: #ffffff;
+        --modal-padding: 20px;
+        --modal-border-radius: 12px;
+        --modal-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        --close-color: #aaa;
+        --close-hover-color: #000;
       }
 
       /* ======= Global Styles ======= */
@@ -41,9 +51,7 @@
         font-family: var(--font-family);
         margin: 0;
         padding: 0;
-        background-color: var(
-          --color-background
-        ); /* Light background color for a clean look */
+        background-color: var(--color-background);
       }
 
       h1,
@@ -84,7 +92,6 @@
       .edit-btn,
       .logout-btn,
       #back-btn {
-        /* margin-top: 10px; */
         padding: 10px 16px;
         border: none;
         border-radius: 8px;
@@ -94,6 +101,9 @@
         text-decoration: none;
         transition: background-color var(--transition-speed),
           transform var(--transition-speed-fast);
+        display: flex;
+        align-items: center;
+        gap: 5px;
       }
 
       .view-btn {
@@ -114,22 +124,22 @@
         transform: scale(1.05);
       }
 
-      .create-btn,
-      .edit-btn {
+      .create-btn {
         background-color: var(--color-success);
       }
 
-      .create-btn:hover,
-      .edit-btn:hover {
+      .create-btn:hover {
         background-color: var(--color-success-hover);
         transform: scale(1.05);
       }
 
-      .modify-btn {
+      .modify-btn,
+      .edit-btn {
         background-color: var(--color-modify);
       }
 
-      .modify-btn:hover {
+      .modify-btn:hover,
+      .edit-btn:hover {
         background-color: var(--color-modify-hover);
         transform: scale(1.05);
       }
@@ -155,39 +165,39 @@
       /* ======= Create Candidate Form Styling ======= */
       .add-candidate-form {
         display: flex;
-        flex-direction: column; /* Align child elements in a column */
-        align-items: center; /* Center content horizontally */
-        justify-content: center; /* Center content vertically */
-        max-width: 600px; /* Limit the form width */
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        max-width: 600px;
         margin: 30px auto;
-        padding: 30px; /* Spacious padding */
+        padding: 30px;
         border: 1px solid var(--color-border);
-        border-radius: 12px; /* More rounded corners */
-        box-shadow: 0 4px 15px var(--color-shadow); /* Deeper shadow for depth */
-        background-color: var(--color-card-bg); /* White background */
-        transition: box-shadow var(--transition-speed); /* Smooth shadow transition */
+        border-radius: 12px;
+        box-shadow: 0 4px 15px var(--color-shadow);
+        background-color: var(--color-card-bg);
+        transition: box-shadow var(--transition-speed);
       }
 
       .add-candidate-form:hover {
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); /* Increased shadow on hover */
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
       }
 
       /* Prevent horizontal resizing of textarea */
       .add-candidate-form textarea {
-        resize: vertical; /* Allow only vertical resizing */
+        resize: vertical;
       }
 
       /* ======= Form Inputs and Textarea Styling ======= */
       .add-candidate-form input,
       .add-candidate-form textarea,
       .add-candidate-form button {
-        width: 100%; /* Full width within the form */
-        padding: 12px 20px; /* Comfortable padding */
-        border: 1px solid #ccc; /* Softer border color */
-        border-radius: var(--border-radius); /* Consistent rounded corners */
+        width: 100%;
+        padding: 12px 20px;
+        border: 1px solid #ccc;
+        border-radius: var(--border-radius);
         outline: none;
-        font-size: 1rem; /* Standard font size for readability */
-        box-sizing: border-box; /* Include padding in width */
+        font-size: 1rem;
+        box-sizing: border-box;
         transition: border-color var(--transition-speed),
           box-shadow var(--transition-speed);
         margin: 5px 0;
@@ -196,13 +206,13 @@
       /* ======= Spacing Between Inputs ======= */
       .add-candidate-form input:not(:last-of-type),
       .add-candidate-form textarea:not(:last-of-type) {
-        margin-bottom: 15px; /* Space between inputs */
+        margin-bottom: 15px;
       }
 
       /* ======= Focus States for Inputs and Textarea ======= */
       .add-candidate-form input:focus,
       .add-candidate-form textarea:focus {
-        border-color: var(--color-primary); /* Blue border on focus */
+        border-color: var(--color-primary);
         box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
       }
 
@@ -210,7 +220,7 @@
       .add-candidate-form button {
         background-color: var(--color-success);
         color: #ffffff;
-        font-weight: 600; /* Slightly bold for emphasis */
+        font-weight: 600;
         cursor: pointer;
         transition: background-color var(--transition-speed),
           transform var(--transition-speed-fast),
@@ -219,24 +229,22 @@
       }
 
       .add-candidate-form button:hover {
-        background-color: var(
-          --color-success-hover
-        ); /* Darker green on hover */
-        transform: translateY(-2px); /* Subtle lift effect */
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow effect */
+        background-color: var(--color-success-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
 
       /* ======= Button Focus Styling for Accessibility ======= */
       .add-candidate-form button:focus {
         outline: none;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Blue shadow for focus */
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
       }
 
       /* ======= Candidate List Container ======= */
       .candidate-list {
         margin: 20px auto;
         display: grid;
-        grid-template-columns: repeat(2, 1fr); /* 2 columns layout */
+        grid-template-columns: repeat(2, 1fr);
         gap: 20px;
       }
 
@@ -249,6 +257,13 @@
         background-color: var(--color-card-bg);
         display: flex;
         flex-direction: column;
+        transition: box-shadow var(--transition-speed),
+          transform var(--transition-speed);
+      }
+
+      .candidate-card:hover {
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        transform: translateY(-3px);
       }
 
       .candidate-card h3 {
@@ -268,15 +283,122 @@
         margin-top: auto;
       }
 
+      /* ======= Modal Styling ======= */
+      .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1000; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: var(--modal-background); /* Black w/ opacity */
+        transition: opacity var(--transition-speed);
+      }
+
+      .modal-content {
+        background-color: var(--modal-content-bg);
+        margin: 5% auto; /* 5% from the top and centered */
+        padding: var(--modal-padding);
+        border: 1px solid var(--color-border);
+        border-radius: var(--modal-border-radius);
+        width: 90%; /* 90% width on small screens */
+        max-width: 500px;
+        box-shadow: var(--modal-box-shadow);
+        position: relative;
+        animation: fadeIn 0.3s;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-50px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .close {
+        color: var(--close-color);
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 24px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: color var(--transition-speed-fast);
+      }
+
+      .close:hover,
+      .close:focus {
+        color: var(--close-hover-color);
+      }
+
+      /* ======= Edit Candidate Form Styling ======= */
+      .edit-candidate-form input,
+      .edit-candidate-form textarea,
+      .edit-candidate-form button {
+        width: 100%;
+        padding: 12px 20px;
+        border: 1px solid #ccc;
+        border-radius: var(--border-radius);
+        outline: none;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color var(--transition-speed),
+          box-shadow var(--transition-speed);
+        margin: 5px 0;
+      }
+
+      .edit-candidate-form textarea {
+        resize: vertical;
+      }
+
+      .edit-candidate-form input:focus,
+      .edit-candidate-form textarea:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+      }
+
+      .edit-candidate-form button {
+        background-color: var(--color-modify);
+        color: #ffffff;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color var(--transition-speed),
+          transform var(--transition-speed-fast),
+          box-shadow var(--transition-speed);
+        display: inline-block;
+      }
+
+      .edit-candidate-form button:hover {
+        background-color: var(--color-modify-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .edit-candidate-form button:focus {
+        outline: none;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+      }
+
       /* ======= Responsive Design ======= */
       @media (max-width: 768px) {
         .candidate-list {
-          max-width: 100%;
+          grid-template-columns: 1fr;
           padding: 0 10px;
         }
 
         .add-candidate-form {
           padding: 20px;
+        }
+
+        .modal-content {
+          width: 95%;
+          margin: 20% auto;
         }
       }
     </style>
@@ -285,7 +407,7 @@
     <div class="container">
       <!-- Header Section with Back and Logout Buttons -->
       <header>
-        <h1>Изменить выборы</h1>
+        <h1>Управление Выборами</h1>
         <div>
           <button id="back-btn" class="view-btn">
             <i class="fa fa-arrow-left"></i> Назад к выборам
@@ -321,6 +443,37 @@
       <h2>Все кандидаты</h2>
       <div class="candidate-list" id="candidate-list">
         <!-- Candidate Cards will be populated here -->
+      </div>
+    </div>
+
+    <!-- Edit Candidate Modal -->
+    <div id="edit-modal" class="modal">
+      <div class="modal-content">
+        <span class="close" id="modal-close">&times;</span>
+        <h2>Редактировать кандидата</h2>
+        <form id="edit-candidate-form" class="edit-candidate-form">
+          <input type="hidden" id="edit-candidate-id" />
+          <input
+            type="text"
+            id="edit-candidate-name"
+            placeholder="Имя Кандидата"
+            required
+          />
+          <textarea
+            id="edit-candidate-description"
+            placeholder="Описание Кандидата"
+            required
+          ></textarea>
+          <input
+            type="text"
+            id="edit-candidate-photo-url"
+            placeholder="URL Фото (опционально)"
+            style="display: none"
+          />
+          <button type="submit" class="modify-btn">
+            <i class="fa fa-save"></i> Сохранить изменения
+          </button>
+        </form>
       </div>
     </div>
 
@@ -401,10 +554,9 @@
               // Edit Candidate Button
               const editButton = document.createElement("button");
               editButton.className = "edit-btn";
-              editButton.innerHTML =
-                '<i class="fa fa-edit"></i> Редактировать кандидата';
+              editButton.innerHTML = '<i class="fa fa-edit"></i> Редактировать';
               editButton.onclick = function () {
-                editCandidate(candidate.id);
+                openEditModal(candidate);
               };
               buttonContainer.appendChild(editButton);
 
@@ -412,7 +564,7 @@
               const deleteButton = document.createElement("button");
               deleteButton.className = "delete-btn";
               deleteButton.innerHTML =
-                '<i class="fa fa-trash-alt"></i> Удалить кандидата';
+                '<i class="fa fa-trash-alt"></i> Удалить';
               deleteButton.onclick = function () {
                 deleteCandidate(candidate.id);
               };
@@ -475,28 +627,103 @@
             });
         });
 
-      // Edit Candidate function (Placeholder for actual implementation)
-      function editCandidate(candidateId) {
-        // Implement the edit functionality as needed
-        alert(
-          "Функциональность редактирования для кандидата с ID " +
-            candidateId +
-            " ещё не реализована."
-        );
+      // Edit Candidate Modal Functionality
+      const modal = document.getElementById("edit-modal");
+      const closeModal = document.getElementById("modal-close");
+      const editForm = document.getElementById("edit-candidate-form");
+
+      // Open Edit Modal and populate with candidate data
+      function openEditModal(candidate) {
+        // Set current candidate data in the form
+        document.getElementById("edit-candidate-id").value = candidate.id;
+        document.getElementById("edit-candidate-name").value = candidate.name;
+        document.getElementById("edit-candidate-description").value =
+          candidate.description;
+        document.getElementById("edit-candidate-photo-url").value =
+          candidate.photo_url || "";
+
+        // Display the modal
+        modal.style.display = "block";
       }
+
+      // Close the modal when the user clicks on <span> (x)
+      closeModal.onclick = function () {
+        modal.style.display = "none";
+      };
+
+      // Close the modal when the user clicks anywhere outside of the modal
+      window.onclick = function (event) {
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      };
+
+      // Handle Edit Candidate form submission
+      editForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const id = parseInt(document.getElementById("edit-candidate-id").value);
+        const name = document
+          .getElementById("edit-candidate-name")
+          .value.trim();
+        const description = document
+          .getElementById("edit-candidate-description")
+          .value.trim();
+        const photo_url = document
+          .getElementById("edit-candidate-photo-url")
+          .value.trim();
+
+        if (name === "" || description === "") {
+          alert("Пожалуйста, заполните все обязательные поля.");
+          return;
+        }
+
+        const updateData = {
+          id: id,
+          name: name,
+          description: description,
+          photo_url: photo_url !== "" ? photo_url : null,
+        };
+
+        fetch(`http://localhost:3000/elections/${electionId}/candidates`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+          },
+          body: JSON.stringify(updateData),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Не удалось обновить кандидата");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            alert("Кандидат успешно обновлён!");
+            fetchCandidates(); // Refresh the list of candidates
+            modal.style.display = "none"; // Close the modal
+          })
+          .catch((error) => {
+            console.error("Ошибка при обновлении кандидата:", error);
+            alert("Не удалось обновить кандидата");
+          });
+      });
 
       // Delete Candidate function
       function deleteCandidate(candidateId) {
         if (confirm("Вы уверены, что хотите удалить этого кандидата?")) {
-          fetch(
-            `http://localhost:3000/elections/${electionId}/candidates/${candidateId}`,
-            {
-              method: "DELETE",
-              headers: {
-                Authorization: "Bearer " + localStorage.getItem("jwt_token"),
-              },
-            }
-          )
+          fetch(`http://localhost:3000/elections/${electionId}/candidates`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+            },
+            body: JSON.stringify({
+              id: candidateId,
+              electionId: parseInt(electionId),
+            }),
+          })
             .then((response) => {
               if (!response.ok) {
                 throw new Error("Не удалось удалить кандидата");
