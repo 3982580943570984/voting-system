@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Manage Profile</title>
+    <title>Управление Профилем</title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
@@ -182,54 +182,46 @@
     <div class="container">
       <!-- Header Section with Back, Profile, and Logout Buttons -->
       <header>
-        <h1>Manage Your Profile</h1>
+        <h1>Управляйте своим профилем</h1>
         <div class="button-container">
           <button id="back-btn" class="back-btn">
-            <i class="fa fa-arrow-left"></i> Back to Elections
+            <i class="fa fa-arrow-left"></i> Назад к выборам
           </button>
           <button id="logout-btn" class="logout-btn">
-            <i class="fa fa-sign-out-alt"></i> Logout
+            <i class="fa fa-sign-out-alt"></i> Выйти
           </button>
         </div>
       </header>
 
       <!-- Profile Form -->
       <div class="profile-form" id="profile-form">
-        <h2>Your Profile</h2>
+        <h2>Ваш профиль</h2>
         <form id="update-profile">
-          <input
-            type="text"
-            id="first_name"
-            placeholder="First Name"
-            maxlength="50"
-          />
+          <input type="text" id="first_name" placeholder="Имя" maxlength="50" />
           <input
             type="text"
             id="last_name"
-            placeholder="Last Name"
+            placeholder="Фамилия"
             maxlength="50"
           />
-          <input type="date" id="birthdate" placeholder="Birthdate" />
+          <input type="date" id="birthdate" placeholder="Дата Рождения" />
           <input
             type="text"
             id="phone_number"
-            placeholder="Phone Number (e.g., +1234567890)"
+            placeholder="Номер телефона (например, +1234567890)"
             maxlength="15"
           />
           <textarea
             id="bio"
-            placeholder="Bio"
+            placeholder="Биография"
             maxlength="500"
             rows="4"
           ></textarea>
-          <input
-            type="text"
-            id="address"
-            placeholder="Address"
-            maxlength="255"
-          />
-          <input type="url" id="photo_url" placeholder="Photo URL" />
-          <button type="submit"><i class="fa fa-save"></i> Save Changes</button>
+          <input type="text" id="address" placeholder="Адрес" maxlength="255" />
+          <input type="url" id="photo_url" placeholder="URL фотографии" />
+          <button type="submit">
+            <i class="fa fa-save"></i> Сохранить изменения
+          </button>
         </form>
       </div>
     </div>
@@ -239,7 +231,7 @@
       document
         .getElementById("logout-btn")
         .addEventListener("click", function () {
-          if (confirm("Are you sure you want to logout?")) {
+          if (confirm("Вы уверены, что хотите выйти?")) {
             localStorage.removeItem("jwt_token");
             window.location.href = "index.html"; // Replace with your actual login page
           }
@@ -264,7 +256,7 @@
         })
           .then((response) => {
             if (!response.ok) {
-              throw new Error("Failed to fetch profile data");
+              throw new Error("Не удалось получить данные профиля");
             }
             return response.json();
           })
@@ -291,8 +283,10 @@
               profile.photo_url || "";
           })
           .catch((error) => {
-            console.error("Error fetching profile:", error);
-            alert("Failed to load profile data. Please try again.");
+            console.error("Ошибка при получении профиля:", error);
+            alert(
+              "Не удалось загрузить данные профиля. Пожалуйста, попробуйте снова."
+            );
           });
       }
 
@@ -315,7 +309,7 @@
           // Client-side Validation
           const phoneRegex = /^\+?[1-9]\d{1,14}$/;
           if (phoneNumber && !phoneRegex.test(phoneNumber)) {
-            alert("Please enter a valid phone number.");
+            alert("Пожалуйста, введите действительный номер телефона.");
             return;
           }
 
@@ -325,7 +319,7 @@
             // Convert to ISO string with time component
             const dateObj = new Date(birthdateInput);
             if (isNaN(dateObj.getTime())) {
-              alert("Please enter a valid birthdate.");
+              alert("Пожалуйста, введите действительную дату рождения.");
               return;
             }
             birthdate = dateObj.toISOString();
@@ -350,18 +344,20 @@
           })
             .then((response) => {
               if (!response.ok) {
-                throw new Error("Failed to update profile");
+                throw new Error("Не удалось обновить профиль");
               }
               return response.ok;
             })
             .then(() => {
-              alert("Profile updated successfully!");
+              alert("Профиль успешно обновлен!");
               // Optionally, refresh the form with updated data
               fetchProfile();
             })
             .catch((error) => {
-              console.error("Error updating profile:", error);
-              alert("Failed to update profile. Please try again.");
+              console.error("Ошибка при обновлении профиля:", error);
+              alert(
+                "Не удалось обновить профиль. Пожалуйста, попробуйте снова."
+              );
             });
         });
 

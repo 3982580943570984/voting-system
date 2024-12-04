@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Modify Election</title>
+    <title>Изменить выборы</title>
     <!-- Font Awesome for Icons -->
     <link
       rel="stylesheet"
@@ -285,40 +285,40 @@
     <div class="container">
       <!-- Header Section with Back and Logout Buttons -->
       <header>
-        <h1>Modify Election</h1>
+        <h1>Изменить выборы</h1>
         <div>
           <button id="back-btn" class="view-btn">
-            <i class="fa fa-arrow-left"></i> Back to Elections
+            <i class="fa fa-arrow-left"></i> Назад к выборам
           </button>
           <button id="logout-btn" class="logout-btn">
-            <i class="fa fa-sign-out-alt"></i> Logout
+            <i class="fa fa-sign-out-alt"></i> Выйти
           </button>
         </div>
       </header>
 
       <!-- Add Candidate Form -->
       <div class="add-candidate-form" id="add-candidate-form">
-        <h2>Add New Candidate</h2>
+        <h2>Добавить нового кандидата</h2>
         <form id="create-candidate">
           <input
             type="text"
             id="candidate-name"
-            placeholder="Candidate Name"
+            placeholder="Имя Кандидата"
             required
           />
           <textarea
             id="candidate-description"
-            placeholder="Candidate Description"
+            placeholder="Описание Кандидата"
             required
           ></textarea>
           <button type="submit" class="create-btn">
-            <i class="fa fa-plus"></i> Add Candidate
+            <i class="fa fa-plus"></i> Добавить
           </button>
         </form>
       </div>
 
       <!-- List of Candidates -->
-      <h2>All Candidates</h2>
+      <h2>Все кандидаты</h2>
       <div class="candidate-list" id="candidate-list">
         <!-- Candidate Cards will be populated here -->
       </div>
@@ -330,7 +330,7 @@
       const electionId = urlParams.get("id");
 
       if (!electionId) {
-        alert("No election ID provided.");
+        alert("ID выборов не предоставлен.");
         window.location.href = "elections.html";
       }
 
@@ -338,7 +338,7 @@
       document
         .getElementById("logout-btn")
         .addEventListener("click", function () {
-          if (confirm("Are you sure you want to logout?")) {
+          if (confirm("Вы уверены, что хотите выйти?")) {
             localStorage.removeItem("jwt_token");
             window.location.href = "index.html"; // Replace with your actual login page
           }
@@ -361,7 +361,7 @@
         })
           .then((response) => {
             if (!response.ok) {
-              throw new Error("Failed to fetch candidates");
+              throw new Error("Не удалось получить кандидатов");
             }
             return response.json();
           })
@@ -371,7 +371,7 @@
 
             if (candidates.length === 0) {
               candidateList.innerHTML =
-                "<p>No candidates available. Add one!</p>";
+                "<p>Кандидатов нет. Добавьте одного!</p>";
               return;
             }
 
@@ -402,7 +402,7 @@
               const editButton = document.createElement("button");
               editButton.className = "edit-btn";
               editButton.innerHTML =
-                '<i class="fa fa-edit"></i> Edit Candidate';
+                '<i class="fa fa-edit"></i> Редактировать кандидата';
               editButton.onclick = function () {
                 editCandidate(candidate.id);
               };
@@ -412,7 +412,7 @@
               const deleteButton = document.createElement("button");
               deleteButton.className = "delete-btn";
               deleteButton.innerHTML =
-                '<i class="fa fa-trash-alt"></i> Delete Candidate';
+                '<i class="fa fa-trash-alt"></i> Удалить кандидата';
               deleteButton.onclick = function () {
                 deleteCandidate(candidate.id);
               };
@@ -426,8 +426,8 @@
             });
           })
           .catch((error) => {
-            console.error("Error fetching candidates:", error);
-            alert("Failed to load candidates");
+            console.error("Ошибка при получении кандидатов:", error);
+            alert("Не удалось загрузить кандидатов");
           });
       }
 
@@ -443,7 +443,7 @@
             .value.trim();
 
           if (name === "" || description === "") {
-            alert("Please fill in all fields.");
+            alert("Пожалуйста, заполните все поля.");
             return;
           }
 
@@ -460,18 +460,18 @@
           })
             .then((response) => {
               if (!response.ok) {
-                throw new Error("Failed to add candidate");
+                throw new Error("Не удалось добавить кандидата");
               }
               return response.json();
             })
             .then((data) => {
-              alert("Candidate added successfully!");
+              alert("Кандидат успешно добавлен!");
               fetchCandidates(); // Refresh the list of candidates
               document.getElementById("create-candidate").reset(); // Clear the form
             })
             .catch((error) => {
-              console.error("Error adding candidate:", error);
-              alert("Failed to add candidate");
+              console.error("Ошибка при добавлении кандидата:", error);
+              alert("Не удалось добавить кандидата");
             });
         });
 
@@ -479,15 +479,15 @@
       function editCandidate(candidateId) {
         // Implement the edit functionality as needed
         alert(
-          "Edit functionality for candidate ID " +
+          "Функциональность редактирования для кандидата с ID " +
             candidateId +
-            " is not implemented yet."
+            " ещё не реализована."
         );
       }
 
       // Delete Candidate function
       function deleteCandidate(candidateId) {
-        if (confirm("Are you sure you want to delete this candidate?")) {
+        if (confirm("Вы уверены, что хотите удалить этого кандидата?")) {
           fetch(
             `http://localhost:3000/elections/${electionId}/candidates/${candidateId}`,
             {
@@ -499,14 +499,14 @@
           )
             .then((response) => {
               if (!response.ok) {
-                throw new Error("Failed to delete candidate");
+                throw new Error("Не удалось удалить кандидата");
               }
-              alert("Candidate deleted successfully!");
+              alert("Кандидат успешно удалён!");
               fetchCandidates(); // Refresh the list of candidates
             })
             .catch((error) => {
-              console.error("Error deleting candidate:", error);
-              alert("Failed to delete candidate");
+              console.error("Ошибка при удалении кандидата:", error);
+              alert("Не удалось удалить кандидата");
             });
         }
       }

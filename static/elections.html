@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Manage Elections</title>
+    <title>Управление выборами</title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
@@ -287,34 +287,37 @@
     <div class="container">
       <!-- Header Section with Profile and Logout Buttons -->
       <header>
-        <h1>Manage Elections</h1>
+        <h1>Управление выборами</h1>
         <div class="button-container">
           <button id="profile-btn" class="profile-btn">
-            <i class="fa fa-user"></i> Profile
+            <i class="fa fa-user"></i> Профиль
           </button>
           <button id="logout-btn" class="logout-btn">
-            <i class="fa fa-sign-out-alt"></i> Logout
+            <i class="fa fa-sign-out-alt"></i> Выйти
           </button>
         </div>
       </header>
 
       <!-- Create Election Form -->
       <div class="create-election-form" id="create-election-form">
-        <h2>Create a New Election</h2>
+        <h2>Создать новые выборы</h2>
         <form id="create-election">
-          <input type="text" id="election-title" placeholder="Title" required />
+          <input
+            type="text"
+            id="election-title"
+            placeholder="Название"
+            required
+          />
           <textarea
             id="election-description"
-            placeholder="Description"
+            placeholder="Описание"
             required
           ></textarea>
-          <button type="submit">
-            <i class="fa fa-plus"></i> Create Election
-          </button>
+          <button type="submit"><i class="fa fa-plus"></i> Создать</button>
         </form>
       </div>
 
-      <h2>All Available Elections</h2>
+      <h2>Все доступные выборы</h2>
       <div class="election-list" id="election-list">
         <!-- Election Cards will be populated here -->
       </div>
@@ -339,14 +342,14 @@
       function checkAuthentication() {
         const token = localStorage.getItem("jwt_token");
         if (!token) {
-          alert("You are not logged in. Please log in first.");
+          alert("Вы не вошли в систему. Пожалуйста, войдите сначала.");
           window.location.href = "index.html"; // Replace with your actual login page
           return;
         }
 
         const claims = getJwtClaims();
         if (!claims) {
-          alert("Invalid token. Please log in again.");
+          alert("Неверный токен. Пожалуйста, войдите снова.");
           localStorage.removeItem("jwt_token");
           window.location.href = "index.html"; // Replace with your actual login page
           return;
@@ -356,7 +359,7 @@
         if (claims.exp) {
           const currentTime = Date.now() / 1000; // in seconds
           if (claims.exp < currentTime) {
-            alert("Session expired. Please log in again.");
+            alert("Сессия истекла. Пожалуйста, войдите снова.");
             localStorage.removeItem("jwt_token");
             window.location.href = "index.html"; // Replace with your actual login page
             return;
@@ -398,7 +401,7 @@
         })
           .then((response) => {
             if (!response.ok) {
-              throw new Error("Failed to fetch elections");
+              throw new Error("Не удалось получить выборы");
             }
             return response.json();
           })
@@ -408,7 +411,7 @@
 
             if (elections.length === 0) {
               electionList.innerHTML =
-                "<p>No elections available. Create one if you have the permissions!</p>";
+                "<p>Выборов нет. Создайте их, если у вас есть соответствующие права!</p>";
               return;
             }
 
@@ -441,7 +444,7 @@
               viewButton.href = "view.html?id=" + election.id; // Direct to candidates page
               viewButton.className = "view-btn";
               viewButton.innerHTML =
-                '<i class="fa-solid fa-eye"></i> View Election';
+                '<i class="fa-solid fa-eye"></i> Просмотреть';
               buttonContainer.appendChild(viewButton);
 
               // Modify Election Button
@@ -449,14 +452,14 @@
               modifyButton.href = "modify.html?id=" + election.id; // Direct to modify candidates page
               modifyButton.className = "modify-btn";
               modifyButton.innerHTML =
-                '<i class="fa-solid fa-edit"></i> Modify Election';
+                '<i class="fa-solid fa-edit"></i> Изменить';
               buttonContainer.appendChild(modifyButton);
 
               // Delete Election Button (already includes icon)
               const deleteButton = document.createElement("button");
               deleteButton.className = "delete-btn";
               deleteButton.innerHTML =
-                '<i class="fa-solid fa-trash-alt"></i> Delete Election';
+                '<i class="fa-solid fa-trash-alt"></i> Удалить';
               deleteButton.onclick = function () {
                 deleteElection(election.id);
               };
@@ -473,8 +476,8 @@
             adjustElectionButtons();
           })
           .catch((error) => {
-            console.error("Error fetching elections:", error);
-            alert("Failed to load elections");
+            console.error("Ошибка при получении выборов:", error);
+            alert("Не удалось загрузить выборы");
           });
       }
 
@@ -525,7 +528,7 @@
             .value.trim();
 
           if (title === "" || description === "") {
-            alert("Please fill in all fields.");
+            alert("Пожалуйста, заполните все поля.");
             return;
           }
 
@@ -542,24 +545,24 @@
           })
             .then((response) => {
               if (!response.ok) {
-                throw new Error("Failed to create election");
+                throw new Error("Не удалось создать выборы");
               }
               return response.json();
             })
             .then((data) => {
-              alert("Election created successfully!");
+              alert("Выборы успешно созданы!");
               fetchElections(); // Refresh the list of elections
               document.getElementById("create-election").reset(); // Clear the form
             })
             .catch((error) => {
-              console.error("Error creating election:", error);
-              alert("Failed to create election");
+              console.error("Ошибка при создании выборов:", error);
+              alert("Не удалось создать выборы");
             });
         });
 
       // Delete Election function
       function deleteElection(id) {
-        if (confirm("Are you sure you want to delete this election?")) {
+        if (confirm("Вы уверены, что хотите удалить эти выборы?")) {
           fetch("http://localhost:3000/elections/" + id, {
             method: "DELETE",
             headers: {
@@ -568,14 +571,14 @@
           })
             .then((response) => {
               if (!response.ok) {
-                throw new Error("Failed to delete election");
+                throw new Error("Не удалось удалить выборы");
               }
-              alert("Election deleted successfully!");
+              alert("Выборы успешно удалены!");
               fetchElections(); // Refresh the list of elections
             })
             .catch((error) => {
-              console.error("Error deleting election:", error);
-              alert("Failed to delete election");
+              console.error("Ошибка при удалении выборов:", error);
+              alert("Не удалось удалить выборы");
             });
         }
       }
@@ -585,7 +588,7 @@
         .getElementById("logout-btn")
         .addEventListener("click", function () {
           // Confirm Logout Action
-          if (confirm("Are you sure you want to logout?")) {
+          if (confirm("Вы уверены, что хотите выйти?")) {
             // Remove JWT token from localStorage
             localStorage.removeItem("jwt_token");
             // Redirect to the authentication page

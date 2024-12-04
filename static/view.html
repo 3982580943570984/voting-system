@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Election Details</title>
-    <!-- Font Awesome for Icons -->
+    <title>Детали Выборов</title>
+    <!-- Font Awesome для иконок -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
@@ -13,7 +13,7 @@
       referrerpolicy="no-referrer"
     />
     <style>
-      /* ======= Variables ======= */
+      /* ======= Переменные ======= */
       :root {
         --font-family: "Arial", sans-serif;
         --color-background: #f8f9fa;
@@ -36,14 +36,14 @@
         --max-width: 1200px;
       }
 
-      /* ======= Global Styles ======= */
+      /* ======= Глобальные Стили ======= */
       body {
         font-family: var(--font-family);
         margin: 0;
         padding: 0;
         background-color: var(
           --color-background
-        ); /* Light background color for a clean look */
+        ); /* Светлый фон для чистого вида */
       }
 
       h1,
@@ -58,14 +58,14 @@
         line-height: 1.6;
       }
 
-      /* ======= Container ======= */
+      /* ======= Контейнер ======= */
       .container {
         max-width: var(--max-width);
         margin: 0 auto;
         padding: 20px;
       }
 
-      /* ======= Header Styling ======= */
+      /* ======= Стилизация Заголовка ======= */
       header {
         display: flex;
         justify-content: space-between;
@@ -82,7 +82,7 @@
         gap: 10px;
       }
 
-      /* ======= Button Styling ======= */
+      /* ======= Стилизация Кнопок ======= */
       .logout-btn,
       #back-btn {
         margin-top: 10px;
@@ -115,15 +115,15 @@
         transform: scale(1.05);
       }
 
-      /* ======= Button Icon Styling ======= */
+      /* ======= Стилизация Иконок Кнопок ======= */
       .logout-btn i,
       #back-btn i,
       .vote-btn i {
-        margin-right: 8px; /* Space between icon and text */
-        vertical-align: middle; /* Align icon vertically with text */
+        margin-right: 8px; /* Пробел между иконкой и текстом */
+        vertical-align: middle; /* Вертикальное выравнивание иконки с текстом */
       }
 
-      /* ======= Election Details Styling ======= */
+      /* ======= Стилизация Деталей Выборов ======= */
       .election-details {
         margin-bottom: 40px;
       }
@@ -132,14 +132,14 @@
         font-size: 1.5rem;
       }
 
-      /* ======= Candidates List Styling ======= */
+      /* ======= Стилизация Списка Кандидатов ======= */
       .candidate-list {
         display: flex;
         flex-direction: column;
-        gap: 20px; /* Space between candidate cards */
+        gap: 20px; /* Пробел между карточками кандидатов */
       }
 
-      /* ======= Candidate Card Styling ======= */
+      /* ======= Стилизация Карточки Кандидата ======= */
       .candidate-card {
         border: 1px solid var(--color-border);
         border-radius: var(--border-radius);
@@ -154,7 +154,7 @@
       }
 
       .candidate-card:hover {
-        transform: translateY(-5px); /* Slight lift on hover */
+        transform: translateY(-5px); /* Лёгкое поднятие при наведении */
         box-shadow: 0 8px 20px var(--color-shadow);
       }
 
@@ -181,7 +181,7 @@
         color: var(--color-text-secondary);
       }
 
-      /* ======= Vote Button Styling ======= */
+      /* ======= Стилизация Кнопки Голоса ======= */
       .vote-btn {
         background-color: var(--color-success);
         color: #fff;
@@ -206,7 +206,12 @@
         margin-right: 8px;
       }
 
-      /* ======= Responsive Design ======= */
+      .vote-btn.disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      /* ======= Адаптивный Дизайн ======= */
       @media (max-width: 768px) {
         header {
           flex-direction: column;
@@ -235,41 +240,89 @@
   </head>
   <body>
     <div class="container">
-      <!-- Header Section with Back and Logout Buttons -->
+      <!-- Раздел Заголовка с Кнопками Назад и Выхода -->
       <header>
-        <h1>Election Details</h1>
+        <h1>Детали выборов</h1>
         <div>
           <button
             id="back-btn"
             onclick="window.location.href='elections.html';"
           >
-            <i class="fa-solid fa-arrow-left"></i> Back to Elections
+            <i class="fa-solid fa-arrow-left"></i> Назад к выборам
           </button>
           <button id="logout-btn" class="logout-btn">
-            <i class="fa-solid fa-sign-out-alt"></i> Logout
+            <i class="fa-solid fa-sign-out-alt"></i> Выйти
           </button>
         </div>
       </header>
 
-      <!-- Election Title and Description -->
+      <!-- Название и Описание Выборов -->
       <div class="election-details">
-        <h2 id="election-title">Title: Loading...</h2>
-        <p id="election-description">Description: Loading...</p>
+        <h2 id="election-title">Название: Загрузка...</h2>
+        <p id="election-description">Описание: Загрузка...</p>
       </div>
 
-      <!-- List of Candidates -->
-      <h3>Candidates</h3>
+      <!-- Список Кандидатов -->
+      <h3>Кандидаты</h3>
       <div class="candidate-list" id="candidate-list">
-        <!-- Candidate Cards will be populated here -->
+        <!-- Карточки кандидатов будут заполнены здесь -->
       </div>
     </div>
 
     <script>
       const electionId = new URLSearchParams(window.location.search).get("id");
 
-      // Fetch election details and candidates
+      // Функция для проверки, проголосовал ли пользователь на выборах
+      function checkIfVoted() {
+        return fetch(
+          `http://localhost:3000/votes/voted?election_id=${electionId}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+            },
+          }
+        )
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Не удалось проверить статус голосования");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            return data.voted;
+          })
+          .catch((error) => {
+            console.error("Ошибка при проверке голосования:", error);
+            alert("Не удалось проверить статус голосования.");
+            return false;
+          });
+      }
+
+      // Функция для отключения кнопок голосования
+      function disableVoteButtons() {
+        const voteButtons = document.querySelectorAll(".vote-btn");
+        voteButtons.forEach((button) => {
+          button.classList.add("disabled");
+          button.disabled = true;
+          button.innerHTML =
+            '<i class="fa-solid fa-check"></i> Вы проголосовали';
+        });
+      }
+
+      // Функция для активации кнопок голосования
+      function enableVoteButtons() {
+        const voteButtons = document.querySelectorAll(".vote-btn");
+        voteButtons.forEach((button) => {
+          button.classList.remove("disabled");
+          button.disabled = false;
+          button.innerHTML = '<i class="fa-solid fa-thumbs-up"></i> Голосовать';
+        });
+      }
+
+      // Получение деталей выборов и кандидатов
       function fetchElectionDetails() {
-        // Fetch Election Details
+        // Получение Деталей Выборов
         fetch(`http://localhost:3000/elections/${electionId}`, {
           method: "GET",
           headers: {
@@ -278,27 +331,28 @@
         })
           .then((response) => {
             if (!response.ok) {
-              throw new Error("Failed to fetch election details");
+              throw new Error("Не удалось получить детали выборов");
             }
             return response.json();
           })
           .then((election) => {
             document.getElementById(
               "election-title"
-            ).innerText = `Title: ${election.title}`;
+            ).innerText = `Название: ${election.title}`;
             document.getElementById(
               "election-description"
-            ).innerText = `Description: ${election.description}`;
+            ).innerText = `Описание: ${election.description}`;
           })
           .catch((error) => {
-            console.error("Error fetching election details:", error);
-            alert("Failed to load election details.");
-            document.getElementById("election-title").innerText = "Title: N/A";
+            console.error("Ошибка при получении деталей выборов:", error);
+            alert("Не удалось загрузить детали выборов.");
+            document.getElementById("election-title").innerText =
+              "Название: N/A";
             document.getElementById("election-description").innerText =
-              "Description: N/A";
+              "Описание: N/A";
           });
 
-        // Fetch Candidates
+        // Получение Кандидатов
         fetch(`http://localhost:3000/elections/${electionId}/candidates`, {
           method: "GET",
           headers: {
@@ -307,26 +361,26 @@
         })
           .then((response) => {
             if (!response.ok) {
-              throw new Error("Failed to fetch candidates");
+              throw new Error("Не удалось получить кандидатов");
             }
             return response.json();
           })
           .then((candidates) => {
             const candidateList = document.getElementById("candidate-list");
-            candidateList.innerHTML = ""; // Clear previous candidates
+            candidateList.innerHTML = ""; // Очистить предыдущих кандидатов
 
             if (candidates.length === 0) {
               candidateList.innerHTML =
-                "<p>No candidates available. Add one!</p>";
+                "<p>Кандидатов нет. Добавьте одного!</p>";
               return;
             }
 
             candidates.forEach((candidate) => {
-              // Create candidate card
+              // Создание карточки кандидата
               const card = document.createElement("div");
               card.className = "candidate-card";
 
-              // Candidate Info
+              // Информация о кандидате
               const candidateInfo = document.createElement("div");
               candidateInfo.className = "candidate-info";
 
@@ -340,64 +394,97 @@
 
               const voteCount = document.createElement("div");
               voteCount.className = "vote-count";
-              voteCount.innerText = `Votes: ${candidate.votes_count || 0}`;
+              voteCount.innerText = `Голоса: ${candidate.votes_count || 0}`;
               candidateInfo.appendChild(voteCount);
 
-              // Vote Button
+              // Кнопка Голоса
               const voteButton = document.createElement("button");
               voteButton.className = "vote-btn";
               voteButton.innerHTML =
-                '<i class="fa-solid fa-thumbs-up"></i> Vote';
+                '<i class="fa-solid fa-thumbs-up"></i> Голосовать';
               voteButton.onclick = () =>
                 voteForCandidate(candidate.id, voteCount);
 
-              // Append info and button to card
+              // Добавление информации и кнопки в карточку
               card.appendChild(candidateInfo);
               card.appendChild(voteButton);
 
-              // Append card to list
+              // Добавление карточки в список
               candidateList.appendChild(card);
+            });
+
+            // После загрузки кандидатов, проверить статус голосования
+            checkIfVoted().then((voted) => {
+              if (voted) {
+                disableVoteButtons();
+              } else {
+                enableVoteButtons();
+              }
             });
           })
           .catch((error) => {
-            console.error("Error fetching candidates:", error);
-            alert("Failed to load candidates.");
+            console.error("Ошибка при получении кандидатов:", error);
+            alert("Не удалось загрузить кандидатов.");
             const candidateList = document.getElementById("candidate-list");
-            candidateList.innerHTML = "<p>Error loading candidates.</p>";
+            candidateList.innerHTML = "<p>Ошибка при загрузке кандидатов.</p>";
           });
       }
 
-      // Vote for a candidate
+      // Голосование за кандидата
       function voteForCandidate(candidateId, voteCountElement) {
-        fetch("http://localhost:3000/votes", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
-          },
-          body: JSON.stringify({ candidate_id: candidateId }),
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Failed to cast vote");
-            }
-            return response.json();
+        // Перед голосованием, проверить, проголосовал ли пользователь
+        checkIfVoted().then((voted) => {
+          if (voted) {
+            alert("Вы уже проголосовали на этих выборах.");
+            return;
+          }
+
+          fetch("http://localhost:3000/votes", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+            },
+            body: JSON.stringify({ candidate_id: candidateId }),
           })
-          .then((data) => {
-            alert("Vote cast successfully!");
-            // Increment the vote count on the page after successful vote
-            const currentVoteCount = parseInt(
-              voteCountElement.innerText.split(": ")[1]
-            );
-            voteCountElement.innerText = `Votes: ${currentVoteCount + 1}`;
-          })
-          .catch((error) => {
-            console.error("Error casting vote:", error);
-            alert("Error casting vote: " + error.message);
-          });
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Не удалось отдать голос");
+              }
+              return response.json();
+            })
+            .then((data) => {
+              alert("Голос успешно отдан!");
+              // Обновить счетчик голосов на странице
+              const currentVoteCount = parseInt(
+                voteCountElement.innerText.split(": ")[1]
+              );
+              voteCountElement.innerText = `Голоса: ${currentVoteCount + 1}`;
+
+              // Отключить кнопки голосования после успешного голосования
+              disableVoteButtons();
+            })
+            .catch((error) => {
+              console.error("Ошибка при голосовании:", error);
+              alert("Ошибка при голосовании: " + error.message);
+            });
+        });
       }
 
-      // Load election details when the page loads
+      // Функциональность Выхода
+      document
+        .getElementById("logout-btn")
+        .addEventListener("click", function () {
+          // Подтверждение выхода
+          if (confirm("Вы уверены, что хотите выйти?")) {
+            // Удаление JWT токена из localStorage
+            localStorage.removeItem("jwt_token");
+            // Перенаправление на страницу аутентификации
+            window.location.href = "index.html"; // Замените на вашу реальную страницу входа
+          }
+        });
+
+      // Загрузка деталей выборов при загрузке страницы
       window.onload = fetchElectionDetails;
     </script>
   </body>

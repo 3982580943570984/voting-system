@@ -5,6 +5,7 @@ import (
 	"voting-system/database"
 	"voting-system/ent/generated"
 	"voting-system/ent/generated/candidate"
+	"voting-system/ent/generated/election"
 	"voting-system/ent/generated/user"
 	"voting-system/ent/generated/vote"
 )
@@ -34,6 +35,17 @@ func (v *Votes) Create(ctx context.Context, vc *VoteCreate) (*generated.Vote, er
 		SetUserID(vc.UserId).
 		SetCandidateID(vc.CandidateId).
 		Save(ctx)
+}
+
+func (v *Votes) GetByUserAndElectionId(ctx context.Context, userId int, electionId int) ([]*generated.Vote, error) {
+	return v.DB.Query().
+		Where(
+			vote.HasUserWith(user.ID(userId)),
+			vote.HasCandidateWith(
+				candidate.HasElectionWith(election.ID(electionId)),
+			),
+		).
+		All(ctx)
 }
 
 func (v *Votes) Delete(ctx context.Context, vd *VoteDelete) error {
