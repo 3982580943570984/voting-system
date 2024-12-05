@@ -522,6 +522,165 @@ const docTemplate = `{
                 }
             }
         },
+        "/elections/{id}/tags": {
+            "get": {
+                "description": "Возвращает список тегов, связанных с конкретными выборами.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Теги"
+                ],
+                "summary": "Получить теги выборов",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID выборов",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список тегов",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/generated.Tag"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Обновляет теги, связанные с конкретными выборами. Все существующие теги будут заменены на предоставленные.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Теги"
+                ],
+                "summary": "Обновить теги выборов",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID выборов",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Новый список тегов",
+                        "name": "tags",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.TagsUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Теги успешно обновлены",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Создает новый тег и ассоциирует его с указанными выборами.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Теги"
+                ],
+                "summary": "Создать тег для выборов",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID выборов",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для создания тега (только имя)",
+                        "name": "tag",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.TagCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "ID созданного тега",
+                        "schema": {
+                            "$ref": "#/definitions/services.TagCreate"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "Аутентификация пользователя и возврат JWT-токена",
@@ -737,6 +896,71 @@ const docTemplate = `{
             }
         },
         "/votes": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Возвращает список голосов текущего пользователя на указанных выборах.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Голоса"
+                ],
+                "summary": "Получить голоса пользователя на конкретных выборах",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID выборов",
+                        "name": "election_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список голосов пользователя",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/generated.Vote"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса или отсутствует параметр",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизованный доступ",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Создает новый голос на основе данных, переданных в теле запроса.",
                 "consumes": [
@@ -824,6 +1048,73 @@ const docTemplate = `{
                         "description": "Ошибка сервера",
                         "schema": {
                             "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/votes/voted": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Возвращает булевое значение, указывающее, проголосовал ли пользователь на указанных выборах.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Голоса"
+                ],
+                "summary": "Проверить, проголосовал ли пользователь на выборах",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID выборов",
+                        "name": "election_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Статус голосования пользователя",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса или отсутствует параметр",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизованный доступ",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -1350,10 +1641,10 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "photo_url": {
+                "name": {
                     "type": "string"
                 },
-                "title": {
+                "photo_url": {
                     "type": "string"
                 }
             }
@@ -1421,6 +1712,31 @@ const docTemplate = `{
                 },
                 "userID": {
                     "type": "integer"
+                }
+            }
+        },
+        "services.TagCreate": {
+            "type": "object",
+            "properties": {
+                "election_id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "services.TagsUpdate": {
+            "type": "object",
+            "properties": {
+                "election_id": {
+                    "type": "integer"
+                },
+                "names": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

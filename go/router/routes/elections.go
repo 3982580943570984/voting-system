@@ -17,13 +17,13 @@ import (
 func ElectionsRoutes() chi.Router {
 	r := chi.NewRouter()
 
+	r.Get("/", getAllElections)
+
 	r.Group(func(r chi.Router) {
 		r.Use(jwtauth.Verifier(token), jwtauth.Authenticator(token))
 
 		r.Post("/", createElection)
 	})
-
-	r.Get("/", getAllElections)
 
 	r.Route("/{id}", func(r chi.Router) {
 		r.Get("/", getElection)
@@ -33,6 +33,8 @@ func ElectionsRoutes() chi.Router {
 		r.Delete("/", deleteElection)
 
 		r.Mount("/candidates", CandidatesRoutes())
+
+		r.Mount("/tags", TagsRoutes())
 
 		r.Mount("/settings", ElectionSettingsRoutes())
 

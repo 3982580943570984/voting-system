@@ -351,9 +351,9 @@ definitions:
         type: string
       id:
         type: integer
-      photo_url:
+      name:
         type: string
-      title:
+      photo_url:
         type: string
     type: object
   services.ElectionCreate:
@@ -413,6 +413,22 @@ definitions:
         type: string
       userID:
         type: integer
+    type: object
+  services.TagCreate:
+    properties:
+      election_id:
+        type: integer
+      name:
+        type: string
+    type: object
+  services.TagsUpdate:
+    properties:
+      election_id:
+        type: integer
+      names:
+        items:
+          type: string
+        type: array
     type: object
   services.VoteCreate:
     properties:
@@ -767,6 +783,110 @@ paths:
       summary: Получить настройки выборов
       tags:
       - Настройки выборов
+  /elections/{id}/tags:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список тегов, связанных с конкретными выборами.
+      parameters:
+      - description: ID выборов
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список тегов
+          schema:
+            items:
+              $ref: '#/definitions/generated.Tag'
+            type: array
+        "400":
+          description: Неверный формат запроса
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Получить теги выборов
+      tags:
+      - Теги
+    post:
+      consumes:
+      - application/json
+      description: Создает новый тег и ассоциирует его с указанными выборами.
+      parameters:
+      - description: ID выборов
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные для создания тега (только имя)
+        in: body
+        name: tag
+        required: true
+        schema:
+          $ref: '#/definitions/services.TagCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ID созданного тега
+          schema:
+            $ref: '#/definitions/services.TagCreate'
+        "400":
+          description: Неверный формат запроса
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Создать тег для выборов
+      tags:
+      - Теги
+    put:
+      consumes:
+      - application/json
+      description: Обновляет теги, связанные с конкретными выборами. Все существующие
+        теги будут заменены на предоставленные.
+      parameters:
+      - description: ID выборов
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Новый список тегов
+        in: body
+        name: tags
+        required: true
+        schema:
+          $ref: '#/definitions/services.TagsUpdate'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Теги успешно обновлены
+          schema:
+            type: string
+        "400":
+          description: Неверный формат запроса
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Обновить теги выборов
+      tags:
+      - Теги
   /login:
     post:
       consumes:
@@ -935,6 +1055,48 @@ paths:
       summary: Удаление голоса пользователя
       tags:
       - Голоса
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список голосов текущего пользователя на указанных выборах.
+      parameters:
+      - description: ID выборов
+        in: query
+        name: election_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список голосов пользователя
+          schema:
+            items:
+              $ref: '#/definitions/generated.Vote'
+            type: array
+        "400":
+          description: Неверный формат запроса или отсутствует параметр
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить голоса пользователя на конкретных выборах
+      tags:
+      - Голоса
     post:
       consumes:
       - application/json
@@ -964,6 +1126,50 @@ paths:
           schema:
             type: string
       summary: Создать новый голос
+      tags:
+      - Голоса
+  /votes/voted:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает булевое значение, указывающее, проголосовал ли пользователь
+        на указанных выборах.
+      parameters:
+      - description: ID выборов
+        in: query
+        name: election_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Статус голосования пользователя
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Неверный формат запроса или отсутствует параметр
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Проверить, проголосовал ли пользователь на выборах
       tags:
       - Голоса
 securityDefinitions:
