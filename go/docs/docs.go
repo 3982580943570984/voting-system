@@ -472,6 +472,129 @@ const docTemplate = `{
                 }
             }
         },
+        "/elections/{id}/comments": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Возвращает список всех комментариев, связанных с указанными выборами.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Комментарии"
+                ],
+                "summary": "Получить все комментарии для выборов",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID выборов",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список комментариев",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/generated.Comment"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат ID выборов",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизованный доступ",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Создает новый комментарий для указанного выбора.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Комментарии"
+                ],
+                "summary": "Создать комментарий",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID выборов",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для создания комментария",
+                        "name": "comment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.CommentCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Успешно создано, возвращает идентификатор созданного комментария",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса или ID выборов",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизованный доступ",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/elections/{id}/settings": {
             "get": {
                 "description": "Возвращает настройки выборов по ID.",
@@ -1649,6 +1772,23 @@ const docTemplate = `{
                 }
             }
         },
+        "services.CommentCreate": {
+            "type": "object",
+            "properties": {
+                "contents": {
+                    "type": "string"
+                },
+                "electionId": {
+                    "type": "integer"
+                },
+                "parent_id": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
         "services.ElectionCreate": {
             "type": "object",
             "properties": {
@@ -1718,7 +1858,7 @@ const docTemplate = `{
         "services.TagCreate": {
             "type": "object",
             "properties": {
-                "election_id": {
+                "electionId": {
                     "type": "integer"
                 },
                 "name": {
@@ -1729,7 +1869,7 @@ const docTemplate = `{
         "services.TagsUpdate": {
             "type": "object",
             "properties": {
-                "election_id": {
+                "electionId": {
                     "type": "integer"
                 },
                 "names": {

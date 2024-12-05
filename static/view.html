@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Детали Выборов</title>
+    <title>Детали выборов</title>
     <!-- Font Awesome для иконок -->
     <link
       rel="stylesheet"
@@ -28,12 +28,19 @@
         --color-success-hover: #218838;
         --color-modify: #17a2b8;
         --color-modify-hover: #117a8b;
+        --color-profile: #6f42c1;
+        --color-profile-hover: #5936a3;
         --color-text: #333;
         --color-text-secondary: #555;
         --transition-speed: 0.3s;
         --transition-speed-fast: 0.2s;
         --border-radius: 10px;
         --max-width: 1200px;
+        --color-comment-bg: #f1f1f1;
+        --color-comment-border: #ccc;
+        --color-reply-bg: #e9ecef;
+        --color-button-bg: #17a2b8;
+        --color-button-hover: #117a8b;
       }
 
       /* ======= Глобальные Стили ======= */
@@ -84,8 +91,9 @@
 
       /* ======= Стилизация Кнопок ======= */
       .logout-btn,
-      #back-btn {
-        margin-top: 10px;
+      #back-btn,
+      #add-comment-btn,
+      .reply-btn {
         padding: 10px 16px;
         border: none;
         border-radius: 8px;
@@ -95,6 +103,9 @@
         text-decoration: none;
         transition: background-color var(--transition-speed),
           transform var(--transition-speed-fast);
+        display: flex;
+        align-items: center;
+        gap: 5px;
       }
 
       .logout-btn {
@@ -115,12 +126,25 @@
         transform: scale(1.05);
       }
 
-      /* ======= Стилизация Иконок Кнопок ======= */
-      .logout-btn i,
-      #back-btn i,
-      .vote-btn i {
-        margin-right: 8px; /* Пробел между иконкой и текстом */
-        vertical-align: middle; /* Вертикальное выравнивание иконки с текстом */
+      #add-comment-btn {
+        background-color: var(--color-button-bg);
+        margin-top: 10px;
+      }
+
+      #add-comment-btn:hover {
+        background-color: var(--color-button-hover);
+        transform: scale(1.05);
+      }
+
+      .reply-btn {
+        background-color: var(--color-button-bg);
+        padding: 5px 10px;
+        font-size: 0.9rem;
+      }
+
+      .reply-btn:hover {
+        background-color: var(--color-button-hover);
+        transform: scale(1.05);
       }
 
       /* ======= Стилизация Деталей Выборов ======= */
@@ -155,7 +179,7 @@
 
       .candidate-card:hover {
         transform: translateY(-5px); /* Лёгкое поднятие при наведении */
-        box-shadow: 0 8px 20px var(--color-shadow);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
       }
 
       .candidate-info {
@@ -211,6 +235,146 @@
         cursor: not-allowed;
       }
 
+      /* ======= Стилизация Комментариев ======= */
+      .comments-section {
+        margin-top: 50px;
+      }
+
+      .comments-section h3 {
+        margin-bottom: 20px;
+      }
+
+      .comment-form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 30px;
+      }
+
+      .comment-form textarea {
+        resize: vertical;
+        min-height: 80px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        outline: none;
+        transition: border-color var(--transition-speed),
+          box-shadow var(--transition-speed);
+      }
+
+      .comment-form textarea:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+      }
+
+      .comment-form button {
+        align-self: flex-end;
+        background-color: var(--color-button-bg);
+        color: #fff;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color var(--transition-speed),
+          transform var(--transition-speed-fast);
+      }
+
+      .comment-form button:hover {
+        background-color: var(--color-button-hover);
+        transform: scale(1.05);
+      }
+
+      .comments-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .comment {
+        background-color: var(--color-comment-bg);
+        border: 1px solid var(--color-comment-border);
+        border-radius: var(--border-radius);
+        padding: 15px;
+        margin-bottom: 15px;
+        position: relative;
+      }
+
+      .comment .comment-meta {
+        font-size: 0.9rem;
+        color: var(--color-text-secondary);
+        margin-bottom: 10px;
+      }
+
+      .comment .comment-content {
+        font-size: 1rem;
+        color: var(--color-text);
+        margin-bottom: 10px;
+      }
+
+      .comment .reply-btn {
+        background-color: var(--color-button-bg);
+        color: #fff;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        transition: background-color var(--transition-speed),
+          transform var(--transition-speed-fast);
+      }
+
+      .comment .reply-btn:hover {
+        background-color: var(--color-button-hover);
+        transform: scale(1.05);
+      }
+
+      .comment .children {
+        list-style: none;
+        padding-left: 20px;
+        margin-top: 15px;
+      }
+
+      .reply-form {
+        margin-top: 10px;
+      }
+
+      .reply-form textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: var(--border-radius);
+        font-size: 0.9rem;
+        resize: vertical;
+        outline: none;
+        transition: border-color var(--transition-speed),
+          box-shadow var(--transition-speed);
+      }
+
+      .reply-form textarea:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+      }
+
+      .reply-form button {
+        margin-top: 5px;
+        background-color: var(--color-button-bg);
+        color: #fff;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 0.8rem;
+        transition: background-color var(--transition-speed),
+          transform var(--transition-speed-fast);
+      }
+
+      .reply-form button:hover {
+        background-color: var(--color-button-hover);
+        transform: scale(1.05);
+      }
+
       /* ======= Адаптивный Дизайн ======= */
       @media (max-width: 768px) {
         header {
@@ -234,6 +398,11 @@
 
         .vote-btn {
           margin-top: 10px;
+        }
+
+        /* Уменьшение отступов для вложенных комментариев на малых экранах */
+        .comments-list .comment .children {
+          padding-left: 15px;
         }
       }
     </style>
@@ -266,6 +435,27 @@
       <h3>Кандидаты</h3>
       <div class="candidate-list" id="candidate-list">
         <!-- Карточки кандидатов будут заполнены здесь -->
+      </div>
+
+      <!-- Секция Комментариев -->
+      <div class="comments-section">
+        <h3>Комментарии</h3>
+        <!-- Форма для добавления нового комментария -->
+        <form id="add-comment-form" class="comment-form">
+          <textarea
+            id="comment-content"
+            placeholder="Добавьте свой комментарий..."
+            required
+          ></textarea>
+          <button type="submit" id="add-comment-btn">
+            <i class="fa-solid fa-plus"></i> Добавить комментарий
+          </button>
+        </form>
+
+        <!-- Список комментариев -->
+        <ul class="comments-list" id="comments-list">
+          <!-- Комментарии будут отображены здесь -->
+        </ul>
       </div>
     </div>
 
@@ -319,6 +509,187 @@
           button.innerHTML = '<i class="fa-solid fa-thumbs-up"></i> Голосовать';
         });
       }
+
+      // Функция для отображения комментариев
+      function displayComments(comments) {
+        console.log(comments);
+
+        const commentsList = document.getElementById("comments-list");
+        commentsList.innerHTML = ""; // Очистить предыдущие комментарии
+
+        // Фильтровать только корневые комментарии (edges.parent === undefined)
+        const rootComments = comments.filter((c) => !c.edges.parent);
+
+        rootComments.forEach((comment) => {
+          const commentElement = createCommentElement(comment, comments);
+          commentsList.appendChild(commentElement);
+        });
+      }
+
+      // Функция для создания элемента комментария (вложенный)
+      function createCommentElement(comment, allComments) {
+        console.log(comment);
+
+        const li = document.createElement("li");
+        li.className = "comment";
+
+        // Метаданные комментария (пользователь и время)
+        const meta = document.createElement("div");
+        meta.className = "comment-meta";
+        meta.innerText = `${comment.edges.user.email} • ${new Date(
+          comment.create_time
+        ).toLocaleString()}`;
+        li.appendChild(meta);
+
+        // Содержимое комментария
+        const content = document.createElement("div");
+        content.className = "comment-content";
+        content.innerText = comment.contents;
+        li.appendChild(content);
+
+        // Кнопка "Ответить"
+        const replyBtn = document.createElement("button");
+        replyBtn.className = "reply-btn";
+        replyBtn.innerHTML = '<i class="fa-solid fa-reply"></i> Ответить';
+        replyBtn.onclick = () => toggleReplyForm(li, comment.id);
+        li.appendChild(replyBtn);
+
+        // Контейнер для вложенных комментариев
+        const childrenContainer = document.createElement("ul");
+        childrenContainer.className = "children";
+        li.appendChild(childrenContainer);
+
+        // Рекурсивно добавляем дочерние комментарии
+        const childComments = allComments.filter(
+          (c) => c.edges.parent && c.edges.parent.id === comment.id
+        );
+
+        childComments.forEach((childComment) => {
+          const childElement = createCommentElement(childComment, allComments);
+          childrenContainer.appendChild(childElement);
+        });
+
+        return li;
+      }
+
+      // Функция для получения комментариев из API
+      function fetchComments() {
+        fetch(`http://localhost:3000/elections/${electionId}/comments`, {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+          },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Не удалось получить комментарии");
+            }
+            return response.json();
+          })
+          .then((comments) => {
+            displayComments(comments);
+          })
+          .catch((error) => {
+            console.error("Ошибка при получении комментариев:", error);
+            alert("Не удалось загрузить комментарии.");
+          });
+      }
+
+      // Функция для добавления нового комментария
+      function addComment(contents, parentId = null) {
+        fetch(`http://localhost:3000/elections/${electionId}/comments`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+          },
+          body: JSON.stringify({
+            contents: contents,
+            parent_id: parentId,
+          }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Не удалось добавить комментарий");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            alert("Комментарий успешно добавлен!");
+            fetchComments(); // Обновить список комментариев
+          })
+          .catch((error) => {
+            console.error("Ошибка при добавлении комментария:", error);
+            alert("Не удалось добавить комментарий.");
+          });
+      }
+
+      // Обработчик формы добавления нового комментария
+      document
+        .getElementById("add-comment-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const textarea = document.getElementById("comment-content");
+          const contents = textarea.value.trim();
+          if (contents === "") {
+            alert("Пожалуйста, заполните комментарий.");
+            return;
+          }
+          addComment(contents);
+          textarea.value = ""; // Очистить поле после добавления
+        });
+
+      // Функция для отображения/скрытия формы ответа
+      function toggleReplyForm(commentElement, parentId) {
+        // Проверить, есть ли уже форма ответа
+        let replyForm = commentElement.querySelector(".reply-form");
+        if (replyForm) {
+          // Если форма уже существует, удалить её
+          replyForm.remove();
+        } else {
+          // Создать новую форму ответа
+          replyForm = document.createElement("form");
+          replyForm.className = "reply-form";
+
+          const textarea = document.createElement("textarea");
+          textarea.placeholder = "Ваш ответ...";
+          textarea.required = true;
+          replyForm.appendChild(textarea);
+
+          const submitBtn = document.createElement("button");
+          submitBtn.type = "submit";
+          submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Ответить';
+          replyForm.appendChild(submitBtn);
+
+          // Обработчик отправки формы ответа
+          replyForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const replyContent = textarea.value.trim();
+            if (replyContent === "") {
+              alert("Пожалуйста, заполните ответ.");
+              return;
+            }
+            addComment(replyContent, parentId);
+            replyForm.remove(); // Удалить форму после добавления
+          });
+
+          // Добавить форму ответа в элемент комментария
+          commentElement.appendChild(replyForm);
+        }
+      }
+
+      // Logout Functionality
+      document
+        .getElementById("logout-btn")
+        .addEventListener("click", function () {
+          // Confirm Logout Action
+          if (confirm("Вы уверены, что хотите выйти?")) {
+            // Remove JWT token from localStorage
+            localStorage.removeItem("jwt_token");
+            // Redirect to the authentication page
+            window.location.href = "index.html"; // Замените на вашу страницу входа
+          }
+        });
 
       // Получение деталей выборов и кандидатов
       function fetchElectionDetails() {
@@ -428,6 +799,9 @@
             const candidateList = document.getElementById("candidate-list");
             candidateList.innerHTML = "<p>Ошибка при загрузке кандидатов.</p>";
           });
+
+        // Загрузка комментариев
+        fetchComments();
       }
 
       // Голосование за кандидата
@@ -470,19 +844,6 @@
             });
         });
       }
-
-      // Функциональность Выхода
-      document
-        .getElementById("logout-btn")
-        .addEventListener("click", function () {
-          // Подтверждение выхода
-          if (confirm("Вы уверены, что хотите выйти?")) {
-            // Удаление JWT токена из localStorage
-            localStorage.removeItem("jwt_token");
-            // Перенаправление на страницу аутентификации
-            window.location.href = "index.html"; // Замените на вашу реальную страницу входа
-          }
-        });
 
       // Загрузка деталей выборов при загрузке страницы
       window.onload = fetchElectionDetails;

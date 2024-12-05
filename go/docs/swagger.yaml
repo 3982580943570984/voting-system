@@ -356,6 +356,17 @@ definitions:
       photo_url:
         type: string
     type: object
+  services.CommentCreate:
+    properties:
+      contents:
+        type: string
+      electionId:
+        type: integer
+      parent_id:
+        type: integer
+      userId:
+        type: integer
+    type: object
   services.ElectionCreate:
     properties:
       description:
@@ -416,14 +427,14 @@ definitions:
     type: object
   services.TagCreate:
     properties:
-      election_id:
+      electionId:
         type: integer
       name:
         type: string
     type: object
   services.TagsUpdate:
     properties:
-      election_id:
+      electionId:
         type: integer
       names:
         items:
@@ -750,6 +761,85 @@ paths:
       summary: Обновить кандидата
       tags:
       - Кандидаты
+  /elections/{id}/comments:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех комментариев, связанных с указанными выборами.
+      parameters:
+      - description: ID выборов
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список комментариев
+          schema:
+            items:
+              $ref: '#/definitions/generated.Comment'
+            type: array
+        "400":
+          description: Неверный формат ID выборов
+          schema:
+            type: string
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Получить все комментарии для выборов
+      tags:
+      - Комментарии
+    post:
+      consumes:
+      - application/json
+      description: Создает новый комментарий для указанного выбора.
+      parameters:
+      - description: ID выборов
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные для создания комментария
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/services.CommentCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешно создано, возвращает идентификатор созданного комментария
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: Неверный формат запроса или ID выборов
+          schema:
+            type: string
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Создать комментарий
+      tags:
+      - Комментарии
   /elections/{id}/settings:
     get:
       consumes:

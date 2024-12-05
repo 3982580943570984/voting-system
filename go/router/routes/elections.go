@@ -38,7 +38,7 @@ func ElectionsRoutes() chi.Router {
 
 		r.Mount("/settings", ElectionSettingsRoutes())
 
-		r.Mount("/results", ElectionResultsRoutes())
+		r.Mount("/comments", CommentsRoutes())
 	})
 
 	return r

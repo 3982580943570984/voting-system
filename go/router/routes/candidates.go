@@ -12,9 +12,9 @@ import (
 func CandidatesRoutes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Post("/", createCandidate)
-
 	r.Get("/", getCandidates)
+
+	r.Post("/", createCandidate)
 
 	r.Put("/", updateCandidate)
 
