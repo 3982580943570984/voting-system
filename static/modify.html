@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Управление Выборами</title>
+    <title>Управление выборами</title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
@@ -44,6 +44,10 @@
         --modal-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         --close-color: #aaa;
         --close-hover-color: #000;
+
+        /* Добавляем переменные для тегов */
+        --color-tag: #b9b9b9;
+        --color-tag-hover: #868686;
       }
 
       /* ======= Global Styles ======= */
@@ -385,6 +389,127 @@
         box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
       }
 
+      /* ======= Tag Styling ======= */
+      .tag {
+        display: inline-block;
+        background-color: var(--color-tag); /* Цвет тега */
+        color: #fff; /* Цвет текста */
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+        margin: 5px; /* Немного уменьшен отступ */
+        transition: background-color var(--transition-speed);
+        position: relative;
+      }
+
+      .tag:hover {
+        background-color: var(--color-tag-hover); /* Темнее при наведении */
+      }
+
+      /* Кнопка удаления тега */
+      .tag .remove-tag {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: #ff4d4d;
+        border: none;
+        border-radius: 50%;
+        color: #fff;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        font-size: 12px;
+        line-height: 18px;
+        text-align: center;
+        padding: 0;
+        transition: background-color var(--transition-speed-fast);
+      }
+
+      .tag .remove-tag:hover {
+        background-color: #cc0000;
+      }
+
+      /* ======= Manage Tags Section ======= */
+      .manage-tags {
+        max-width: 600px;
+        margin: 30px auto;
+        padding: 20px;
+        border: 1px solid var(--color-border);
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 15px var(--color-shadow);
+        background-color: var(--color-card-bg);
+        transition: box-shadow var(--transition-speed);
+      }
+
+      .manage-tags:hover {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      .manage-tags input:focus,
+      .manage-tags textarea:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+      }
+
+      .manage-tags input,
+      .manage-tags textarea {
+        width: 100%;
+        padding: 12px 20px;
+        border: 1px solid #ccc;
+        border-radius: var(--border-radius);
+        outline: none;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color var(--transition-speed),
+          box-shadow var(--transition-speed);
+      }
+
+      .manage-tags button {
+        padding: 12px 20px;
+        border: 1px solid #ccc;
+        border-radius: var(--border-radius);
+        outline: none;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color var(--transition-speed),
+          box-shadow var(--transition-speed);
+      }
+
+      /* ======= Spacing Between Inputs ======= */
+      .manage-tags input:not(:last-of-type),
+      .manage-tags textarea:not(:last-of-type) {
+        margin-bottom: 15px;
+      }
+
+      .manage-tags h2 {
+        margin-bottom: 15px;
+      }
+
+      .tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-bottom: 15px;
+      }
+
+      .add-tag-form {
+        display: flex;
+        gap: 10px;
+      }
+
+      .add-tag-form input {
+        flex: 1;
+      }
+
+      .add-tag-form button {
+        flex: none;
+        background-color: var(--color-success);
+      }
+
+      .add-tag-form button:hover {
+        background-color: var(--color-success-hover);
+      }
+
       /* ======= Responsive Design ======= */
       @media (max-width: 768px) {
         .candidate-list {
@@ -407,7 +532,7 @@
     <div class="container">
       <!-- Header Section with Back and Logout Buttons -->
       <header>
-        <h1>Управление Выборами</h1>
+        <h1>Управление выборами</h1>
         <div>
           <button id="back-btn" class="view-btn">
             <i class="fa fa-arrow-left"></i> Назад к выборам
@@ -422,19 +547,33 @@
       <div class="add-candidate-form" id="add-candidate-form">
         <h2>Добавить нового кандидата</h2>
         <form id="create-candidate">
-          <input
-            type="text"
-            id="candidate-name"
-            placeholder="Имя Кандидата"
-            required
-          />
+          <input type="text" id="candidate-name" placeholder="Имя" required />
           <textarea
             id="candidate-description"
-            placeholder="Описание Кандидата"
+            placeholder="Описание"
             required
           ></textarea>
           <button type="submit" class="create-btn">
             <i class="fa fa-plus"></i> Добавить
+          </button>
+        </form>
+      </div>
+
+      <!-- Manage Tags Section -->
+      <div class="manage-tags" id="manage-tags">
+        <h2>Управление тегами</h2>
+        <div class="tags-container" id="tags-container">
+          <!-- Теги будут отображаться здесь -->
+        </div>
+        <form id="add-tag-form" class="add-tag-form">
+          <input
+            type="text"
+            id="new-tag-name"
+            placeholder="Новый тег"
+            required
+          />
+          <button type="submit" class="create-btn">
+            <i class="fa fa-plus"></i> Добавить Тег
           </button>
         </form>
       </div>
@@ -450,18 +589,18 @@
     <div id="edit-modal" class="modal">
       <div class="modal-content">
         <span class="close" id="modal-close">&times;</span>
-        <h2>Редактировать кандидата</h2>
+        <h2>Редактирование кандидата</h2>
         <form id="edit-candidate-form" class="edit-candidate-form">
           <input type="hidden" id="edit-candidate-id" />
           <input
             type="text"
             id="edit-candidate-name"
-            placeholder="Имя Кандидата"
+            placeholder="Имя"
             required
           />
           <textarea
             id="edit-candidate-description"
-            placeholder="Описание Кандидата"
+            placeholder="Описание"
             required
           ></textarea>
           <input
@@ -738,7 +877,227 @@
         }
       }
 
-      // On page load, fetch the candidates
+      // Fetch all tags for the election and display them
+      function fetchTags() {
+        fetch(`http://localhost:3000/elections/${electionId}/tags`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+          },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Не удалось получить теги для выборов");
+            }
+            return response.json();
+          })
+          .then((tags) => {
+            const tagsContainer = document.getElementById("tags-container");
+            tagsContainer.innerHTML = ""; // Очистить предыдущие теги
+
+            if (tags.length === 0) {
+              tagsContainer.innerHTML = "<p>Тегов нет.</p>";
+              return;
+            }
+
+            tags.forEach((tag) => {
+              const tagElement = document.createElement("span");
+              tagElement.className = "tag";
+              tagElement.innerText = tag.name;
+
+              // Добавляем кнопку удаления тега
+              const removeBtn = document.createElement("button");
+              removeBtn.className = "remove-tag";
+              removeBtn.innerHTML = "&times;";
+              removeBtn.onclick = function () {
+                removeTag(tag.name);
+              };
+
+              tagElement.appendChild(removeBtn);
+              tagsContainer.appendChild(tagElement);
+            });
+          })
+          .catch((error) => {
+            console.error("Ошибка при получении тегов:", error);
+            const tagsContainer = document.getElementById("tags-container");
+            tagsContainer.innerHTML = "<p>Ошибка при загрузке тегов.</p>";
+          });
+      }
+
+      // Add Tag function
+      document
+        .getElementById("add-tag-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const tagName = document.getElementById("new-tag-name").value.trim();
+
+          if (tagName === "") {
+            alert("Пожалуйста, введите имя тега.");
+            return;
+          }
+
+          fetch(`http://localhost:3000/elections/${electionId}/tags`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+            },
+            body: JSON.stringify({
+              name: tagName,
+            }),
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Не удалось добавить тег");
+              }
+              return response.json();
+            })
+            .then((data) => {
+              alert("Тег успешно добавлен!");
+              fetchTags(); // Обновить список тегов
+              document.getElementById("add-tag-form").reset(); // Очистить форму
+            })
+            .catch((error) => {
+              console.error("Ошибка при добавлении тега:", error);
+              alert("Не удалось добавить тег");
+            });
+        });
+
+      // Remove Tag function
+      function removeTag(tagName) {
+        // Получаем текущие теги
+        fetch(`http://localhost:3000/elections/${electionId}/tags`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+          },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Не удалось получить текущие теги");
+            }
+            return response.json();
+          })
+          .then((tags) => {
+            // Фильтруем тег, который нужно удалить
+            const updatedTags = tags
+              .map((tag) => tag.name)
+              .filter((name) => name !== tagName);
+
+            // Отправляем обновленный список тегов через PUT
+            fetch(`http://localhost:3000/elections/${electionId}/tags`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+              },
+              body: JSON.stringify({
+                election_id: parseInt(electionId),
+                names: updatedTags,
+              }),
+            })
+              .then((response) => {
+                if (!response.ok) {
+                  throw new Error("Не удалось обновить теги");
+                }
+                alert("Тег успешно удалён!");
+                fetchTags(); // Обновить список тегов
+              })
+              .catch((error) => {
+                console.error("Ошибка при обновлении тегов:", error);
+                alert("Не удалось удалить тег");
+              });
+          })
+          .catch((error) => {
+            console.error("Ошибка при получении тегов:", error);
+            alert("Не удалось удалить тег");
+          });
+      }
+
+      // Handle Edit Candidate form submission
+      editForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const id = parseInt(document.getElementById("edit-candidate-id").value);
+        const name = document
+          .getElementById("edit-candidate-name")
+          .value.trim();
+        const description = document
+          .getElementById("edit-candidate-description")
+          .value.trim();
+        const photo_url = document
+          .getElementById("edit-candidate-photo-url")
+          .value.trim();
+
+        if (name === "" || description === "") {
+          alert("Пожалуйста, заполните все обязательные поля.");
+          return;
+        }
+
+        const updateData = {
+          id: id,
+          name: name,
+          description: description,
+          photo_url: photo_url !== "" ? photo_url : null,
+        };
+
+        fetch(`http://localhost:3000/elections/${electionId}/candidates`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+          },
+          body: JSON.stringify(updateData),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Не удалось обновить кандидата");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            alert("Кандидат успешно обновлён!");
+            fetchCandidates(); // Refresh the list of candidates
+            modal.style.display = "none"; // Close the modal
+          })
+          .catch((error) => {
+            console.error("Ошибка при обновлении кандидата:", error);
+            alert("Не удалось обновить кандидата");
+          });
+      });
+
+      // Delete Candidate function
+      function deleteCandidate(candidateId) {
+        if (confirm("Вы уверены, что хотите удалить этого кандидата?")) {
+          fetch(`http://localhost:3000/elections/${electionId}/candidates`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+            },
+            body: JSON.stringify({
+              id: candidateId,
+              electionId: parseInt(electionId),
+            }),
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Не удалось удалить кандидата");
+              }
+              alert("Кандидат успешно удалён!");
+              fetchCandidates(); // Refresh the list of candidates
+            })
+            .catch((error) => {
+              console.error("Ошибка при удалении кандидата:", error);
+              alert("Не удалось удалить кандидата");
+            });
+        }
+      }
+
+      // On page load, fetch the candidates and tags
       window.onload = function () {
         // Check if the user is authenticated
         const token = localStorage.getItem("jwt_token");
@@ -748,6 +1107,7 @@
         }
 
         fetchCandidates();
+        fetchTags();
       };
     </script>
   </body>

@@ -36,6 +36,8 @@
         --color-modify-hover: #117a8b;
         --color-profile: #6f42c1;
         --color-profile-hover: #5936a3;
+        --color-tag: #b9b9b9;
+        --color-tag-hover: #868686;
         --max-width: 1200px;
       }
 
@@ -44,9 +46,7 @@
         font-family: var(--font-family);
         margin: 0;
         padding: 0;
-        background-color: var(
-          --color-background
-        ); /* Light background color for a clean look */
+        background-color: var(--color-background);
       }
 
       h1,
@@ -196,6 +196,22 @@
         margin-top: auto;
       }
 
+      /* ======= Tags Styling ======= */
+      .tag {
+        display: inline-block;
+        background-color: var(--color-tag); /* Цвет тега */
+        color: #fff; /* Цвет текста */
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+        margin: 10px 5px;
+        transition: background-color var(--transition-speed);
+      }
+
+      .tag:hover {
+        background-color: var(--color-tag-hover); /* Темнее при наведении */
+      }
+
       /* ======= Create Election Form Styling ======= */
       .create-election-form {
         display: flex;
@@ -276,10 +292,48 @@
         box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Blue shadow for focus */
       }
 
-      /* ======= Disabled Button Styling ======= */
-      .disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
+      /* ======= Search Bar Styling ======= */
+      #search-bar {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 200px;
+        transition: border-color var(--transition-speed);
+      }
+
+      #search-bar:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+      }
+
+      /* ======= Responsive Design ======= */
+      @media (max-width: 768px) {
+        .election-list {
+          grid-template-columns: 1fr;
+          padding: 0 10px;
+        }
+
+        .create-election-form {
+          padding: 20px;
+        }
+
+        /* Adjust search bar width on smaller screens */
+        #search-bar {
+          width: 100%;
+          margin-top: 10px;
+        }
+
+        /* Adjust header layout */
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        /* Adjust election list header */
+        h2 {
+          flex-direction: column;
+          align-items: flex-start;
+        }
       }
     </style>
   </head>
@@ -313,17 +367,38 @@
             placeholder="Описание"
             required
           ></textarea>
+          <!-- Поле для тегов (разделение запятыми) -->
+          <input
+            type="text"
+            id="election-tags"
+            placeholder="Теги (через запятую)"
+          />
           <button type="submit"><i class="fa fa-plus"></i> Создать</button>
         </form>
       </div>
 
-      <h2>Все доступные выборы</h2>
+      <!-- Заголовок и Поисковая Строка для Выборов -->
+      <h2
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        "
+      >
+        <span>Все доступные выборы</span>
+        <input type="text" id="search-bar" placeholder="Поиск по тегам..." />
+      </h2>
+
+      <!-- Election List Container -->
       <div class="election-list" id="election-list">
         <!-- Election Cards will be populated here -->
       </div>
     </div>
 
     <script>
+      // Хранение всех выборов с их тегами
+      let allElections = [];
+
       // Function to decode JWT and retrieve claims
       function getJwtClaims() {
         const token = localStorage.getItem("jwt_token");
@@ -391,6 +466,30 @@
         // After elections are fetched and rendered, hide Modify/Delete buttons if not organizer
       }
 
+      // Fetch and display tags for a specific election
+      function fetchElectionTags(electionId) {
+        return fetch(`http://localhost:3000/elections/${electionId}/tags`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+          },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Не удалось получить теги для выборов");
+            }
+            return response.json();
+          })
+          .then((tags) => {
+            return tags; // Возвращаем массив тегов
+          })
+          .catch((error) => {
+            console.error("Ошибка при получении тегов:", error);
+            return []; // Возвращаем пустой массив в случае ошибки
+          });
+      }
+
       // Fetch all elections from the API and display them
       function fetchElections() {
         fetch("http://localhost:3000/elections", {
@@ -405,81 +504,136 @@
             }
             return response.json();
           })
-          .then((elections) => {
-            const electionList = document.getElementById("election-list");
-            electionList.innerHTML = ""; // Clear any previous elections
+          .then(async (elections) => {
+            // Для каждого выбора получаем его теги
+            const electionsWithTagsPromises = elections.map(
+              async (election) => {
+                const tags = await fetchElectionTags(election.id);
+                election.tags = tags; // Добавляем теги к объекту выбора
+                return election;
+              }
+            );
 
-            if (elections.length === 0) {
-              electionList.innerHTML =
-                "<p>Выборов нет. Создайте их, если у вас есть соответствующие права!</p>";
-              return;
-            }
-
-            elections.forEach((election) => {
-              // Create the election card
-              const card = document.createElement("div");
-              card.className = "election-card";
-
-              // Title
-              const title = document.createElement("h3");
-              title.innerText = election.title;
-              card.appendChild(title);
-
-              // Description
-              const description = document.createElement("p");
-              description.innerText =
-                election.description.length > 100
-                  ? election.description.substring(0, 100) + "..."
-                  : election.description;
-              card.appendChild(description);
-
-              // Button Container
-              const buttonContainer = document.createElement("div");
-              buttonContainer.style.display = "flex";
-              buttonContainer.style.gap = "10px";
-              buttonContainer.style.marginTop = "auto"; // Push buttons to the bottom
-
-              // View Election Button
-              const viewButton = document.createElement("a");
-              viewButton.href = "view.html?id=" + election.id; // Direct to candidates page
-              viewButton.className = "view-btn";
-              viewButton.innerHTML =
-                '<i class="fa-solid fa-eye"></i> Просмотреть';
-              buttonContainer.appendChild(viewButton);
-
-              // Modify Election Button
-              const modifyButton = document.createElement("a");
-              modifyButton.href = "modify.html?id=" + election.id; // Direct to modify candidates page
-              modifyButton.className = "modify-btn";
-              modifyButton.innerHTML =
-                '<i class="fa-solid fa-edit"></i> Редактировать';
-              buttonContainer.appendChild(modifyButton);
-
-              // Delete Election Button (already includes icon)
-              const deleteButton = document.createElement("button");
-              deleteButton.className = "delete-btn";
-              deleteButton.innerHTML =
-                '<i class="fa-solid fa-trash-alt"></i> Удалить';
-              deleteButton.onclick = function () {
-                deleteElection(election.id);
-              };
-              buttonContainer.appendChild(deleteButton);
-
-              // Append the button container to the card
-              card.appendChild(buttonContainer);
-
-              // Append the card to the list
-              electionList.appendChild(card);
-            });
-
-            // After rendering all election cards, adjust buttons based on role
-            adjustElectionButtons();
+            // Ждём завершения всех промисов
+            allElections = await Promise.all(electionsWithTagsPromises);
+            displayElections(allElections);
           })
           .catch((error) => {
             console.error("Ошибка при получении выборов:", error);
             alert("Не удалось загрузить выборы");
           });
       }
+
+      // Функция для отображения выборов
+      function displayElections(elections) {
+        const electionList = document.getElementById("election-list");
+        electionList.innerHTML = ""; // Очистить любые предыдущие выборы
+
+        if (elections.length === 0) {
+          electionList.innerHTML =
+            "<p>Выборов нет. Создайте их, если у вас есть соответствующие права!</p>";
+          return;
+        }
+
+        elections.forEach((election) => {
+          // Создаем карточку выбора
+          const card = document.createElement("div");
+          card.className = "election-card";
+
+          // Заголовок
+          const title = document.createElement("h3");
+          title.innerText = election.title;
+          card.appendChild(title);
+
+          // Описание
+          const description = document.createElement("p");
+          description.innerText =
+            election.description.length > 100
+              ? election.description.substring(0, 100) + "..."
+              : election.description;
+          card.appendChild(description);
+
+          // Контейнер для тегов
+          const tagsContainer = document.createElement("div");
+          tagsContainer.className = "tags-container";
+          card.appendChild(tagsContainer);
+
+          // Отображаем теги для этого выбора
+          if (election.tags && election.tags.length > 0) {
+            election.tags.forEach((tag) => {
+              const tagElement = document.createElement("span");
+              tagElement.className = "tag";
+              tagElement.innerText = tag.name;
+              tagsContainer.appendChild(tagElement);
+            });
+          }
+
+          // Контейнер для кнопок
+          const buttonContainer = document.createElement("div");
+          buttonContainer.style.display = "flex";
+          buttonContainer.style.gap = "10px";
+          buttonContainer.style.marginTop = "auto"; // Отодвигаем кнопки вниз
+
+          // Кнопка "Просмотреть выборы"
+          const viewButton = document.createElement("a");
+          viewButton.href = "view.html?id=" + election.id; // Перенаправление на страницу просмотра
+          viewButton.className = "view-btn";
+          viewButton.innerHTML = '<i class="fa-solid fa-eye"></i> Просмотреть';
+          buttonContainer.appendChild(viewButton);
+
+          // Кнопка "Редактировать выборы"
+          const modifyButton = document.createElement("a");
+          modifyButton.href = "modify.html?id=" + election.id; // Перенаправление на страницу редактирования
+          modifyButton.className = "modify-btn";
+          modifyButton.innerHTML =
+            '<i class="fa-solid fa-edit"></i> Редактировать';
+          buttonContainer.appendChild(modifyButton);
+
+          // Кнопка "Удалить выборы"
+          const deleteButton = document.createElement("button");
+          deleteButton.className = "delete-btn";
+          deleteButton.innerHTML =
+            '<i class="fa-solid fa-trash-alt"></i> Удалить';
+          deleteButton.onclick = function () {
+            deleteElection(election.id);
+          };
+          buttonContainer.appendChild(deleteButton);
+
+          // Добавляем контейнер с кнопками в карточку
+          card.appendChild(buttonContainer);
+
+          // Добавляем карточку в список выборов
+          electionList.appendChild(card);
+        });
+
+        // После рендеринга всех карточек выборов, корректируем кнопки на основе роли пользователя
+        adjustElectionButtons();
+      }
+
+      // Функция для фильтрации выборов по тегу
+      function filterElectionsByTag(tagName) {
+        if (tagName.trim() === "") {
+          displayElections(allElections);
+          return;
+        }
+
+        const filteredElections = allElections.filter((election) => {
+          if (!election.tags || election.tags.length === 0) return false;
+          return election.tags.some((tag) =>
+            tag.name.toLowerCase().includes(tagName.toLowerCase())
+          );
+        });
+
+        displayElections(filteredElections);
+      }
+
+      // Добавляем обработчик события для поисковой строки
+      document
+        .getElementById("search-bar")
+        .addEventListener("input", function (e) {
+          const query = e.target.value.trim();
+          filterElectionsByTag(query);
+        });
 
       // Function to adjust election buttons based on user role
       function adjustElectionButtons() {
@@ -505,7 +659,7 @@
               deleteBtn.removeAttribute("disabled");
             }
           } else {
-            // If not organizer, hide or disable buttons
+            // If not organizer, hide кнопки
             if (modifyBtn) {
               modifyBtn.style.display = "none";
             }
@@ -526,12 +680,16 @@
           const description = document
             .getElementById("election-description")
             .value.trim();
+          const tagsInput = document
+            .getElementById("election-tags")
+            .value.trim();
 
           if (title === "" || description === "") {
-            alert("Пожалуйста, заполните все поля.");
+            alert("Пожалуйста, заполните все обязательные поля.");
             return;
           }
 
+          // Создаём выборы
           fetch("http://localhost:3000/elections", {
             method: "POST",
             headers: {
@@ -549,10 +707,55 @@
               }
               return response.json();
             })
-            .then((data) => {
+            .then(async (data) => {
               alert("Выборы успешно созданы!");
-              fetchElections(); // Refresh the list of elections
-              document.getElementById("create-election").reset(); // Clear the form
+              const newElectionId = data.id; // Предполагается, что сервер возвращает {id: <id>}
+              document.getElementById("create-election").reset(); // Очистить форму
+
+              // Обработка добавления тегов, если они введены
+              if (tagsInput !== "") {
+                const tags = tagsInput
+                  .split(",")
+                  .map((tag) => tag.trim())
+                  .filter((tag) => tag !== "");
+
+                if (tags.length > 0) {
+                  // Создаём промисы для добавления каждого тега
+                  const tagPromises = tags.map((tag) => {
+                    return fetch(
+                      `http://localhost:3000/elections/${newElectionId}/tags`,
+                      {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                          Authorization:
+                            "Bearer " + localStorage.getItem("jwt_token"),
+                        },
+                        body: JSON.stringify({
+                          name: tag,
+                        }),
+                      }
+                    ).then((response) => {
+                      if (!response.ok) {
+                        throw new Error(`Не удалось добавить тег: ${tag}`);
+                      }
+                      return response.json();
+                    });
+                  });
+
+                  try {
+                    // Выполняем все промисы
+                    await Promise.all(tagPromises);
+                    alert("Теги успешно добавлены!");
+                  } catch (error) {
+                    console.error("Ошибка при добавлении тегов:", error);
+                    alert("Часть тегов не была добавлена.");
+                  }
+                }
+              }
+
+              // Обновляем список выборов после создания
+              fetchElections();
             })
             .catch((error) => {
               console.error("Ошибка при создании выборов:", error);
@@ -603,6 +806,8 @@
           // Redirect to the profile page
           window.location.href = "profile.html"; // Ensure this path is correct
         });
+
+      // Remove Tag function (удалено, так как не требуется)
 
       // On page load, check authentication and update UI
       window.onload = function () {
