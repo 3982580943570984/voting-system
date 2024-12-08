@@ -18,6 +18,8 @@ type Tx struct {
 	Comment *CommentClient
 	// Election is the client for interacting with the Election builders.
 	Election *ElectionClient
+	// ElectionFilters is the client for interacting with the ElectionFilters builders.
+	ElectionFilters *ElectionFiltersClient
 	// ElectionSettings is the client for interacting with the ElectionSettings builders.
 	ElectionSettings *ElectionSettingsClient
 	// Profile is the client for interacting with the Profile builders.
@@ -162,6 +164,7 @@ func (tx *Tx) init() {
 	tx.Candidate = NewCandidateClient(tx.config)
 	tx.Comment = NewCommentClient(tx.config)
 	tx.Election = NewElectionClient(tx.config)
+	tx.ElectionFilters = NewElectionFiltersClient(tx.config)
 	tx.ElectionSettings = NewElectionSettingsClient(tx.config)
 	tx.Profile = NewProfileClient(tx.config)
 	tx.Tag = NewTagClient(tx.config)

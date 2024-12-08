@@ -92,30 +92,16 @@ func (esu *ElectionSettingsUpdate) AddMaxVotes(i int) *ElectionSettingsUpdate {
 	return esu
 }
 
-// SetStartDate sets the "start_date" field.
-func (esu *ElectionSettingsUpdate) SetStartDate(t time.Time) *ElectionSettingsUpdate {
-	esu.mutation.SetStartDate(t)
+// SetDuration sets the "duration" field.
+func (esu *ElectionSettingsUpdate) SetDuration(t time.Time) *ElectionSettingsUpdate {
+	esu.mutation.SetDuration(t)
 	return esu
 }
 
-// SetNillableStartDate sets the "start_date" field if the given value is not nil.
-func (esu *ElectionSettingsUpdate) SetNillableStartDate(t *time.Time) *ElectionSettingsUpdate {
+// SetNillableDuration sets the "duration" field if the given value is not nil.
+func (esu *ElectionSettingsUpdate) SetNillableDuration(t *time.Time) *ElectionSettingsUpdate {
 	if t != nil {
-		esu.SetStartDate(*t)
-	}
-	return esu
-}
-
-// SetEndDate sets the "end_date" field.
-func (esu *ElectionSettingsUpdate) SetEndDate(t time.Time) *ElectionSettingsUpdate {
-	esu.mutation.SetEndDate(t)
-	return esu
-}
-
-// SetNillableEndDate sets the "end_date" field if the given value is not nil.
-func (esu *ElectionSettingsUpdate) SetNillableEndDate(t *time.Time) *ElectionSettingsUpdate {
-	if t != nil {
-		esu.SetEndDate(*t)
+		esu.SetDuration(*t)
 	}
 	return esu
 }
@@ -209,11 +195,8 @@ func (esu *ElectionSettingsUpdate) sqlSave(ctx context.Context) (n int, err erro
 	if value, ok := esu.mutation.AddedMaxVotes(); ok {
 		_spec.AddField(electionsettings.FieldMaxVotes, field.TypeInt, value)
 	}
-	if value, ok := esu.mutation.StartDate(); ok {
-		_spec.SetField(electionsettings.FieldStartDate, field.TypeTime, value)
-	}
-	if value, ok := esu.mutation.EndDate(); ok {
-		_spec.SetField(electionsettings.FieldEndDate, field.TypeTime, value)
+	if value, ok := esu.mutation.Duration(); ok {
+		_spec.SetField(electionsettings.FieldDuration, field.TypeTime, value)
 	}
 	if esu.mutation.ElectionCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -327,30 +310,16 @@ func (esuo *ElectionSettingsUpdateOne) AddMaxVotes(i int) *ElectionSettingsUpdat
 	return esuo
 }
 
-// SetStartDate sets the "start_date" field.
-func (esuo *ElectionSettingsUpdateOne) SetStartDate(t time.Time) *ElectionSettingsUpdateOne {
-	esuo.mutation.SetStartDate(t)
+// SetDuration sets the "duration" field.
+func (esuo *ElectionSettingsUpdateOne) SetDuration(t time.Time) *ElectionSettingsUpdateOne {
+	esuo.mutation.SetDuration(t)
 	return esuo
 }
 
-// SetNillableStartDate sets the "start_date" field if the given value is not nil.
-func (esuo *ElectionSettingsUpdateOne) SetNillableStartDate(t *time.Time) *ElectionSettingsUpdateOne {
+// SetNillableDuration sets the "duration" field if the given value is not nil.
+func (esuo *ElectionSettingsUpdateOne) SetNillableDuration(t *time.Time) *ElectionSettingsUpdateOne {
 	if t != nil {
-		esuo.SetStartDate(*t)
-	}
-	return esuo
-}
-
-// SetEndDate sets the "end_date" field.
-func (esuo *ElectionSettingsUpdateOne) SetEndDate(t time.Time) *ElectionSettingsUpdateOne {
-	esuo.mutation.SetEndDate(t)
-	return esuo
-}
-
-// SetNillableEndDate sets the "end_date" field if the given value is not nil.
-func (esuo *ElectionSettingsUpdateOne) SetNillableEndDate(t *time.Time) *ElectionSettingsUpdateOne {
-	if t != nil {
-		esuo.SetEndDate(*t)
+		esuo.SetDuration(*t)
 	}
 	return esuo
 }
@@ -474,11 +443,8 @@ func (esuo *ElectionSettingsUpdateOne) sqlSave(ctx context.Context) (_node *Elec
 	if value, ok := esuo.mutation.AddedMaxVotes(); ok {
 		_spec.AddField(electionsettings.FieldMaxVotes, field.TypeInt, value)
 	}
-	if value, ok := esuo.mutation.StartDate(); ok {
-		_spec.SetField(electionsettings.FieldStartDate, field.TypeTime, value)
-	}
-	if value, ok := esuo.mutation.EndDate(); ok {
-		_spec.SetField(electionsettings.FieldEndDate, field.TypeTime, value)
+	if value, ok := esuo.mutation.Duration(); ok {
+		_spec.SetField(electionsettings.FieldDuration, field.TypeTime, value)
 	}
 	if esuo.mutation.ElectionCleared() {
 		edge := &sqlgraph.EdgeSpec{

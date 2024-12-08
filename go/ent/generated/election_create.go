@@ -9,6 +9,7 @@ import (
 	"voting-system/ent/generated/candidate"
 	"voting-system/ent/generated/comment"
 	"voting-system/ent/generated/election"
+	"voting-system/ent/generated/electionfilters"
 	"voting-system/ent/generated/electionsettings"
 	"voting-system/ent/generated/tag"
 	"voting-system/ent/generated/user"
@@ -117,6 +118,25 @@ func (ec *ElectionCreate) SetNillableSettingsID(id *int) *ElectionCreate {
 // SetSettings sets the "settings" edge to the ElectionSettings entity.
 func (ec *ElectionCreate) SetSettings(e *ElectionSettings) *ElectionCreate {
 	return ec.SetSettingsID(e.ID)
+}
+
+// SetFiltersID sets the "filters" edge to the ElectionFilters entity by ID.
+func (ec *ElectionCreate) SetFiltersID(id int) *ElectionCreate {
+	ec.mutation.SetFiltersID(id)
+	return ec
+}
+
+// SetNillableFiltersID sets the "filters" edge to the ElectionFilters entity by ID if the given value is not nil.
+func (ec *ElectionCreate) SetNillableFiltersID(id *int) *ElectionCreate {
+	if id != nil {
+		ec = ec.SetFiltersID(*id)
+	}
+	return ec
+}
+
+// SetFilters sets the "filters" edge to the ElectionFilters entity.
+func (ec *ElectionCreate) SetFilters(e *ElectionFilters) *ElectionCreate {
+	return ec.SetFiltersID(e.ID)
 }
 
 // Mutation returns the ElectionMutation object of the builder.
@@ -277,6 +297,22 @@ func (ec *ElectionCreate) createSpec() (*Election, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(electionsettings.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := ec.mutation.FiltersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   election.FiltersTable,
+			Columns: []string{election.FiltersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(electionfilters.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

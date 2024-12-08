@@ -10,6 +10,7 @@ import (
 	"voting-system/ent/generated/candidate"
 	"voting-system/ent/generated/comment"
 	"voting-system/ent/generated/election"
+	"voting-system/ent/generated/electionfilters"
 	"voting-system/ent/generated/electionsettings"
 	"voting-system/ent/generated/predicate"
 	"voting-system/ent/generated/tag"
@@ -33,6 +34,7 @@ type ElectionQuery struct {
 	withComments   *CommentQuery
 	withCandidates *CandidateQuery
 	withSettings   *ElectionSettingsQuery
+	withFilters    *ElectionFiltersQuery
 	withFKs        bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -173,6 +175,28 @@ func (eq *ElectionQuery) QuerySettings() *ElectionSettingsQuery {
 			sqlgraph.From(election.Table, election.FieldID, selector),
 			sqlgraph.To(electionsettings.Table, electionsettings.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, false, election.SettingsTable, election.SettingsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(eq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryFilters chains the current query on the "filters" edge.
+func (eq *ElectionQuery) QueryFilters() *ElectionFiltersQuery {
+	query := (&ElectionFiltersClient{config: eq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := eq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := eq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(election.Table, election.FieldID, selector),
+			sqlgraph.To(electionfilters.Table, electionfilters.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, election.FiltersTable, election.FiltersColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(eq.driver.Dialect(), step)
 		return fromU, nil
@@ -377,6 +401,7 @@ func (eq *ElectionQuery) Clone() *ElectionQuery {
 		withComments:   eq.withComments.Clone(),
 		withCandidates: eq.withCandidates.Clone(),
 		withSettings:   eq.withSettings.Clone(),
+		withFilters:    eq.withFilters.Clone(),
 		// clone intermediate query.
 		sql:  eq.sql.Clone(),
 		path: eq.path,
@@ -435,6 +460,17 @@ func (eq *ElectionQuery) WithSettings(opts ...func(*ElectionSettingsQuery)) *Ele
 		opt(query)
 	}
 	eq.withSettings = query
+	return eq
+}
+
+// WithFilters tells the query-builder to eager-load the nodes that are connected to
+// the "filters" edge. The optional arguments are used to configure the query builder of the edge.
+func (eq *ElectionQuery) WithFilters(opts ...func(*ElectionFiltersQuery)) *ElectionQuery {
+	query := (&ElectionFiltersClient{config: eq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	eq.withFilters = query
 	return eq
 }
 
@@ -517,12 +553,13 @@ func (eq *ElectionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Ele
 		nodes       = []*Election{}
 		withFKs     = eq.withFKs
 		_spec       = eq.querySpec()
-		loadedTypes = [5]bool{
+		loadedTypes = [6]bool{
 			eq.withUser != nil,
 			eq.withTags != nil,
 			eq.withComments != nil,
 			eq.withCandidates != nil,
 			eq.withSettings != nil,
+			eq.withFilters != nil,
 		}
 	)
 	if eq.withUser != nil {
@@ -579,6 +616,12 @@ func (eq *ElectionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Ele
 	if query := eq.withSettings; query != nil {
 		if err := eq.loadSettings(ctx, query, nodes, nil,
 			func(n *Election, e *ElectionSettings) { n.Edges.Settings = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := eq.withFilters; query != nil {
+		if err := eq.loadFilters(ctx, query, nodes, nil,
+			func(n *Election, e *ElectionFilters) { n.Edges.Filters = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -763,6 +806,34 @@ func (eq *ElectionQuery) loadSettings(ctx context.Context, query *ElectionSettin
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "election_settings" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (eq *ElectionQuery) loadFilters(ctx context.Context, query *ElectionFiltersQuery, nodes []*Election, init func(*Election), assign func(*Election, *ElectionFilters)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Election)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+	}
+	query.withFKs = true
+	query.Where(predicate.ElectionFilters(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(election.FiltersColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.election_filters
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "election_filters" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "election_filters" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

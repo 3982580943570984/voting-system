@@ -11,6 +11,7 @@ import (
 	"voting-system/ent/generated/candidate"
 	"voting-system/ent/generated/comment"
 	"voting-system/ent/generated/election"
+	"voting-system/ent/generated/electionfilters"
 	"voting-system/ent/generated/electionsettings"
 	"voting-system/ent/generated/predicate"
 	"voting-system/ent/generated/profile"
@@ -34,6 +35,7 @@ const (
 	TypeCandidate        = "Candidate"
 	TypeComment          = "Comment"
 	TypeElection         = "Election"
+	TypeElectionFilters  = "ElectionFilters"
 	TypeElectionSettings = "ElectionSettings"
 	TypeProfile          = "Profile"
 	TypeTag              = "Tag"
@@ -1573,6 +1575,8 @@ type ElectionMutation struct {
 	clearedcandidates bool
 	settings          *int
 	clearedsettings   bool
+	filters           *int
+	clearedfilters    bool
 	done              bool
 	oldValue          func(context.Context) (*Election, error)
 	predicates        []predicate.Election
@@ -1988,6 +1992,45 @@ func (m *ElectionMutation) ResetSettings() {
 	m.clearedsettings = false
 }
 
+// SetFiltersID sets the "filters" edge to the ElectionFilters entity by id.
+func (m *ElectionMutation) SetFiltersID(id int) {
+	m.filters = &id
+}
+
+// ClearFilters clears the "filters" edge to the ElectionFilters entity.
+func (m *ElectionMutation) ClearFilters() {
+	m.clearedfilters = true
+}
+
+// FiltersCleared reports if the "filters" edge to the ElectionFilters entity was cleared.
+func (m *ElectionMutation) FiltersCleared() bool {
+	return m.clearedfilters
+}
+
+// FiltersID returns the "filters" edge ID in the mutation.
+func (m *ElectionMutation) FiltersID() (id int, exists bool) {
+	if m.filters != nil {
+		return *m.filters, true
+	}
+	return
+}
+
+// FiltersIDs returns the "filters" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// FiltersID instead. It exists only for internal usage by the builders.
+func (m *ElectionMutation) FiltersIDs() (ids []int) {
+	if id := m.filters; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetFilters resets all changes to the "filters" edge.
+func (m *ElectionMutation) ResetFilters() {
+	m.filters = nil
+	m.clearedfilters = false
+}
+
 // Where appends a list predicates to the ElectionMutation builder.
 func (m *ElectionMutation) Where(ps ...predicate.Election) {
 	m.predicates = append(m.predicates, ps...)
@@ -2138,7 +2181,7 @@ func (m *ElectionMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ElectionMutation) AddedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 6)
 	if m.user != nil {
 		edges = append(edges, election.EdgeUser)
 	}
@@ -2153,6 +2196,9 @@ func (m *ElectionMutation) AddedEdges() []string {
 	}
 	if m.settings != nil {
 		edges = append(edges, election.EdgeSettings)
+	}
+	if m.filters != nil {
+		edges = append(edges, election.EdgeFilters)
 	}
 	return edges
 }
@@ -2187,13 +2233,17 @@ func (m *ElectionMutation) AddedIDs(name string) []ent.Value {
 		if id := m.settings; id != nil {
 			return []ent.Value{*id}
 		}
+	case election.EdgeFilters:
+		if id := m.filters; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ElectionMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 6)
 	if m.removedtags != nil {
 		edges = append(edges, election.EdgeTags)
 	}
@@ -2234,7 +2284,7 @@ func (m *ElectionMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ElectionMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 6)
 	if m.cleareduser {
 		edges = append(edges, election.EdgeUser)
 	}
@@ -2249,6 +2299,9 @@ func (m *ElectionMutation) ClearedEdges() []string {
 	}
 	if m.clearedsettings {
 		edges = append(edges, election.EdgeSettings)
+	}
+	if m.clearedfilters {
+		edges = append(edges, election.EdgeFilters)
 	}
 	return edges
 }
@@ -2267,6 +2320,8 @@ func (m *ElectionMutation) EdgeCleared(name string) bool {
 		return m.clearedcandidates
 	case election.EdgeSettings:
 		return m.clearedsettings
+	case election.EdgeFilters:
+		return m.clearedfilters
 	}
 	return false
 }
@@ -2280,6 +2335,9 @@ func (m *ElectionMutation) ClearEdge(name string) error {
 		return nil
 	case election.EdgeSettings:
 		m.ClearSettings()
+		return nil
+	case election.EdgeFilters:
+		m.ClearFilters()
 		return nil
 	}
 	return fmt.Errorf("unknown Election unique edge %s", name)
@@ -2304,8 +2362,728 @@ func (m *ElectionMutation) ResetEdge(name string) error {
 	case election.EdgeSettings:
 		m.ResetSettings()
 		return nil
+	case election.EdgeFilters:
+		m.ResetFilters()
+		return nil
 	}
 	return fmt.Errorf("unknown Election edge %s", name)
+}
+
+// ElectionFiltersMutation represents an operation that mutates the ElectionFilters nodes in the graph.
+type ElectionFiltersMutation struct {
+	config
+	op               Op
+	typ              string
+	id               *int
+	has_first_name   *bool
+	has_last_name    *bool
+	has_birthdate    *bool
+	has_phone_number *bool
+	has_bio          *bool
+	has_address      *bool
+	has_photo_url    *bool
+	clearedFields    map[string]struct{}
+	election         *int
+	clearedelection  bool
+	done             bool
+	oldValue         func(context.Context) (*ElectionFilters, error)
+	predicates       []predicate.ElectionFilters
+}
+
+var _ ent.Mutation = (*ElectionFiltersMutation)(nil)
+
+// electionfiltersOption allows management of the mutation configuration using functional options.
+type electionfiltersOption func(*ElectionFiltersMutation)
+
+// newElectionFiltersMutation creates new mutation for the ElectionFilters entity.
+func newElectionFiltersMutation(c config, op Op, opts ...electionfiltersOption) *ElectionFiltersMutation {
+	m := &ElectionFiltersMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeElectionFilters,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withElectionFiltersID sets the ID field of the mutation.
+func withElectionFiltersID(id int) electionfiltersOption {
+	return func(m *ElectionFiltersMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *ElectionFilters
+		)
+		m.oldValue = func(ctx context.Context) (*ElectionFilters, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().ElectionFilters.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withElectionFilters sets the old ElectionFilters of the mutation.
+func withElectionFilters(node *ElectionFilters) electionfiltersOption {
+	return func(m *ElectionFiltersMutation) {
+		m.oldValue = func(context.Context) (*ElectionFilters, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ElectionFiltersMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ElectionFiltersMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("generated: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *ElectionFiltersMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *ElectionFiltersMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().ElectionFilters.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetHasFirstName sets the "has_first_name" field.
+func (m *ElectionFiltersMutation) SetHasFirstName(b bool) {
+	m.has_first_name = &b
+}
+
+// HasFirstName returns the value of the "has_first_name" field in the mutation.
+func (m *ElectionFiltersMutation) HasFirstName() (r bool, exists bool) {
+	v := m.has_first_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHasFirstName returns the old "has_first_name" field's value of the ElectionFilters entity.
+// If the ElectionFilters object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ElectionFiltersMutation) OldHasFirstName(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHasFirstName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHasFirstName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHasFirstName: %w", err)
+	}
+	return oldValue.HasFirstName, nil
+}
+
+// ResetHasFirstName resets all changes to the "has_first_name" field.
+func (m *ElectionFiltersMutation) ResetHasFirstName() {
+	m.has_first_name = nil
+}
+
+// SetHasLastName sets the "has_last_name" field.
+func (m *ElectionFiltersMutation) SetHasLastName(b bool) {
+	m.has_last_name = &b
+}
+
+// HasLastName returns the value of the "has_last_name" field in the mutation.
+func (m *ElectionFiltersMutation) HasLastName() (r bool, exists bool) {
+	v := m.has_last_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHasLastName returns the old "has_last_name" field's value of the ElectionFilters entity.
+// If the ElectionFilters object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ElectionFiltersMutation) OldHasLastName(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHasLastName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHasLastName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHasLastName: %w", err)
+	}
+	return oldValue.HasLastName, nil
+}
+
+// ResetHasLastName resets all changes to the "has_last_name" field.
+func (m *ElectionFiltersMutation) ResetHasLastName() {
+	m.has_last_name = nil
+}
+
+// SetHasBirthdate sets the "has_birthdate" field.
+func (m *ElectionFiltersMutation) SetHasBirthdate(b bool) {
+	m.has_birthdate = &b
+}
+
+// HasBirthdate returns the value of the "has_birthdate" field in the mutation.
+func (m *ElectionFiltersMutation) HasBirthdate() (r bool, exists bool) {
+	v := m.has_birthdate
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHasBirthdate returns the old "has_birthdate" field's value of the ElectionFilters entity.
+// If the ElectionFilters object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ElectionFiltersMutation) OldHasBirthdate(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHasBirthdate is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHasBirthdate requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHasBirthdate: %w", err)
+	}
+	return oldValue.HasBirthdate, nil
+}
+
+// ResetHasBirthdate resets all changes to the "has_birthdate" field.
+func (m *ElectionFiltersMutation) ResetHasBirthdate() {
+	m.has_birthdate = nil
+}
+
+// SetHasPhoneNumber sets the "has_phone_number" field.
+func (m *ElectionFiltersMutation) SetHasPhoneNumber(b bool) {
+	m.has_phone_number = &b
+}
+
+// HasPhoneNumber returns the value of the "has_phone_number" field in the mutation.
+func (m *ElectionFiltersMutation) HasPhoneNumber() (r bool, exists bool) {
+	v := m.has_phone_number
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHasPhoneNumber returns the old "has_phone_number" field's value of the ElectionFilters entity.
+// If the ElectionFilters object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ElectionFiltersMutation) OldHasPhoneNumber(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHasPhoneNumber is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHasPhoneNumber requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHasPhoneNumber: %w", err)
+	}
+	return oldValue.HasPhoneNumber, nil
+}
+
+// ResetHasPhoneNumber resets all changes to the "has_phone_number" field.
+func (m *ElectionFiltersMutation) ResetHasPhoneNumber() {
+	m.has_phone_number = nil
+}
+
+// SetHasBio sets the "has_bio" field.
+func (m *ElectionFiltersMutation) SetHasBio(b bool) {
+	m.has_bio = &b
+}
+
+// HasBio returns the value of the "has_bio" field in the mutation.
+func (m *ElectionFiltersMutation) HasBio() (r bool, exists bool) {
+	v := m.has_bio
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHasBio returns the old "has_bio" field's value of the ElectionFilters entity.
+// If the ElectionFilters object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ElectionFiltersMutation) OldHasBio(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHasBio is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHasBio requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHasBio: %w", err)
+	}
+	return oldValue.HasBio, nil
+}
+
+// ResetHasBio resets all changes to the "has_bio" field.
+func (m *ElectionFiltersMutation) ResetHasBio() {
+	m.has_bio = nil
+}
+
+// SetHasAddress sets the "has_address" field.
+func (m *ElectionFiltersMutation) SetHasAddress(b bool) {
+	m.has_address = &b
+}
+
+// HasAddress returns the value of the "has_address" field in the mutation.
+func (m *ElectionFiltersMutation) HasAddress() (r bool, exists bool) {
+	v := m.has_address
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHasAddress returns the old "has_address" field's value of the ElectionFilters entity.
+// If the ElectionFilters object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ElectionFiltersMutation) OldHasAddress(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHasAddress is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHasAddress requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHasAddress: %w", err)
+	}
+	return oldValue.HasAddress, nil
+}
+
+// ResetHasAddress resets all changes to the "has_address" field.
+func (m *ElectionFiltersMutation) ResetHasAddress() {
+	m.has_address = nil
+}
+
+// SetHasPhotoURL sets the "has_photo_url" field.
+func (m *ElectionFiltersMutation) SetHasPhotoURL(b bool) {
+	m.has_photo_url = &b
+}
+
+// HasPhotoURL returns the value of the "has_photo_url" field in the mutation.
+func (m *ElectionFiltersMutation) HasPhotoURL() (r bool, exists bool) {
+	v := m.has_photo_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHasPhotoURL returns the old "has_photo_url" field's value of the ElectionFilters entity.
+// If the ElectionFilters object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ElectionFiltersMutation) OldHasPhotoURL(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHasPhotoURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHasPhotoURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHasPhotoURL: %w", err)
+	}
+	return oldValue.HasPhotoURL, nil
+}
+
+// ResetHasPhotoURL resets all changes to the "has_photo_url" field.
+func (m *ElectionFiltersMutation) ResetHasPhotoURL() {
+	m.has_photo_url = nil
+}
+
+// SetElectionID sets the "election" edge to the Election entity by id.
+func (m *ElectionFiltersMutation) SetElectionID(id int) {
+	m.election = &id
+}
+
+// ClearElection clears the "election" edge to the Election entity.
+func (m *ElectionFiltersMutation) ClearElection() {
+	m.clearedelection = true
+}
+
+// ElectionCleared reports if the "election" edge to the Election entity was cleared.
+func (m *ElectionFiltersMutation) ElectionCleared() bool {
+	return m.clearedelection
+}
+
+// ElectionID returns the "election" edge ID in the mutation.
+func (m *ElectionFiltersMutation) ElectionID() (id int, exists bool) {
+	if m.election != nil {
+		return *m.election, true
+	}
+	return
+}
+
+// ElectionIDs returns the "election" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// ElectionID instead. It exists only for internal usage by the builders.
+func (m *ElectionFiltersMutation) ElectionIDs() (ids []int) {
+	if id := m.election; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetElection resets all changes to the "election" edge.
+func (m *ElectionFiltersMutation) ResetElection() {
+	m.election = nil
+	m.clearedelection = false
+}
+
+// Where appends a list predicates to the ElectionFiltersMutation builder.
+func (m *ElectionFiltersMutation) Where(ps ...predicate.ElectionFilters) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the ElectionFiltersMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *ElectionFiltersMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.ElectionFilters, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *ElectionFiltersMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *ElectionFiltersMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (ElectionFilters).
+func (m *ElectionFiltersMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ElectionFiltersMutation) Fields() []string {
+	fields := make([]string, 0, 7)
+	if m.has_first_name != nil {
+		fields = append(fields, electionfilters.FieldHasFirstName)
+	}
+	if m.has_last_name != nil {
+		fields = append(fields, electionfilters.FieldHasLastName)
+	}
+	if m.has_birthdate != nil {
+		fields = append(fields, electionfilters.FieldHasBirthdate)
+	}
+	if m.has_phone_number != nil {
+		fields = append(fields, electionfilters.FieldHasPhoneNumber)
+	}
+	if m.has_bio != nil {
+		fields = append(fields, electionfilters.FieldHasBio)
+	}
+	if m.has_address != nil {
+		fields = append(fields, electionfilters.FieldHasAddress)
+	}
+	if m.has_photo_url != nil {
+		fields = append(fields, electionfilters.FieldHasPhotoURL)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ElectionFiltersMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case electionfilters.FieldHasFirstName:
+		return m.HasFirstName()
+	case electionfilters.FieldHasLastName:
+		return m.HasLastName()
+	case electionfilters.FieldHasBirthdate:
+		return m.HasBirthdate()
+	case electionfilters.FieldHasPhoneNumber:
+		return m.HasPhoneNumber()
+	case electionfilters.FieldHasBio:
+		return m.HasBio()
+	case electionfilters.FieldHasAddress:
+		return m.HasAddress()
+	case electionfilters.FieldHasPhotoURL:
+		return m.HasPhotoURL()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ElectionFiltersMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case electionfilters.FieldHasFirstName:
+		return m.OldHasFirstName(ctx)
+	case electionfilters.FieldHasLastName:
+		return m.OldHasLastName(ctx)
+	case electionfilters.FieldHasBirthdate:
+		return m.OldHasBirthdate(ctx)
+	case electionfilters.FieldHasPhoneNumber:
+		return m.OldHasPhoneNumber(ctx)
+	case electionfilters.FieldHasBio:
+		return m.OldHasBio(ctx)
+	case electionfilters.FieldHasAddress:
+		return m.OldHasAddress(ctx)
+	case electionfilters.FieldHasPhotoURL:
+		return m.OldHasPhotoURL(ctx)
+	}
+	return nil, fmt.Errorf("unknown ElectionFilters field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ElectionFiltersMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case electionfilters.FieldHasFirstName:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHasFirstName(v)
+		return nil
+	case electionfilters.FieldHasLastName:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHasLastName(v)
+		return nil
+	case electionfilters.FieldHasBirthdate:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHasBirthdate(v)
+		return nil
+	case electionfilters.FieldHasPhoneNumber:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHasPhoneNumber(v)
+		return nil
+	case electionfilters.FieldHasBio:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHasBio(v)
+		return nil
+	case electionfilters.FieldHasAddress:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHasAddress(v)
+		return nil
+	case electionfilters.FieldHasPhotoURL:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHasPhotoURL(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ElectionFilters field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ElectionFiltersMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ElectionFiltersMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ElectionFiltersMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown ElectionFilters numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ElectionFiltersMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ElectionFiltersMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ElectionFiltersMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown ElectionFilters nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ElectionFiltersMutation) ResetField(name string) error {
+	switch name {
+	case electionfilters.FieldHasFirstName:
+		m.ResetHasFirstName()
+		return nil
+	case electionfilters.FieldHasLastName:
+		m.ResetHasLastName()
+		return nil
+	case electionfilters.FieldHasBirthdate:
+		m.ResetHasBirthdate()
+		return nil
+	case electionfilters.FieldHasPhoneNumber:
+		m.ResetHasPhoneNumber()
+		return nil
+	case electionfilters.FieldHasBio:
+		m.ResetHasBio()
+		return nil
+	case electionfilters.FieldHasAddress:
+		m.ResetHasAddress()
+		return nil
+	case electionfilters.FieldHasPhotoURL:
+		m.ResetHasPhotoURL()
+		return nil
+	}
+	return fmt.Errorf("unknown ElectionFilters field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ElectionFiltersMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.election != nil {
+		edges = append(edges, electionfilters.EdgeElection)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ElectionFiltersMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case electionfilters.EdgeElection:
+		if id := m.election; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ElectionFiltersMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ElectionFiltersMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ElectionFiltersMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedelection {
+		edges = append(edges, electionfilters.EdgeElection)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ElectionFiltersMutation) EdgeCleared(name string) bool {
+	switch name {
+	case electionfilters.EdgeElection:
+		return m.clearedelection
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ElectionFiltersMutation) ClearEdge(name string) error {
+	switch name {
+	case electionfilters.EdgeElection:
+		m.ClearElection()
+		return nil
+	}
+	return fmt.Errorf("unknown ElectionFilters unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ElectionFiltersMutation) ResetEdge(name string) error {
+	switch name {
+	case electionfilters.EdgeElection:
+		m.ResetElection()
+		return nil
+	}
+	return fmt.Errorf("unknown ElectionFilters edge %s", name)
 }
 
 // ElectionSettingsMutation represents an operation that mutates the ElectionSettings nodes in the graph.
@@ -2314,13 +3092,13 @@ type ElectionSettingsMutation struct {
 	op              Op
 	typ             string
 	id              *int
+	create_time     *time.Time
 	is_active       *bool
 	is_anonymous    *bool
 	allow_comments  *bool
 	max_votes       *int
 	addmax_votes    *int
-	start_date      *time.Time
-	end_date        *time.Time
+	duration        *time.Time
 	clearedFields   map[string]struct{}
 	election        *int
 	clearedelection bool
@@ -2425,6 +3203,42 @@ func (m *ElectionSettingsMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
+}
+
+// SetCreateTime sets the "create_time" field.
+func (m *ElectionSettingsMutation) SetCreateTime(t time.Time) {
+	m.create_time = &t
+}
+
+// CreateTime returns the value of the "create_time" field in the mutation.
+func (m *ElectionSettingsMutation) CreateTime() (r time.Time, exists bool) {
+	v := m.create_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreateTime returns the old "create_time" field's value of the ElectionSettings entity.
+// If the ElectionSettings object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ElectionSettingsMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreateTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
+	}
+	return oldValue.CreateTime, nil
+}
+
+// ResetCreateTime resets all changes to the "create_time" field.
+func (m *ElectionSettingsMutation) ResetCreateTime() {
+	m.create_time = nil
 }
 
 // SetIsActive sets the "is_active" field.
@@ -2591,76 +3405,40 @@ func (m *ElectionSettingsMutation) ResetMaxVotes() {
 	m.addmax_votes = nil
 }
 
-// SetStartDate sets the "start_date" field.
-func (m *ElectionSettingsMutation) SetStartDate(t time.Time) {
-	m.start_date = &t
+// SetDuration sets the "duration" field.
+func (m *ElectionSettingsMutation) SetDuration(t time.Time) {
+	m.duration = &t
 }
 
-// StartDate returns the value of the "start_date" field in the mutation.
-func (m *ElectionSettingsMutation) StartDate() (r time.Time, exists bool) {
-	v := m.start_date
+// Duration returns the value of the "duration" field in the mutation.
+func (m *ElectionSettingsMutation) Duration() (r time.Time, exists bool) {
+	v := m.duration
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldStartDate returns the old "start_date" field's value of the ElectionSettings entity.
+// OldDuration returns the old "duration" field's value of the ElectionSettings entity.
 // If the ElectionSettings object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ElectionSettingsMutation) OldStartDate(ctx context.Context) (v time.Time, err error) {
+func (m *ElectionSettingsMutation) OldDuration(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldStartDate is only allowed on UpdateOne operations")
+		return v, errors.New("OldDuration is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldStartDate requires an ID field in the mutation")
+		return v, errors.New("OldDuration requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldStartDate: %w", err)
+		return v, fmt.Errorf("querying old value for OldDuration: %w", err)
 	}
-	return oldValue.StartDate, nil
+	return oldValue.Duration, nil
 }
 
-// ResetStartDate resets all changes to the "start_date" field.
-func (m *ElectionSettingsMutation) ResetStartDate() {
-	m.start_date = nil
-}
-
-// SetEndDate sets the "end_date" field.
-func (m *ElectionSettingsMutation) SetEndDate(t time.Time) {
-	m.end_date = &t
-}
-
-// EndDate returns the value of the "end_date" field in the mutation.
-func (m *ElectionSettingsMutation) EndDate() (r time.Time, exists bool) {
-	v := m.end_date
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldEndDate returns the old "end_date" field's value of the ElectionSettings entity.
-// If the ElectionSettings object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ElectionSettingsMutation) OldEndDate(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldEndDate is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldEndDate requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldEndDate: %w", err)
-	}
-	return oldValue.EndDate, nil
-}
-
-// ResetEndDate resets all changes to the "end_date" field.
-func (m *ElectionSettingsMutation) ResetEndDate() {
-	m.end_date = nil
+// ResetDuration resets all changes to the "duration" field.
+func (m *ElectionSettingsMutation) ResetDuration() {
+	m.duration = nil
 }
 
 // SetElectionID sets the "election" edge to the Election entity by id.
@@ -2737,6 +3515,9 @@ func (m *ElectionSettingsMutation) Type() string {
 // AddedFields().
 func (m *ElectionSettingsMutation) Fields() []string {
 	fields := make([]string, 0, 6)
+	if m.create_time != nil {
+		fields = append(fields, electionsettings.FieldCreateTime)
+	}
 	if m.is_active != nil {
 		fields = append(fields, electionsettings.FieldIsActive)
 	}
@@ -2749,11 +3530,8 @@ func (m *ElectionSettingsMutation) Fields() []string {
 	if m.max_votes != nil {
 		fields = append(fields, electionsettings.FieldMaxVotes)
 	}
-	if m.start_date != nil {
-		fields = append(fields, electionsettings.FieldStartDate)
-	}
-	if m.end_date != nil {
-		fields = append(fields, electionsettings.FieldEndDate)
+	if m.duration != nil {
+		fields = append(fields, electionsettings.FieldDuration)
 	}
 	return fields
 }
@@ -2763,6 +3541,8 @@ func (m *ElectionSettingsMutation) Fields() []string {
 // schema.
 func (m *ElectionSettingsMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case electionsettings.FieldCreateTime:
+		return m.CreateTime()
 	case electionsettings.FieldIsActive:
 		return m.IsActive()
 	case electionsettings.FieldIsAnonymous:
@@ -2771,10 +3551,8 @@ func (m *ElectionSettingsMutation) Field(name string) (ent.Value, bool) {
 		return m.AllowComments()
 	case electionsettings.FieldMaxVotes:
 		return m.MaxVotes()
-	case electionsettings.FieldStartDate:
-		return m.StartDate()
-	case electionsettings.FieldEndDate:
-		return m.EndDate()
+	case electionsettings.FieldDuration:
+		return m.Duration()
 	}
 	return nil, false
 }
@@ -2784,6 +3562,8 @@ func (m *ElectionSettingsMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *ElectionSettingsMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case electionsettings.FieldCreateTime:
+		return m.OldCreateTime(ctx)
 	case electionsettings.FieldIsActive:
 		return m.OldIsActive(ctx)
 	case electionsettings.FieldIsAnonymous:
@@ -2792,10 +3572,8 @@ func (m *ElectionSettingsMutation) OldField(ctx context.Context, name string) (e
 		return m.OldAllowComments(ctx)
 	case electionsettings.FieldMaxVotes:
 		return m.OldMaxVotes(ctx)
-	case electionsettings.FieldStartDate:
-		return m.OldStartDate(ctx)
-	case electionsettings.FieldEndDate:
-		return m.OldEndDate(ctx)
+	case electionsettings.FieldDuration:
+		return m.OldDuration(ctx)
 	}
 	return nil, fmt.Errorf("unknown ElectionSettings field %s", name)
 }
@@ -2805,6 +3583,13 @@ func (m *ElectionSettingsMutation) OldField(ctx context.Context, name string) (e
 // type.
 func (m *ElectionSettingsMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case electionsettings.FieldCreateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreateTime(v)
+		return nil
 	case electionsettings.FieldIsActive:
 		v, ok := value.(bool)
 		if !ok {
@@ -2833,19 +3618,12 @@ func (m *ElectionSettingsMutation) SetField(name string, value ent.Value) error 
 		}
 		m.SetMaxVotes(v)
 		return nil
-	case electionsettings.FieldStartDate:
+	case electionsettings.FieldDuration:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetStartDate(v)
-		return nil
-	case electionsettings.FieldEndDate:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetEndDate(v)
+		m.SetDuration(v)
 		return nil
 	}
 	return fmt.Errorf("unknown ElectionSettings field %s", name)
@@ -2911,6 +3689,9 @@ func (m *ElectionSettingsMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *ElectionSettingsMutation) ResetField(name string) error {
 	switch name {
+	case electionsettings.FieldCreateTime:
+		m.ResetCreateTime()
+		return nil
 	case electionsettings.FieldIsActive:
 		m.ResetIsActive()
 		return nil
@@ -2923,11 +3704,8 @@ func (m *ElectionSettingsMutation) ResetField(name string) error {
 	case electionsettings.FieldMaxVotes:
 		m.ResetMaxVotes()
 		return nil
-	case electionsettings.FieldStartDate:
-		m.ResetStartDate()
-		return nil
-	case electionsettings.FieldEndDate:
-		m.ResetEndDate()
+	case electionsettings.FieldDuration:
+		m.ResetDuration()
 		return nil
 	}
 	return fmt.Errorf("unknown ElectionSettings field %s", name)

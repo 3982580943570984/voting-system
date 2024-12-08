@@ -2,9 +2,12 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"voting-system/database"
 	"voting-system/ent/generated"
 	"voting-system/ent/generated/election"
+	filters "voting-system/ent/generated/electionfilters"
+	"voting-system/ent/generated/user"
 )
 
 // Elections представляет сервис для работы с выборами
@@ -13,20 +16,23 @@ type Elections struct {
 	DB *generated.ElectionClient
 }
 
-// ElectionCreate представляет структуру данных для создания нового выбора
-// Используется при создании новых выборов через API.
 type ElectionCreate struct {
-	// UserID - идентификатор пользователя, которые создает выборы
-	// Это обязательное поле.
-	UserID int `json:"user_id"`
-
-	// Title — название выборов
-	// Это обязательное поле, минимальная длина 8 символов, максимальная длина 64 символа.
-	Title string `json:"title" validate:"min=8,max=64"`
-
-	// Description — описание выборов
-	// Это обязательное поле, максимальная длина 1000 символов.
+	UserID      int    `json:"user_id"`
+	Title       string `json:"title" validate:"min=8,max=64"`
 	Description string `json:"description" validate:"max=1000"`
+	Candidates  []struct {
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	} `json:"candidates" validate:"required,min=1"`
+	Filters struct {
+		HasFirstName   *bool `json:"has_first_name,omitempty"`
+		HasLastName    *bool `json:"has_last_name,omitempty"`
+		HasBirthdate   *bool `json:"has_birthdate,omitempty"`
+		HasPhoneNumber *bool `json:"has_phone_number,omitempty"`
+		HasBio         *bool `json:"has_bio,omitempty"`
+		HasAddress     *bool `json:"has_address,omitempty"`
+		HasPhotoURL    *bool `json:"has_photo_url,omitempty"`
+	} `json:"filters"`
 }
 
 // ElectionUpdate представляет структуру данных для обновления информации о существующих выборах
@@ -52,19 +58,160 @@ func NewElections() *Elections {
 }
 
 func (e *Elections) Create(ctx context.Context, ec *ElectionCreate) (*generated.Election, error) {
-	return e.DB.Create().
+	tx, err := database.Client.Tx(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	election, err := tx.Election.Create().
 		SetUserID(ec.UserID).
 		SetTitle(ec.Title).
 		SetDescription(ec.Description).
 		Save(ctx)
+
+	if err != nil {
+		if rerr := tx.Rollback(); rerr != nil {
+			err = fmt.Errorf("%w: %v", err, rerr)
+		}
+		return nil, err
+	}
+
+	_, err = tx.Candidate.MapCreateBulk(ec.Candidates, func(cc *generated.CandidateCreate, i int) {
+		candidate := ec.Candidates[i]
+		cc.SetElection(election).
+			SetName(candidate.Name).
+			SetDescription(candidate.Description)
+	}).Save(ctx)
+
+	if err != nil {
+		if rerr := tx.Rollback(); rerr != nil {
+			err = fmt.Errorf("%w: %v", err, rerr)
+		}
+		return nil, err
+	}
+
+	filters, err := election.QueryFilters().Only(ctx)
+
+	if err != nil {
+		if rerr := tx.Rollback(); rerr != nil {
+			err = fmt.Errorf("%w: %v", err, rerr)
+		}
+		return nil, err
+	}
+
+	err = filters.Update().
+		SetNillableHasFirstName(ec.Filters.HasFirstName).
+		SetNillableHasLastName(ec.Filters.HasLastName).
+		SetNillableHasBirthdate(ec.Filters.HasBirthdate).
+		SetNillableHasPhoneNumber(ec.Filters.HasPhoneNumber).
+		SetNillableHasBio(ec.Filters.HasBio).
+		SetNillableHasAddress(ec.Filters.HasAddress).
+		SetNillableHasPhotoURL(ec.Filters.HasPhotoURL).
+		Exec(ctx)
+
+	if err != nil {
+		if rerr := tx.Rollback(); rerr != nil {
+			err = fmt.Errorf("%w: %v", err, rerr)
+		}
+		return nil, err
+	}
+
+	tx.Commit()
+
+	return election, nil
 }
 
 func (e *Elections) GetAll(ctx context.Context) ([]*generated.Election, error) {
-	return e.DB.Query().Select(election.Columns...).All(ctx)
+	return e.DB.Query().
+		Select(election.Columns...).
+		All(ctx)
 }
 
 func (e *Elections) GetById(ctx context.Context, id int) (*generated.Election, error) {
-	return e.DB.Query().Select(election.Columns...).Where(election.ID(id)).Only(ctx)
+	return e.DB.Query().
+		Select(election.Columns...).
+		Where(election.ID(id)).
+		Only(ctx)
+}
+
+func (e *Elections) GetByUserId(ctx context.Context, id int) ([]*generated.Election, error) {
+	return e.DB.Query().
+		Select(election.Columns...).
+		Where(election.HasUserWith(user.ID(id))).
+		All(ctx)
+}
+
+func (e *Elections) GetAllFiltered(ctx context.Context, id int) ([]*generated.Election, error) {
+	profile, err := NewProfiles().GetByUserId(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	query := e.DB.Query().WithFilters()
+
+	if profile.FirstName == "" {
+		query = query.Where(
+			election.HasFiltersWith(
+				filters.HasFirstName(false),
+			),
+		)
+	}
+
+	if profile.LastName == "" {
+		query = query.Where(
+			election.HasFiltersWith(
+				filters.HasLastName(false),
+			),
+		)
+	}
+
+	if profile.Birthdate.IsZero() {
+		query = query.Where(
+			election.HasFiltersWith(
+				filters.HasBirthdate(false),
+			),
+		)
+	}
+
+	if profile.PhoneNumber == "" {
+		query = query.Where(
+			election.HasFiltersWith(
+				filters.HasPhoneNumber(false),
+			),
+		)
+	}
+
+	if profile.Bio == "" {
+		query = query.Where(
+			election.HasFiltersWith(
+				filters.HasBio(false),
+			),
+		)
+	}
+
+	if profile.Address == "" {
+		query = query.Where(
+			election.HasFiltersWith(
+				filters.HasAddress(false),
+			),
+		)
+	}
+
+	if profile.PhotoURL == "" {
+		query = query.Where(
+			election.HasFiltersWith(
+				filters.HasPhotoURL(false),
+			),
+		)
+	}
+
+	elections, err := query.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return elections, nil
 }
 
 func (e *Elections) GetCandidates(ctx context.Context, id int) ([]*generated.Candidate, error) {
@@ -73,6 +220,10 @@ func (e *Elections) GetCandidates(ctx context.Context, id int) ([]*generated.Can
 
 func (e *Elections) GetSettings(ctx context.Context, id int) (*generated.ElectionSettings, error) {
 	return e.DB.Query().Where(election.ID(id)).QuerySettings().Only(ctx)
+}
+
+func (e *Elections) GetFilters(ctx context.Context, id int) (*generated.ElectionFilters, error) {
+	return e.DB.Query().Where(election.ID(id)).QueryFilters().Only(ctx)
 }
 
 func (e *Elections) Update(ctx context.Context, eu *ElectionUpdate) (*generated.Election, error) {

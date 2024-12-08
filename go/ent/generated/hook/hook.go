@@ -44,6 +44,18 @@ func (f ElectionFunc) Mutate(ctx context.Context, m generated.Mutation) (generat
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *generated.ElectionMutation", m)
 }
 
+// The ElectionFiltersFunc type is an adapter to allow the use of ordinary
+// function as ElectionFilters mutator.
+type ElectionFiltersFunc func(context.Context, *generated.ElectionFiltersMutation) (generated.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ElectionFiltersFunc) Mutate(ctx context.Context, m generated.Mutation) (generated.Value, error) {
+	if mv, ok := m.(*generated.ElectionFiltersMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generated.ElectionFiltersMutation", m)
+}
+
 // The ElectionSettingsFunc type is an adapter to allow the use of ordinary
 // function as ElectionSettings mutator.
 type ElectionSettingsFunc func(context.Context, *generated.ElectionSettingsMutation) (generated.Value, error)

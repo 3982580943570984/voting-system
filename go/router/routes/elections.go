@@ -17,20 +17,24 @@ import (
 func ElectionsRoutes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Get("/", getAllElections)
+	r.Get("/", getAll)
 
 	r.Group(func(r chi.Router) {
 		r.Use(jwtauth.Verifier(token), jwtauth.Authenticator(token))
 
-		r.Post("/", createElection)
+		r.Get("/filtered", getFiltered)
+
+		r.Get("/created", getCreated)
+
+		r.Post("/", create)
 	})
 
 	r.Route("/{id}", func(r chi.Router) {
-		r.Get("/", getElection)
+		r.Get("/", get)
 
-		r.Put("/", updateElection)
+		r.Put("/", update)
 
-		r.Delete("/", deleteElection)
+		r.Delete("/", delete)
 
 		r.Mount("/candidates", CandidatesRoutes())
 
@@ -44,55 +48,51 @@ func ElectionsRoutes() chi.Router {
 	return r
 }
 
-// @Summary Создать выборы
-// @Description Создает новые выборы на основе данных, переданных в теле запроса.
+// @Summary Создать выборы с кандидатами
+// @Description Создает новые выборы вместе со списком кандидатов в одной транзакции.
 // @Tags Выборы
 // @Accept  json
 // @Produce  json
-// @Param election body services.ElectionCreate true "Данные для создания выборов"
-// @Success 201 {object} int "Успешно создано, возвращает идентификатор созданных выборов"
-// @Failure 400 {string} string "Неверный формат запроса"
+// @Param election body services.ElectionWithCandidatesCreate true "Данные для создания выборов и кандидатов"
+// @Success 201 {object} map[string]int "Успешно создано, возвращает идентификатор созданных выборов"
+// @Failure 400 {string} string "Неверный формат запроса или данные в теле запроса"
+// @Failure 401 {string} string "Неавторизованный доступ"
+// @Failure 403 {string} string "Доступ запрещен"
 // @Failure 500 {string} string "Ошибка сервера"
-// @Router /elections [post]
+// @Router /elections/with-candidates [post]
 // @Security Bearer
-func createElection(w http.ResponseWriter, r *http.Request) {
-	id, err := RetrieveIdFromToken(r.Context())
-
+func create(w http.ResponseWriter, r *http.Request) {
+	userID, err := RetrieveIdFromToken(r.Context())
 	if err != nil {
-		http.Error(w, "Invalid input: "+err.Error(), http.StatusBadRequest)
+		http.Error(w, "Invalid authentication token: "+err.Error(), http.StatusUnauthorized)
 		return
 	}
 
-	ec := services.ElectionCreate{UserID: id}
-
-	if err := json.NewDecoder(r.Body).Decode(&ec); err != nil {
-		http.Error(w, "Invalid input: "+err.Error(), http.StatusBadRequest)
+	payload := services.ElectionCreate{UserID: userID}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		http.Error(w, "Invalid JSON payload: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	user, err := services.NewUsers().GetById(r.Context(), ec.UserID)
-
+	user, err := services.NewUsers().GetById(r.Context(), payload.UserID)
 	if err != nil {
-		http.Error(w, "Error finding user: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Error fetching user: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	if !user.IsOrganizer {
-		http.Error(w, "Not organizer can't create election", http.StatusBadRequest)
+		http.Error(w, "Only organizers can create elections", http.StatusForbidden)
 		return
 	}
 
-	election, err := services.NewElections().Create(r.Context(), &ec)
-
+	election, err := services.NewElections().Create(r.Context(), &payload)
 	if err != nil {
-		http.Error(w, "Error creating election: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Error creating election with candidates: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-
 	w.WriteHeader(http.StatusCreated)
-
 	json.NewEncoder(w).Encode(map[string]int{"id": election.ID})
 }
 
@@ -105,7 +105,7 @@ func createElection(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {string} string "Ошибка запроса"
 // @Failure 500 {string} string "Ошибка сервера"
 // @Router /elections [get]
-func getAllElections(w http.ResponseWriter, r *http.Request) {
+func getAll(w http.ResponseWriter, r *http.Request) {
 	elections, err := services.NewElections().
 		GetAll(r.Context())
 
@@ -119,6 +119,33 @@ func getAllElections(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(elections)
 }
 
+// @Summary Получить отфильтрованные выборы
+// @Description Возвращает список выборов, отфильтрованных по определенным критериям, доступных текущему пользователю.
+// @Tags Выборы
+// @Accept json
+// @Produce json
+// @Success 200 {array} generated.Election "Отфильтрованный список выборов"
+// @Failure 401 {object} map[string]string "Неавторизованный доступ"
+// @Failure 500 {object} map[string]string "Ошибка сервера"
+// @Router /elections/filtered [get]
+// @Security Bearer
+func getFiltered(w http.ResponseWriter, r *http.Request) {
+	userID, err := RetrieveIdFromToken(r.Context())
+	if err != nil {
+		http.Error(w, "Invalid authentication token: "+err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	elections, err := services.NewElections().GetAllFiltered(r.Context(), userID)
+	if err != nil {
+		http.Error(w, "Error fetching filtered elections: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(elections)
+}
+
 // @Summary Получить выборы по ID
 // @Description Эта функция возвращает информацию о конкретных выборах по ID.
 // @Tags Выборы
@@ -129,16 +156,14 @@ func getAllElections(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {string} string "Неверный формат ID"
 // @Failure 404 {string} string "Выборы не найдены"
 // @Router /elections/{id} [get]
-func getElection(w http.ResponseWriter, r *http.Request) {
+func get(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
-
 	if err != nil {
 		http.Error(w, "Invalid election ID: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	election, err := services.NewElections().GetById(r.Context(), id)
-
 	if err != nil {
 		http.Error(w, "Internal server error: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -147,6 +172,35 @@ func getElection(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	json.NewEncoder(w).Encode(election)
+}
+
+// @Summary Получить выборы, созданные пользователем
+// @Description Эта функция возвращает список выборов, созданных текущим пользователем.
+// @Tags Выборы
+// @Accept json
+// @Produce json
+// @Success 200 {array} generated.Election "Список выборов, созданных пользователем"
+// @Failure 401 {object} map[string]string "Неавторизованный доступ"
+// @Failure 500 {object} map[string]string "Ошибка сервера"
+// @Router /elections/created [get]
+// @Security Bearer
+func getCreated(w http.ResponseWriter, r *http.Request) {
+	userID, err := RetrieveIdFromToken(r.Context())
+	if err != nil {
+		http.Error(w, "Invalid authentication token: "+err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	elections, err := services.NewElections().GetByUserId(r.Context(), userID)
+
+	if err != nil {
+		http.Error(w, "Internal server error: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	json.NewEncoder(w).Encode(elections)
 }
 
 // @Summary Обновить выборы
@@ -161,7 +215,7 @@ func getElection(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {string} string "Выборы с указанным ID не найдены"
 // @Failure 500 {string} string "Ошибка сервера"
 // @Router /elections/{id} [put]
-func updateElection(w http.ResponseWriter, r *http.Request) {
+func update(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
@@ -203,7 +257,7 @@ func updateElection(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {string} string "Выборы с указанным ID не найдены"
 // @Failure 500 {string} string "Ошибка сервера"
 // @Router /elections/{id} [delete]
-func deleteElection(w http.ResponseWriter, r *http.Request) {
+func delete(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {

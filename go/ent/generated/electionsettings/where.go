@@ -55,6 +55,11 @@ func IDLTE(id int) predicate.ElectionSettings {
 	return predicate.ElectionSettings(sql.FieldLTE(FieldID, id))
 }
 
+// CreateTime applies equality check predicate on the "create_time" field. It's identical to CreateTimeEQ.
+func CreateTime(v time.Time) predicate.ElectionSettings {
+	return predicate.ElectionSettings(sql.FieldEQ(FieldCreateTime, v))
+}
+
 // IsActive applies equality check predicate on the "is_active" field. It's identical to IsActiveEQ.
 func IsActive(v bool) predicate.ElectionSettings {
 	return predicate.ElectionSettings(sql.FieldEQ(FieldIsActive, v))
@@ -75,14 +80,49 @@ func MaxVotes(v int) predicate.ElectionSettings {
 	return predicate.ElectionSettings(sql.FieldEQ(FieldMaxVotes, v))
 }
 
-// StartDate applies equality check predicate on the "start_date" field. It's identical to StartDateEQ.
-func StartDate(v time.Time) predicate.ElectionSettings {
-	return predicate.ElectionSettings(sql.FieldEQ(FieldStartDate, v))
+// Duration applies equality check predicate on the "duration" field. It's identical to DurationEQ.
+func Duration(v time.Time) predicate.ElectionSettings {
+	return predicate.ElectionSettings(sql.FieldEQ(FieldDuration, v))
 }
 
-// EndDate applies equality check predicate on the "end_date" field. It's identical to EndDateEQ.
-func EndDate(v time.Time) predicate.ElectionSettings {
-	return predicate.ElectionSettings(sql.FieldEQ(FieldEndDate, v))
+// CreateTimeEQ applies the EQ predicate on the "create_time" field.
+func CreateTimeEQ(v time.Time) predicate.ElectionSettings {
+	return predicate.ElectionSettings(sql.FieldEQ(FieldCreateTime, v))
+}
+
+// CreateTimeNEQ applies the NEQ predicate on the "create_time" field.
+func CreateTimeNEQ(v time.Time) predicate.ElectionSettings {
+	return predicate.ElectionSettings(sql.FieldNEQ(FieldCreateTime, v))
+}
+
+// CreateTimeIn applies the In predicate on the "create_time" field.
+func CreateTimeIn(vs ...time.Time) predicate.ElectionSettings {
+	return predicate.ElectionSettings(sql.FieldIn(FieldCreateTime, vs...))
+}
+
+// CreateTimeNotIn applies the NotIn predicate on the "create_time" field.
+func CreateTimeNotIn(vs ...time.Time) predicate.ElectionSettings {
+	return predicate.ElectionSettings(sql.FieldNotIn(FieldCreateTime, vs...))
+}
+
+// CreateTimeGT applies the GT predicate on the "create_time" field.
+func CreateTimeGT(v time.Time) predicate.ElectionSettings {
+	return predicate.ElectionSettings(sql.FieldGT(FieldCreateTime, v))
+}
+
+// CreateTimeGTE applies the GTE predicate on the "create_time" field.
+func CreateTimeGTE(v time.Time) predicate.ElectionSettings {
+	return predicate.ElectionSettings(sql.FieldGTE(FieldCreateTime, v))
+}
+
+// CreateTimeLT applies the LT predicate on the "create_time" field.
+func CreateTimeLT(v time.Time) predicate.ElectionSettings {
+	return predicate.ElectionSettings(sql.FieldLT(FieldCreateTime, v))
+}
+
+// CreateTimeLTE applies the LTE predicate on the "create_time" field.
+func CreateTimeLTE(v time.Time) predicate.ElectionSettings {
+	return predicate.ElectionSettings(sql.FieldLTE(FieldCreateTime, v))
 }
 
 // IsActiveEQ applies the EQ predicate on the "is_active" field.
@@ -155,84 +195,44 @@ func MaxVotesLTE(v int) predicate.ElectionSettings {
 	return predicate.ElectionSettings(sql.FieldLTE(FieldMaxVotes, v))
 }
 
-// StartDateEQ applies the EQ predicate on the "start_date" field.
-func StartDateEQ(v time.Time) predicate.ElectionSettings {
-	return predicate.ElectionSettings(sql.FieldEQ(FieldStartDate, v))
+// DurationEQ applies the EQ predicate on the "duration" field.
+func DurationEQ(v time.Time) predicate.ElectionSettings {
+	return predicate.ElectionSettings(sql.FieldEQ(FieldDuration, v))
 }
 
-// StartDateNEQ applies the NEQ predicate on the "start_date" field.
-func StartDateNEQ(v time.Time) predicate.ElectionSettings {
-	return predicate.ElectionSettings(sql.FieldNEQ(FieldStartDate, v))
+// DurationNEQ applies the NEQ predicate on the "duration" field.
+func DurationNEQ(v time.Time) predicate.ElectionSettings {
+	return predicate.ElectionSettings(sql.FieldNEQ(FieldDuration, v))
 }
 
-// StartDateIn applies the In predicate on the "start_date" field.
-func StartDateIn(vs ...time.Time) predicate.ElectionSettings {
-	return predicate.ElectionSettings(sql.FieldIn(FieldStartDate, vs...))
+// DurationIn applies the In predicate on the "duration" field.
+func DurationIn(vs ...time.Time) predicate.ElectionSettings {
+	return predicate.ElectionSettings(sql.FieldIn(FieldDuration, vs...))
 }
 
-// StartDateNotIn applies the NotIn predicate on the "start_date" field.
-func StartDateNotIn(vs ...time.Time) predicate.ElectionSettings {
-	return predicate.ElectionSettings(sql.FieldNotIn(FieldStartDate, vs...))
+// DurationNotIn applies the NotIn predicate on the "duration" field.
+func DurationNotIn(vs ...time.Time) predicate.ElectionSettings {
+	return predicate.ElectionSettings(sql.FieldNotIn(FieldDuration, vs...))
 }
 
-// StartDateGT applies the GT predicate on the "start_date" field.
-func StartDateGT(v time.Time) predicate.ElectionSettings {
-	return predicate.ElectionSettings(sql.FieldGT(FieldStartDate, v))
+// DurationGT applies the GT predicate on the "duration" field.
+func DurationGT(v time.Time) predicate.ElectionSettings {
+	return predicate.ElectionSettings(sql.FieldGT(FieldDuration, v))
 }
 
-// StartDateGTE applies the GTE predicate on the "start_date" field.
-func StartDateGTE(v time.Time) predicate.ElectionSettings {
-	return predicate.ElectionSettings(sql.FieldGTE(FieldStartDate, v))
+// DurationGTE applies the GTE predicate on the "duration" field.
+func DurationGTE(v time.Time) predicate.ElectionSettings {
+	return predicate.ElectionSettings(sql.FieldGTE(FieldDuration, v))
 }
 
-// StartDateLT applies the LT predicate on the "start_date" field.
-func StartDateLT(v time.Time) predicate.ElectionSettings {
-	return predicate.ElectionSettings(sql.FieldLT(FieldStartDate, v))
+// DurationLT applies the LT predicate on the "duration" field.
+func DurationLT(v time.Time) predicate.ElectionSettings {
+	return predicate.ElectionSettings(sql.FieldLT(FieldDuration, v))
 }
 
-// StartDateLTE applies the LTE predicate on the "start_date" field.
-func StartDateLTE(v time.Time) predicate.ElectionSettings {
-	return predicate.ElectionSettings(sql.FieldLTE(FieldStartDate, v))
-}
-
-// EndDateEQ applies the EQ predicate on the "end_date" field.
-func EndDateEQ(v time.Time) predicate.ElectionSettings {
-	return predicate.ElectionSettings(sql.FieldEQ(FieldEndDate, v))
-}
-
-// EndDateNEQ applies the NEQ predicate on the "end_date" field.
-func EndDateNEQ(v time.Time) predicate.ElectionSettings {
-	return predicate.ElectionSettings(sql.FieldNEQ(FieldEndDate, v))
-}
-
-// EndDateIn applies the In predicate on the "end_date" field.
-func EndDateIn(vs ...time.Time) predicate.ElectionSettings {
-	return predicate.ElectionSettings(sql.FieldIn(FieldEndDate, vs...))
-}
-
-// EndDateNotIn applies the NotIn predicate on the "end_date" field.
-func EndDateNotIn(vs ...time.Time) predicate.ElectionSettings {
-	return predicate.ElectionSettings(sql.FieldNotIn(FieldEndDate, vs...))
-}
-
-// EndDateGT applies the GT predicate on the "end_date" field.
-func EndDateGT(v time.Time) predicate.ElectionSettings {
-	return predicate.ElectionSettings(sql.FieldGT(FieldEndDate, v))
-}
-
-// EndDateGTE applies the GTE predicate on the "end_date" field.
-func EndDateGTE(v time.Time) predicate.ElectionSettings {
-	return predicate.ElectionSettings(sql.FieldGTE(FieldEndDate, v))
-}
-
-// EndDateLT applies the LT predicate on the "end_date" field.
-func EndDateLT(v time.Time) predicate.ElectionSettings {
-	return predicate.ElectionSettings(sql.FieldLT(FieldEndDate, v))
-}
-
-// EndDateLTE applies the LTE predicate on the "end_date" field.
-func EndDateLTE(v time.Time) predicate.ElectionSettings {
-	return predicate.ElectionSettings(sql.FieldLTE(FieldEndDate, v))
+// DurationLTE applies the LTE predicate on the "duration" field.
+func DurationLTE(v time.Time) predicate.ElectionSettings {
+	return predicate.ElectionSettings(sql.FieldLTE(FieldDuration, v))
 }
 
 // HasElection applies the HasEdge predicate on the "election" edge.

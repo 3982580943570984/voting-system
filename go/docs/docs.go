@@ -102,6 +102,170 @@ const docTemplate = `{
                 }
             }
         },
+        "/elections/filtered": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Возвращает список выборов, отфильтрованных по определенным критериям, доступных текущему пользователю.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Выборы"
+                ],
+                "summary": "Получить отфильтрованные выборы",
+                "responses": {
+                    "200": {
+                        "description": "Отфильтрованный список выборов",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/generated.Election"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизованный доступ",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/elections/user": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Эта функция возвращает список выборов, созданных текущим пользователем.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Выборы"
+                ],
+                "summary": "Получить выборы, созданные пользователем",
+                "responses": {
+                    "200": {
+                        "description": "Список выборов, созданных пользователем",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/generated.Election"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизованный доступ",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/elections/with-candidates": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Создает новые выборы вместе со списком кандидатов в одной транзакции.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Выборы"
+                ],
+                "summary": "Создать выборы с кандидатами",
+                "parameters": [
+                    {
+                        "description": "Данные для создания выборов и кандидатов",
+                        "name": "election",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.ElectionWithCandidatesCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Успешно создано, возвращает идентификатор созданных выборов",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса или данные в теле запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизованный доступ",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "Доступ запрещен",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/elections/{id}": {
             "get": {
                 "description": "Эта функция возвращает информацию о конкретных выборах по ID.",
@@ -1413,6 +1577,14 @@ const docTemplate = `{
                         "$ref": "#/definitions/generated.Comment"
                     }
                 },
+                "filters": {
+                    "description": "Filters holds the value of the filters edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.ElectionFilters"
+                        }
+                    ]
+                },
                 "settings": {
                     "description": "Settings holds the value of the settings edge.",
                     "allOf": [
@@ -1438,12 +1610,78 @@ const docTemplate = `{
                 }
             }
         },
+        "generated.ElectionFilters": {
+            "type": "object",
+            "properties": {
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the ElectionFiltersQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.ElectionFiltersEdges"
+                        }
+                    ]
+                },
+                "has_address": {
+                    "description": "HasAddress holds the value of the \"has_address\" field.",
+                    "type": "boolean"
+                },
+                "has_bio": {
+                    "description": "HasBio holds the value of the \"has_bio\" field.",
+                    "type": "boolean"
+                },
+                "has_birthdate": {
+                    "description": "HasBirthdate holds the value of the \"has_birthdate\" field.",
+                    "type": "boolean"
+                },
+                "has_first_name": {
+                    "description": "HasFirstName holds the value of the \"has_first_name\" field.",
+                    "type": "boolean"
+                },
+                "has_last_name": {
+                    "description": "HasLastName holds the value of the \"has_last_name\" field.",
+                    "type": "boolean"
+                },
+                "has_phone_number": {
+                    "description": "HasPhoneNumber holds the value of the \"has_phone_number\" field.",
+                    "type": "boolean"
+                },
+                "has_photo_url": {
+                    "description": "HasPhotoURL holds the value of the \"has_photo_url\" field.",
+                    "type": "boolean"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "integer"
+                }
+            }
+        },
+        "generated.ElectionFiltersEdges": {
+            "type": "object",
+            "properties": {
+                "election": {
+                    "description": "Election holds the value of the election edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/generated.Election"
+                        }
+                    ]
+                }
+            }
+        },
         "generated.ElectionSettings": {
             "type": "object",
             "properties": {
                 "allow_comments": {
                     "description": "AllowComments holds the value of the \"allow_comments\" field.",
                     "type": "boolean"
+                },
+                "create_time": {
+                    "description": "CreateTime holds the value of the \"create_time\" field.",
+                    "type": "string"
+                },
+                "duration": {
+                    "description": "Duration holds the value of the \"duration\" field.",
+                    "type": "string"
                 },
                 "edges": {
                     "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the ElectionSettingsQuery when eager-loading is set.",
@@ -1452,10 +1690,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/generated.ElectionSettingsEdges"
                         }
                     ]
-                },
-                "end_date": {
-                    "description": "EndDate holds the value of the \"end_date\" field.",
-                    "type": "string"
                 },
                 "id": {
                     "description": "ID of the ent.",
@@ -1472,10 +1706,6 @@ const docTemplate = `{
                 "max_votes": {
                     "description": "MaxVotes holds the value of the \"max_votes\" field.",
                     "type": "integer"
-                },
-                "start_date": {
-                    "description": "StartDate holds the value of the \"start_date\" field.",
-                    "type": "string"
                 }
             }
         },
@@ -1823,6 +2053,33 @@ const docTemplate = `{
                 "title": {
                     "description": "Title — новое название выборов\nЭто обязательное поле при обновлении данных.",
                     "type": "string"
+                }
+            }
+        },
+        "services.ElectionWithCandidatesCreate": {
+            "type": "object",
+            "required": [
+                "candidates"
+            ],
+            "properties": {
+                "candidates": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/services.CandidateCreate"
+                    }
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 1000
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "minLength": 8
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },

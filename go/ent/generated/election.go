@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"voting-system/ent/generated/election"
+	"voting-system/ent/generated/electionfilters"
 	"voting-system/ent/generated/electionsettings"
 	"voting-system/ent/generated/user"
 
@@ -41,9 +42,11 @@ type ElectionEdges struct {
 	Candidates []*Candidate `json:"candidates,omitempty"`
 	// Settings holds the value of the settings edge.
 	Settings *ElectionSettings `json:"settings,omitempty"`
+	// Filters holds the value of the filters edge.
+	Filters *ElectionFilters `json:"filters,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [5]bool
+	loadedTypes [6]bool
 }
 
 // UserOrErr returns the User value or an error if the edge
@@ -93,6 +96,17 @@ func (e ElectionEdges) SettingsOrErr() (*ElectionSettings, error) {
 		return nil, &NotFoundError{label: electionsettings.Label}
 	}
 	return nil, &NotLoadedError{edge: "settings"}
+}
+
+// FiltersOrErr returns the Filters value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ElectionEdges) FiltersOrErr() (*ElectionFilters, error) {
+	if e.Filters != nil {
+		return e.Filters, nil
+	} else if e.loadedTypes[5] {
+		return nil, &NotFoundError{label: electionfilters.Label}
+	}
+	return nil, &NotLoadedError{edge: "filters"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -182,6 +196,11 @@ func (e *Election) QueryCandidates() *CandidateQuery {
 // QuerySettings queries the "settings" edge of the Election entity.
 func (e *Election) QuerySettings() *ElectionSettingsQuery {
 	return NewElectionClient(e.config).QuerySettings(e)
+}
+
+// QueryFilters queries the "filters" edge of the Election entity.
+func (e *Election) QueryFilters() *ElectionFiltersQuery {
+	return NewElectionClient(e.config).QueryFilters(e)
 }
 
 // Update returns a builder for updating this Election.

@@ -14,6 +14,8 @@ const (
 	Label = "election_settings"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldCreateTime holds the string denoting the create_time field in the database.
+	FieldCreateTime = "create_time"
 	// FieldIsActive holds the string denoting the is_active field in the database.
 	FieldIsActive = "is_active"
 	// FieldIsAnonymous holds the string denoting the is_anonymous field in the database.
@@ -22,10 +24,8 @@ const (
 	FieldAllowComments = "allow_comments"
 	// FieldMaxVotes holds the string denoting the max_votes field in the database.
 	FieldMaxVotes = "max_votes"
-	// FieldStartDate holds the string denoting the start_date field in the database.
-	FieldStartDate = "start_date"
-	// FieldEndDate holds the string denoting the end_date field in the database.
-	FieldEndDate = "end_date"
+	// FieldDuration holds the string denoting the duration field in the database.
+	FieldDuration = "duration"
 	// EdgeElection holds the string denoting the election edge name in mutations.
 	EdgeElection = "election"
 	// Table holds the table name of the electionsettings in the database.
@@ -42,12 +42,12 @@ const (
 // Columns holds all SQL columns for electionsettings fields.
 var Columns = []string{
 	FieldID,
+	FieldCreateTime,
 	FieldIsActive,
 	FieldIsAnonymous,
 	FieldAllowComments,
 	FieldMaxVotes,
-	FieldStartDate,
-	FieldEndDate,
+	FieldDuration,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "election_settings"
@@ -72,6 +72,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// DefaultCreateTime holds the default value on creation for the "create_time" field.
+	DefaultCreateTime func() time.Time
 	// DefaultIsActive holds the default value on creation for the "is_active" field.
 	DefaultIsActive bool
 	// DefaultIsAnonymous holds the default value on creation for the "is_anonymous" field.
@@ -82,10 +84,8 @@ var (
 	DefaultMaxVotes int
 	// MaxVotesValidator is a validator for the "max_votes" field. It is called by the builders before save.
 	MaxVotesValidator func(int) error
-	// DefaultStartDate holds the default value on creation for the "start_date" field.
-	DefaultStartDate func() time.Time
-	// DefaultEndDate holds the default value on creation for the "end_date" field.
-	DefaultEndDate time.Time
+	// DefaultDuration holds the default value on creation for the "duration" field.
+	DefaultDuration time.Time
 )
 
 // OrderOption defines the ordering options for the ElectionSettings queries.
@@ -94,6 +94,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByCreateTime orders the results by the create_time field.
+func ByCreateTime(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreateTime, opts...).ToFunc()
 }
 
 // ByIsActive orders the results by the is_active field.
@@ -116,14 +121,9 @@ func ByMaxVotes(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMaxVotes, opts...).ToFunc()
 }
 
-// ByStartDate orders the results by the start_date field.
-func ByStartDate(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldStartDate, opts...).ToFunc()
-}
-
-// ByEndDate orders the results by the end_date field.
-func ByEndDate(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldEndDate, opts...).ToFunc()
+// ByDuration orders the results by the duration field.
+func ByDuration(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDuration, opts...).ToFunc()
 }
 
 // ByElectionField orders the results by election field.

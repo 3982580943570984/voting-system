@@ -49,6 +49,10 @@ func (Election) Edges() []ent.Edge {
 		edge.To("settings", ElectionSettings.Type).
 			Unique().
 			Annotations(entsql.OnDelete(entsql.Cascade)),
+
+		edge.To("filters", ElectionFilters.Type).
+			Unique().
+			Annotations(entsql.OnDelete(entsql.Cascade)),
 	}
 }
 
@@ -71,7 +75,14 @@ func (Election) Hooks() []ent.Hook {
 					Create().
 					SetElection(election).
 					Save(ctx)
+				if err != nil {
+					return nil, err
+				}
 
+				_, err = em.Client().ElectionFilters.
+					Create().
+					SetElection(election).
+					Save(ctx)
 				if err != nil {
 					return nil, err
 				}

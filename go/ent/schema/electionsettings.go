@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/mixin"
 )
 
 // ElectionSettings holds the schema definition for the ElectionSettings entity.
@@ -29,11 +30,15 @@ func (ElectionSettings) Fields() []ent.Field {
 			Positive().
 			Default(1),
 
-		field.Time("start_date").
-			Default(time.Now),
-
-		field.Time("end_date").
+		field.Time("duration").
 			Default(time.Now().AddDate(0, 0, 5)),
+	}
+}
+
+// Mixins of the ElectionSettings.
+func (ElectionSettings) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		mixin.CreateTime{},
 	}
 }
 

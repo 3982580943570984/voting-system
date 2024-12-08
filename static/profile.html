@@ -76,7 +76,6 @@
       }
 
       /* ======= Button Styling ======= */
-      .logout-btn,
       .back-btn {
         padding: 10px 16px;
         border: none;
@@ -90,15 +89,6 @@
         display: flex;
         align-items: center;
         gap: 5px;
-      }
-
-      .logout-btn {
-        background-color: var(--color-danger);
-      }
-
-      .logout-btn:hover {
-        background-color: var(--color-danger-hover);
-        transform: scale(1.05);
       }
 
       .back-btn {
@@ -187,9 +177,6 @@
           <button id="back-btn" class="back-btn">
             <i class="fa fa-arrow-left"></i> Назад к выборам
           </button>
-          <button id="logout-btn" class="logout-btn">
-            <i class="fa fa-sign-out-alt"></i> Выйти
-          </button>
         </div>
       </header>
 
@@ -227,21 +214,11 @@
     </div>
 
     <script>
-      // Logout Functionality
-      document
-        .getElementById("logout-btn")
-        .addEventListener("click", function () {
-          if (confirm("Вы уверены, что хотите выйти?")) {
-            localStorage.removeItem("jwt_token");
-            window.location.href = "index.html"; // Replace with your actual login page
-          }
-        });
-
       // Back to Elections Functionality
       document
         .getElementById("back-btn")
         .addEventListener("click", function () {
-          window.location.href = "elections.html"; // Replace with your actual elections page URL
+          window.location.href = "active.html"; // Replace with your actual elections page URL
         });
 
       // Fetch Profile Data and Populate the Form

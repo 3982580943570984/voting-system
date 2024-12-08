@@ -7,6 +7,7 @@ import (
 	"voting-system/ent/generated/candidate"
 	"voting-system/ent/generated/comment"
 	"voting-system/ent/generated/election"
+	"voting-system/ent/generated/electionfilters"
 	"voting-system/ent/generated/electionsettings"
 	"voting-system/ent/generated/profile"
 	"voting-system/ent/generated/tag"
@@ -149,8 +150,45 @@ func init() {
 			return nil
 		}
 	}()
+	electionfiltersFields := schema.ElectionFilters{}.Fields()
+	_ = electionfiltersFields
+	// electionfiltersDescHasFirstName is the schema descriptor for has_first_name field.
+	electionfiltersDescHasFirstName := electionfiltersFields[0].Descriptor()
+	// electionfilters.DefaultHasFirstName holds the default value on creation for the has_first_name field.
+	electionfilters.DefaultHasFirstName = electionfiltersDescHasFirstName.Default.(bool)
+	// electionfiltersDescHasLastName is the schema descriptor for has_last_name field.
+	electionfiltersDescHasLastName := electionfiltersFields[1].Descriptor()
+	// electionfilters.DefaultHasLastName holds the default value on creation for the has_last_name field.
+	electionfilters.DefaultHasLastName = electionfiltersDescHasLastName.Default.(bool)
+	// electionfiltersDescHasBirthdate is the schema descriptor for has_birthdate field.
+	electionfiltersDescHasBirthdate := electionfiltersFields[2].Descriptor()
+	// electionfilters.DefaultHasBirthdate holds the default value on creation for the has_birthdate field.
+	electionfilters.DefaultHasBirthdate = electionfiltersDescHasBirthdate.Default.(bool)
+	// electionfiltersDescHasPhoneNumber is the schema descriptor for has_phone_number field.
+	electionfiltersDescHasPhoneNumber := electionfiltersFields[3].Descriptor()
+	// electionfilters.DefaultHasPhoneNumber holds the default value on creation for the has_phone_number field.
+	electionfilters.DefaultHasPhoneNumber = electionfiltersDescHasPhoneNumber.Default.(bool)
+	// electionfiltersDescHasBio is the schema descriptor for has_bio field.
+	electionfiltersDescHasBio := electionfiltersFields[4].Descriptor()
+	// electionfilters.DefaultHasBio holds the default value on creation for the has_bio field.
+	electionfilters.DefaultHasBio = electionfiltersDescHasBio.Default.(bool)
+	// electionfiltersDescHasAddress is the schema descriptor for has_address field.
+	electionfiltersDescHasAddress := electionfiltersFields[5].Descriptor()
+	// electionfilters.DefaultHasAddress holds the default value on creation for the has_address field.
+	electionfilters.DefaultHasAddress = electionfiltersDescHasAddress.Default.(bool)
+	// electionfiltersDescHasPhotoURL is the schema descriptor for has_photo_url field.
+	electionfiltersDescHasPhotoURL := electionfiltersFields[6].Descriptor()
+	// electionfilters.DefaultHasPhotoURL holds the default value on creation for the has_photo_url field.
+	electionfilters.DefaultHasPhotoURL = electionfiltersDescHasPhotoURL.Default.(bool)
+	electionsettingsMixin := schema.ElectionSettings{}.Mixin()
+	electionsettingsMixinFields0 := electionsettingsMixin[0].Fields()
+	_ = electionsettingsMixinFields0
 	electionsettingsFields := schema.ElectionSettings{}.Fields()
 	_ = electionsettingsFields
+	// electionsettingsDescCreateTime is the schema descriptor for create_time field.
+	electionsettingsDescCreateTime := electionsettingsMixinFields0[0].Descriptor()
+	// electionsettings.DefaultCreateTime holds the default value on creation for the create_time field.
+	electionsettings.DefaultCreateTime = electionsettingsDescCreateTime.Default.(func() time.Time)
 	// electionsettingsDescIsActive is the schema descriptor for is_active field.
 	electionsettingsDescIsActive := electionsettingsFields[0].Descriptor()
 	// electionsettings.DefaultIsActive holds the default value on creation for the is_active field.
@@ -169,14 +207,10 @@ func init() {
 	electionsettings.DefaultMaxVotes = electionsettingsDescMaxVotes.Default.(int)
 	// electionsettings.MaxVotesValidator is a validator for the "max_votes" field. It is called by the builders before save.
 	electionsettings.MaxVotesValidator = electionsettingsDescMaxVotes.Validators[0].(func(int) error)
-	// electionsettingsDescStartDate is the schema descriptor for start_date field.
-	electionsettingsDescStartDate := electionsettingsFields[4].Descriptor()
-	// electionsettings.DefaultStartDate holds the default value on creation for the start_date field.
-	electionsettings.DefaultStartDate = electionsettingsDescStartDate.Default.(func() time.Time)
-	// electionsettingsDescEndDate is the schema descriptor for end_date field.
-	electionsettingsDescEndDate := electionsettingsFields[5].Descriptor()
-	// electionsettings.DefaultEndDate holds the default value on creation for the end_date field.
-	electionsettings.DefaultEndDate = electionsettingsDescEndDate.Default.(time.Time)
+	// electionsettingsDescDuration is the schema descriptor for duration field.
+	electionsettingsDescDuration := electionsettingsFields[4].Descriptor()
+	// electionsettings.DefaultDuration holds the default value on creation for the duration field.
+	electionsettings.DefaultDuration = electionsettingsDescDuration.Default.(time.Time)
 	profileFields := schema.Profile{}.Fields()
 	_ = profileFields
 	// profileDescFirstName is the schema descriptor for first_name field.

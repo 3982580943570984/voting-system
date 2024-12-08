@@ -9,6 +9,7 @@ import (
 	"voting-system/ent/generated/candidate"
 	"voting-system/ent/generated/comment"
 	"voting-system/ent/generated/election"
+	"voting-system/ent/generated/electionfilters"
 	"voting-system/ent/generated/electionsettings"
 	"voting-system/ent/generated/predicate"
 	"voting-system/ent/generated/tag"
@@ -143,6 +144,25 @@ func (eu *ElectionUpdate) SetSettings(e *ElectionSettings) *ElectionUpdate {
 	return eu.SetSettingsID(e.ID)
 }
 
+// SetFiltersID sets the "filters" edge to the ElectionFilters entity by ID.
+func (eu *ElectionUpdate) SetFiltersID(id int) *ElectionUpdate {
+	eu.mutation.SetFiltersID(id)
+	return eu
+}
+
+// SetNillableFiltersID sets the "filters" edge to the ElectionFilters entity by ID if the given value is not nil.
+func (eu *ElectionUpdate) SetNillableFiltersID(id *int) *ElectionUpdate {
+	if id != nil {
+		eu = eu.SetFiltersID(*id)
+	}
+	return eu
+}
+
+// SetFilters sets the "filters" edge to the ElectionFilters entity.
+func (eu *ElectionUpdate) SetFilters(e *ElectionFilters) *ElectionUpdate {
+	return eu.SetFiltersID(e.ID)
+}
+
 // Mutation returns the ElectionMutation object of the builder.
 func (eu *ElectionUpdate) Mutation() *ElectionMutation {
 	return eu.mutation
@@ -220,6 +240,12 @@ func (eu *ElectionUpdate) RemoveCandidates(c ...*Candidate) *ElectionUpdate {
 // ClearSettings clears the "settings" edge to the ElectionSettings entity.
 func (eu *ElectionUpdate) ClearSettings() *ElectionUpdate {
 	eu.mutation.ClearSettings()
+	return eu
+}
+
+// ClearFilters clears the "filters" edge to the ElectionFilters entity.
+func (eu *ElectionUpdate) ClearFilters() *ElectionUpdate {
+	eu.mutation.ClearFilters()
 	return eu
 }
 
@@ -476,6 +502,35 @@ func (eu *ElectionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if eu.mutation.FiltersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   election.FiltersTable,
+			Columns: []string{election.FiltersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(electionfilters.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := eu.mutation.FiltersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   election.FiltersTable,
+			Columns: []string{election.FiltersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(electionfilters.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, eu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{election.Label}
@@ -607,6 +662,25 @@ func (euo *ElectionUpdateOne) SetSettings(e *ElectionSettings) *ElectionUpdateOn
 	return euo.SetSettingsID(e.ID)
 }
 
+// SetFiltersID sets the "filters" edge to the ElectionFilters entity by ID.
+func (euo *ElectionUpdateOne) SetFiltersID(id int) *ElectionUpdateOne {
+	euo.mutation.SetFiltersID(id)
+	return euo
+}
+
+// SetNillableFiltersID sets the "filters" edge to the ElectionFilters entity by ID if the given value is not nil.
+func (euo *ElectionUpdateOne) SetNillableFiltersID(id *int) *ElectionUpdateOne {
+	if id != nil {
+		euo = euo.SetFiltersID(*id)
+	}
+	return euo
+}
+
+// SetFilters sets the "filters" edge to the ElectionFilters entity.
+func (euo *ElectionUpdateOne) SetFilters(e *ElectionFilters) *ElectionUpdateOne {
+	return euo.SetFiltersID(e.ID)
+}
+
 // Mutation returns the ElectionMutation object of the builder.
 func (euo *ElectionUpdateOne) Mutation() *ElectionMutation {
 	return euo.mutation
@@ -684,6 +758,12 @@ func (euo *ElectionUpdateOne) RemoveCandidates(c ...*Candidate) *ElectionUpdateO
 // ClearSettings clears the "settings" edge to the ElectionSettings entity.
 func (euo *ElectionUpdateOne) ClearSettings() *ElectionUpdateOne {
 	euo.mutation.ClearSettings()
+	return euo
+}
+
+// ClearFilters clears the "filters" edge to the ElectionFilters entity.
+func (euo *ElectionUpdateOne) ClearFilters() *ElectionUpdateOne {
+	euo.mutation.ClearFilters()
 	return euo
 }
 
@@ -963,6 +1043,35 @@ func (euo *ElectionUpdateOne) sqlSave(ctx context.Context) (_node *Election, err
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(electionsettings.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if euo.mutation.FiltersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   election.FiltersTable,
+			Columns: []string{election.FiltersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(electionfilters.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := euo.mutation.FiltersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   election.FiltersTable,
+			Columns: []string{election.FiltersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(electionfilters.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

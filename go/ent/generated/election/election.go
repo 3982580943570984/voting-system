@@ -27,6 +27,8 @@ const (
 	EdgeCandidates = "candidates"
 	// EdgeSettings holds the string denoting the settings edge name in mutations.
 	EdgeSettings = "settings"
+	// EdgeFilters holds the string denoting the filters edge name in mutations.
+	EdgeFilters = "filters"
 	// Table holds the table name of the election in the database.
 	Table = "elections"
 	// UserTable is the table that holds the user relation/edge.
@@ -62,6 +64,13 @@ const (
 	SettingsInverseTable = "election_settings"
 	// SettingsColumn is the table column denoting the settings relation/edge.
 	SettingsColumn = "election_settings"
+	// FiltersTable is the table that holds the filters relation/edge.
+	FiltersTable = "election_filters"
+	// FiltersInverseTable is the table name for the ElectionFilters entity.
+	// It exists in this package in order to avoid circular dependency with the "electionfilters" package.
+	FiltersInverseTable = "election_filters"
+	// FiltersColumn is the table column denoting the filters relation/edge.
+	FiltersColumn = "election_filters"
 )
 
 // Columns holds all SQL columns for election fields.
@@ -184,6 +193,13 @@ func BySettingsField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newSettingsStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByFiltersField orders the results by filters field.
+func ByFiltersField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newFiltersStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newUserStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -217,5 +233,12 @@ func newSettingsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(SettingsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2O, false, SettingsTable, SettingsColumn),
+	)
+}
+func newFiltersStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(FiltersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, false, FiltersTable, FiltersColumn),
 	)
 }

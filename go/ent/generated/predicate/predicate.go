@@ -15,6 +15,9 @@ type Comment func(*sql.Selector)
 // Election is the predicate function for election builders.
 type Election func(*sql.Selector)
 
+// ElectionFilters is the predicate function for electionfilters builders.
+type ElectionFilters func(*sql.Selector)
+
 // ElectionSettings is the predicate function for electionsettings builders.
 type ElectionSettings func(*sql.Selector)
 

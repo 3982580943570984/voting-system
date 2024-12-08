@@ -90,7 +90,6 @@
       }
 
       /* ======= Стилизация Кнопок ======= */
-      .logout-btn,
       #back-btn,
       #add-comment-btn,
       .reply-btn {
@@ -106,15 +105,6 @@
         display: flex;
         align-items: center;
         gap: 5px;
-      }
-
-      .logout-btn {
-        background-color: var(--color-danger);
-      }
-
-      .logout-btn:hover {
-        background-color: var(--color-danger-hover);
-        transform: scale(1.05);
       }
 
       #back-btn {
@@ -413,14 +403,8 @@
       <header>
         <h1>Детали выборов</h1>
         <div>
-          <button
-            id="back-btn"
-            onclick="window.location.href='elections.html';"
-          >
+          <button id="back-btn" onclick="window.location.href='active.html';">
             <i class="fa-solid fa-arrow-left"></i> Назад к выборам
-          </button>
-          <button id="logout-btn" class="logout-btn">
-            <i class="fa-solid fa-sign-out-alt"></i> Выйти
           </button>
         </div>
       </header>
@@ -677,19 +661,6 @@
           commentElement.appendChild(replyForm);
         }
       }
-
-      // Logout Functionality
-      document
-        .getElementById("logout-btn")
-        .addEventListener("click", function () {
-          // Confirm Logout Action
-          if (confirm("Вы уверены, что хотите выйти?")) {
-            // Remove JWT token from localStorage
-            localStorage.removeItem("jwt_token");
-            // Redirect to the authentication page
-            window.location.href = "index.html"; // Замените на вашу страницу входа
-          }
-        });
 
       // Получение деталей выборов и кандидатов
       function fetchElectionDetails() {

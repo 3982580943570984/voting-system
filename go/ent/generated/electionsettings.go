@@ -18,6 +18,8 @@ type ElectionSettings struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// CreateTime holds the value of the "create_time" field.
+	CreateTime time.Time `json:"create_time,omitempty"`
 	// IsActive holds the value of the "is_active" field.
 	IsActive bool `json:"is_active,omitempty"`
 	// IsAnonymous holds the value of the "is_anonymous" field.
@@ -26,10 +28,8 @@ type ElectionSettings struct {
 	AllowComments bool `json:"allow_comments,omitempty"`
 	// MaxVotes holds the value of the "max_votes" field.
 	MaxVotes int `json:"max_votes,omitempty"`
-	// StartDate holds the value of the "start_date" field.
-	StartDate time.Time `json:"start_date,omitempty"`
-	// EndDate holds the value of the "end_date" field.
-	EndDate time.Time `json:"end_date,omitempty"`
+	// Duration holds the value of the "duration" field.
+	Duration time.Time `json:"duration,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ElectionSettingsQuery when eager-loading is set.
 	Edges             ElectionSettingsEdges `json:"edges"`
@@ -66,7 +66,7 @@ func (*ElectionSettings) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case electionsettings.FieldID, electionsettings.FieldMaxVotes:
 			values[i] = new(sql.NullInt64)
-		case electionsettings.FieldStartDate, electionsettings.FieldEndDate:
+		case electionsettings.FieldCreateTime, electionsettings.FieldDuration:
 			values[i] = new(sql.NullTime)
 		case electionsettings.ForeignKeys[0]: // election_settings
 			values[i] = new(sql.NullInt64)
@@ -91,6 +91,12 @@ func (es *ElectionSettings) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			es.ID = int(value.Int64)
+		case electionsettings.FieldCreateTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field create_time", values[i])
+			} else if value.Valid {
+				es.CreateTime = value.Time
+			}
 		case electionsettings.FieldIsActive:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field is_active", values[i])
@@ -115,17 +121,11 @@ func (es *ElectionSettings) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				es.MaxVotes = int(value.Int64)
 			}
-		case electionsettings.FieldStartDate:
+		case electionsettings.FieldDuration:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field start_date", values[i])
+				return fmt.Errorf("unexpected type %T for field duration", values[i])
 			} else if value.Valid {
-				es.StartDate = value.Time
-			}
-		case electionsettings.FieldEndDate:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field end_date", values[i])
-			} else if value.Valid {
-				es.EndDate = value.Time
+				es.Duration = value.Time
 			}
 		case electionsettings.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -175,6 +175,9 @@ func (es *ElectionSettings) String() string {
 	var builder strings.Builder
 	builder.WriteString("ElectionSettings(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", es.ID))
+	builder.WriteString("create_time=")
+	builder.WriteString(es.CreateTime.Format(time.ANSIC))
+	builder.WriteString(", ")
 	builder.WriteString("is_active=")
 	builder.WriteString(fmt.Sprintf("%v", es.IsActive))
 	builder.WriteString(", ")
@@ -187,11 +190,8 @@ func (es *ElectionSettings) String() string {
 	builder.WriteString("max_votes=")
 	builder.WriteString(fmt.Sprintf("%v", es.MaxVotes))
 	builder.WriteString(", ")
-	builder.WriteString("start_date=")
-	builder.WriteString(es.StartDate.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("end_date=")
-	builder.WriteString(es.EndDate.Format(time.ANSIC))
+	builder.WriteString("duration=")
+	builder.WriteString(es.Duration.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -14,6 +14,7 @@ import (
 	"voting-system/ent/generated/candidate"
 	"voting-system/ent/generated/comment"
 	"voting-system/ent/generated/election"
+	"voting-system/ent/generated/electionfilters"
 	"voting-system/ent/generated/electionsettings"
 	"voting-system/ent/generated/profile"
 	"voting-system/ent/generated/tag"
@@ -37,6 +38,8 @@ type Client struct {
 	Comment *CommentClient
 	// Election is the client for interacting with the Election builders.
 	Election *ElectionClient
+	// ElectionFilters is the client for interacting with the ElectionFilters builders.
+	ElectionFilters *ElectionFiltersClient
 	// ElectionSettings is the client for interacting with the ElectionSettings builders.
 	ElectionSettings *ElectionSettingsClient
 	// Profile is the client for interacting with the Profile builders.
@@ -61,6 +64,7 @@ func (c *Client) init() {
 	c.Candidate = NewCandidateClient(c.config)
 	c.Comment = NewCommentClient(c.config)
 	c.Election = NewElectionClient(c.config)
+	c.ElectionFilters = NewElectionFiltersClient(c.config)
 	c.ElectionSettings = NewElectionSettingsClient(c.config)
 	c.Profile = NewProfileClient(c.config)
 	c.Tag = NewTagClient(c.config)
@@ -161,6 +165,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Candidate:        NewCandidateClient(cfg),
 		Comment:          NewCommentClient(cfg),
 		Election:         NewElectionClient(cfg),
+		ElectionFilters:  NewElectionFiltersClient(cfg),
 		ElectionSettings: NewElectionSettingsClient(cfg),
 		Profile:          NewProfileClient(cfg),
 		Tag:              NewTagClient(cfg),
@@ -188,6 +193,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Candidate:        NewCandidateClient(cfg),
 		Comment:          NewCommentClient(cfg),
 		Election:         NewElectionClient(cfg),
+		ElectionFilters:  NewElectionFiltersClient(cfg),
 		ElectionSettings: NewElectionSettingsClient(cfg),
 		Profile:          NewProfileClient(cfg),
 		Tag:              NewTagClient(cfg),
@@ -222,8 +228,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Candidate, c.Comment, c.Election, c.ElectionSettings, c.Profile, c.Tag,
-		c.User, c.Vote,
+		c.Candidate, c.Comment, c.Election, c.ElectionFilters, c.ElectionSettings,
+		c.Profile, c.Tag, c.User, c.Vote,
 	} {
 		n.Use(hooks...)
 	}
@@ -233,8 +239,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Candidate, c.Comment, c.Election, c.ElectionSettings, c.Profile, c.Tag,
-		c.User, c.Vote,
+		c.Candidate, c.Comment, c.Election, c.ElectionFilters, c.ElectionSettings,
+		c.Profile, c.Tag, c.User, c.Vote,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -249,6 +255,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Comment.mutate(ctx, m)
 	case *ElectionMutation:
 		return c.Election.mutate(ctx, m)
+	case *ElectionFiltersMutation:
+		return c.ElectionFilters.mutate(ctx, m)
 	case *ElectionSettingsMutation:
 		return c.ElectionSettings.mutate(ctx, m)
 	case *ProfileMutation:
@@ -814,6 +822,22 @@ func (c *ElectionClient) QuerySettings(e *Election) *ElectionSettingsQuery {
 	return query
 }
 
+// QueryFilters queries the filters edge of a Election.
+func (c *ElectionClient) QueryFilters(e *Election) *ElectionFiltersQuery {
+	query := (&ElectionFiltersClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := e.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(election.Table, election.FieldID, id),
+			sqlgraph.To(electionfilters.Table, electionfilters.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, election.FiltersTable, election.FiltersColumn),
+		)
+		fromV = sqlgraph.Neighbors(e.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *ElectionClient) Hooks() []Hook {
 	hooks := c.hooks.Election
@@ -837,6 +861,155 @@ func (c *ElectionClient) mutate(ctx context.Context, m *ElectionMutation) (Value
 		return (&ElectionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("generated: unknown Election mutation op: %q", m.Op())
+	}
+}
+
+// ElectionFiltersClient is a client for the ElectionFilters schema.
+type ElectionFiltersClient struct {
+	config
+}
+
+// NewElectionFiltersClient returns a client for the ElectionFilters from the given config.
+func NewElectionFiltersClient(c config) *ElectionFiltersClient {
+	return &ElectionFiltersClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `electionfilters.Hooks(f(g(h())))`.
+func (c *ElectionFiltersClient) Use(hooks ...Hook) {
+	c.hooks.ElectionFilters = append(c.hooks.ElectionFilters, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `electionfilters.Intercept(f(g(h())))`.
+func (c *ElectionFiltersClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ElectionFilters = append(c.inters.ElectionFilters, interceptors...)
+}
+
+// Create returns a builder for creating a ElectionFilters entity.
+func (c *ElectionFiltersClient) Create() *ElectionFiltersCreate {
+	mutation := newElectionFiltersMutation(c.config, OpCreate)
+	return &ElectionFiltersCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ElectionFilters entities.
+func (c *ElectionFiltersClient) CreateBulk(builders ...*ElectionFiltersCreate) *ElectionFiltersCreateBulk {
+	return &ElectionFiltersCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ElectionFiltersClient) MapCreateBulk(slice any, setFunc func(*ElectionFiltersCreate, int)) *ElectionFiltersCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ElectionFiltersCreateBulk{err: fmt.Errorf("calling to ElectionFiltersClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ElectionFiltersCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ElectionFiltersCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ElectionFilters.
+func (c *ElectionFiltersClient) Update() *ElectionFiltersUpdate {
+	mutation := newElectionFiltersMutation(c.config, OpUpdate)
+	return &ElectionFiltersUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ElectionFiltersClient) UpdateOne(ef *ElectionFilters) *ElectionFiltersUpdateOne {
+	mutation := newElectionFiltersMutation(c.config, OpUpdateOne, withElectionFilters(ef))
+	return &ElectionFiltersUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ElectionFiltersClient) UpdateOneID(id int) *ElectionFiltersUpdateOne {
+	mutation := newElectionFiltersMutation(c.config, OpUpdateOne, withElectionFiltersID(id))
+	return &ElectionFiltersUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ElectionFilters.
+func (c *ElectionFiltersClient) Delete() *ElectionFiltersDelete {
+	mutation := newElectionFiltersMutation(c.config, OpDelete)
+	return &ElectionFiltersDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ElectionFiltersClient) DeleteOne(ef *ElectionFilters) *ElectionFiltersDeleteOne {
+	return c.DeleteOneID(ef.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ElectionFiltersClient) DeleteOneID(id int) *ElectionFiltersDeleteOne {
+	builder := c.Delete().Where(electionfilters.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ElectionFiltersDeleteOne{builder}
+}
+
+// Query returns a query builder for ElectionFilters.
+func (c *ElectionFiltersClient) Query() *ElectionFiltersQuery {
+	return &ElectionFiltersQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeElectionFilters},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ElectionFilters entity by its id.
+func (c *ElectionFiltersClient) Get(ctx context.Context, id int) (*ElectionFilters, error) {
+	return c.Query().Where(electionfilters.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ElectionFiltersClient) GetX(ctx context.Context, id int) *ElectionFilters {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryElection queries the election edge of a ElectionFilters.
+func (c *ElectionFiltersClient) QueryElection(ef *ElectionFilters) *ElectionQuery {
+	query := (&ElectionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ef.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(electionfilters.Table, electionfilters.FieldID, id),
+			sqlgraph.To(election.Table, election.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, electionfilters.ElectionTable, electionfilters.ElectionColumn),
+		)
+		fromV = sqlgraph.Neighbors(ef.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ElectionFiltersClient) Hooks() []Hook {
+	return c.hooks.ElectionFilters
+}
+
+// Interceptors returns the client interceptors.
+func (c *ElectionFiltersClient) Interceptors() []Interceptor {
+	return c.inters.ElectionFilters
+}
+
+func (c *ElectionFiltersClient) mutate(ctx context.Context, m *ElectionFiltersMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ElectionFiltersCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ElectionFiltersUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ElectionFiltersUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ElectionFiltersDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("generated: unknown ElectionFilters mutation op: %q", m.Op())
 	}
 }
 
@@ -1654,11 +1827,11 @@ func (c *VoteClient) mutate(ctx context.Context, m *VoteMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Candidate, Comment, Election, ElectionSettings, Profile, Tag, User,
-		Vote []ent.Hook
+		Candidate, Comment, Election, ElectionFilters, ElectionSettings, Profile, Tag,
+		User, Vote []ent.Hook
 	}
 	inters struct {
-		Candidate, Comment, Election, ElectionSettings, Profile, Tag, User,
-		Vote []ent.Interceptor
+		Candidate, Comment, Election, ElectionFilters, ElectionSettings, Profile, Tag,
+		User, Vote []ent.Interceptor
 	}
 )

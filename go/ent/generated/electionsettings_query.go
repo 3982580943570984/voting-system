@@ -299,12 +299,12 @@ func (esq *ElectionSettingsQuery) WithElection(opts ...func(*ElectionQuery)) *El
 // Example:
 //
 //	var v []struct {
-//		IsActive bool `json:"is_active,omitempty"`
+//		CreateTime time.Time `json:"create_time,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.ElectionSettings.Query().
-//		GroupBy(electionsettings.FieldIsActive).
+//		GroupBy(electionsettings.FieldCreateTime).
 //		Aggregate(generated.Count()).
 //		Scan(ctx, &v)
 func (esq *ElectionSettingsQuery) GroupBy(field string, fields ...string) *ElectionSettingsGroupBy {
@@ -322,11 +322,11 @@ func (esq *ElectionSettingsQuery) GroupBy(field string, fields ...string) *Elect
 // Example:
 //
 //	var v []struct {
-//		IsActive bool `json:"is_active,omitempty"`
+//		CreateTime time.Time `json:"create_time,omitempty"`
 //	}
 //
 //	client.ElectionSettings.Query().
-//		Select(electionsettings.FieldIsActive).
+//		Select(electionsettings.FieldCreateTime).
 //		Scan(ctx, &v)
 func (esq *ElectionSettingsQuery) Select(fields ...string) *ElectionSettingsSelect {
 	esq.ctx.Fields = append(esq.ctx.Fields, fields...)

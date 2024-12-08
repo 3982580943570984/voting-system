@@ -112,6 +112,10 @@ definitions:
         items:
           $ref: '#/definitions/generated.Comment'
         type: array
+      filters:
+        allOf:
+        - $ref: '#/definitions/generated.ElectionFilters'
+        description: Filters holds the value of the filters edge.
       settings:
         allOf:
         - $ref: '#/definitions/generated.ElectionSettings'
@@ -126,20 +130,63 @@ definitions:
         - $ref: '#/definitions/generated.User'
         description: User holds the value of the user edge.
     type: object
+  generated.ElectionFilters:
+    properties:
+      edges:
+        allOf:
+        - $ref: '#/definitions/generated.ElectionFiltersEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the ElectionFiltersQuery when eager-loading is set.
+      has_address:
+        description: HasAddress holds the value of the "has_address" field.
+        type: boolean
+      has_bio:
+        description: HasBio holds the value of the "has_bio" field.
+        type: boolean
+      has_birthdate:
+        description: HasBirthdate holds the value of the "has_birthdate" field.
+        type: boolean
+      has_first_name:
+        description: HasFirstName holds the value of the "has_first_name" field.
+        type: boolean
+      has_last_name:
+        description: HasLastName holds the value of the "has_last_name" field.
+        type: boolean
+      has_phone_number:
+        description: HasPhoneNumber holds the value of the "has_phone_number" field.
+        type: boolean
+      has_photo_url:
+        description: HasPhotoURL holds the value of the "has_photo_url" field.
+        type: boolean
+      id:
+        description: ID of the ent.
+        type: integer
+    type: object
+  generated.ElectionFiltersEdges:
+    properties:
+      election:
+        allOf:
+        - $ref: '#/definitions/generated.Election'
+        description: Election holds the value of the election edge.
+    type: object
   generated.ElectionSettings:
     properties:
       allow_comments:
         description: AllowComments holds the value of the "allow_comments" field.
         type: boolean
+      create_time:
+        description: CreateTime holds the value of the "create_time" field.
+        type: string
+      duration:
+        description: Duration holds the value of the "duration" field.
+        type: string
       edges:
         allOf:
         - $ref: '#/definitions/generated.ElectionSettingsEdges'
         description: |-
           Edges holds the relations/edges for other nodes in the graph.
           The values are being populated by the ElectionSettingsQuery when eager-loading is set.
-      end_date:
-        description: EndDate holds the value of the "end_date" field.
-        type: string
       id:
         description: ID of the ent.
         type: integer
@@ -152,9 +199,6 @@ definitions:
       max_votes:
         description: MaxVotes holds the value of the "max_votes" field.
         type: integer
-      start_date:
-        description: StartDate holds the value of the "start_date" field.
-        type: string
     type: object
   generated.ElectionSettingsEdges:
     properties:
@@ -405,6 +449,25 @@ definitions:
           Title — новое название выборов
           Это обязательное поле при обновлении данных.
         type: string
+    type: object
+  services.ElectionWithCandidatesCreate:
+    properties:
+      candidates:
+        items:
+          $ref: '#/definitions/services.CandidateCreate'
+        minItems: 1
+        type: array
+      description:
+        maxLength: 1000
+        type: string
+      title:
+        maxLength: 64
+        minLength: 8
+        type: string
+      user_id:
+        type: integer
+    required:
+    - candidates
     type: object
   services.ProfileUpdate:
     properties:
@@ -977,6 +1040,111 @@ paths:
       summary: Обновить теги выборов
       tags:
       - Теги
+  /elections/filtered:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список выборов, отфильтрованных по определенным критериям,
+        доступных текущему пользователю.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Отфильтрованный список выборов
+          schema:
+            items:
+              $ref: '#/definitions/generated.Election'
+            type: array
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - Bearer: []
+      summary: Получить отфильтрованные выборы
+      tags:
+      - Выборы
+  /elections/user:
+    get:
+      consumes:
+      - application/json
+      description: Эта функция возвращает список выборов, созданных текущим пользователем.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список выборов, созданных пользователем
+          schema:
+            items:
+              $ref: '#/definitions/generated.Election'
+            type: array
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - Bearer: []
+      summary: Получить выборы, созданные пользователем
+      tags:
+      - Выборы
+  /elections/with-candidates:
+    post:
+      consumes:
+      - application/json
+      description: Создает новые выборы вместе со списком кандидатов в одной транзакции.
+      parameters:
+      - description: Данные для создания выборов и кандидатов
+        in: body
+        name: election
+        required: true
+        schema:
+          $ref: '#/definitions/services.ElectionWithCandidatesCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешно создано, возвращает идентификатор созданных выборов
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: Неверный формат запроса или данные в теле запроса
+          schema:
+            type: string
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            type: string
+        "403":
+          description: Доступ запрещен
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Создать выборы с кандидатами
+      tags:
+      - Выборы
   /login:
     post:
       consumes:

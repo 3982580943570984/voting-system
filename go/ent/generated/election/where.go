@@ -309,6 +309,29 @@ func HasSettingsWith(preds ...predicate.ElectionSettings) predicate.Election {
 	})
 }
 
+// HasFilters applies the HasEdge predicate on the "filters" edge.
+func HasFilters() predicate.Election {
+	return predicate.Election(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, FiltersTable, FiltersColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasFiltersWith applies the HasEdge predicate on the "filters" edge with a given conditions (other predicates).
+func HasFiltersWith(preds ...predicate.ElectionFilters) predicate.Election {
+	return predicate.Election(func(s *sql.Selector) {
+		step := newFiltersStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Election) predicate.Election {
 	return predicate.Election(sql.AndPredicates(predicates...))

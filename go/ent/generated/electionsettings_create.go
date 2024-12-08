@@ -21,6 +21,20 @@ type ElectionSettingsCreate struct {
 	hooks    []Hook
 }
 
+// SetCreateTime sets the "create_time" field.
+func (esc *ElectionSettingsCreate) SetCreateTime(t time.Time) *ElectionSettingsCreate {
+	esc.mutation.SetCreateTime(t)
+	return esc
+}
+
+// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
+func (esc *ElectionSettingsCreate) SetNillableCreateTime(t *time.Time) *ElectionSettingsCreate {
+	if t != nil {
+		esc.SetCreateTime(*t)
+	}
+	return esc
+}
+
 // SetIsActive sets the "is_active" field.
 func (esc *ElectionSettingsCreate) SetIsActive(b bool) *ElectionSettingsCreate {
 	esc.mutation.SetIsActive(b)
@@ -77,30 +91,16 @@ func (esc *ElectionSettingsCreate) SetNillableMaxVotes(i *int) *ElectionSettings
 	return esc
 }
 
-// SetStartDate sets the "start_date" field.
-func (esc *ElectionSettingsCreate) SetStartDate(t time.Time) *ElectionSettingsCreate {
-	esc.mutation.SetStartDate(t)
+// SetDuration sets the "duration" field.
+func (esc *ElectionSettingsCreate) SetDuration(t time.Time) *ElectionSettingsCreate {
+	esc.mutation.SetDuration(t)
 	return esc
 }
 
-// SetNillableStartDate sets the "start_date" field if the given value is not nil.
-func (esc *ElectionSettingsCreate) SetNillableStartDate(t *time.Time) *ElectionSettingsCreate {
+// SetNillableDuration sets the "duration" field if the given value is not nil.
+func (esc *ElectionSettingsCreate) SetNillableDuration(t *time.Time) *ElectionSettingsCreate {
 	if t != nil {
-		esc.SetStartDate(*t)
-	}
-	return esc
-}
-
-// SetEndDate sets the "end_date" field.
-func (esc *ElectionSettingsCreate) SetEndDate(t time.Time) *ElectionSettingsCreate {
-	esc.mutation.SetEndDate(t)
-	return esc
-}
-
-// SetNillableEndDate sets the "end_date" field if the given value is not nil.
-func (esc *ElectionSettingsCreate) SetNillableEndDate(t *time.Time) *ElectionSettingsCreate {
-	if t != nil {
-		esc.SetEndDate(*t)
+		esc.SetDuration(*t)
 	}
 	return esc
 }
@@ -151,6 +151,10 @@ func (esc *ElectionSettingsCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (esc *ElectionSettingsCreate) defaults() {
+	if _, ok := esc.mutation.CreateTime(); !ok {
+		v := electionsettings.DefaultCreateTime()
+		esc.mutation.SetCreateTime(v)
+	}
 	if _, ok := esc.mutation.IsActive(); !ok {
 		v := electionsettings.DefaultIsActive
 		esc.mutation.SetIsActive(v)
@@ -167,18 +171,17 @@ func (esc *ElectionSettingsCreate) defaults() {
 		v := electionsettings.DefaultMaxVotes
 		esc.mutation.SetMaxVotes(v)
 	}
-	if _, ok := esc.mutation.StartDate(); !ok {
-		v := electionsettings.DefaultStartDate()
-		esc.mutation.SetStartDate(v)
-	}
-	if _, ok := esc.mutation.EndDate(); !ok {
-		v := electionsettings.DefaultEndDate
-		esc.mutation.SetEndDate(v)
+	if _, ok := esc.mutation.Duration(); !ok {
+		v := electionsettings.DefaultDuration
+		esc.mutation.SetDuration(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (esc *ElectionSettingsCreate) check() error {
+	if _, ok := esc.mutation.CreateTime(); !ok {
+		return &ValidationError{Name: "create_time", err: errors.New(`generated: missing required field "ElectionSettings.create_time"`)}
+	}
 	if _, ok := esc.mutation.IsActive(); !ok {
 		return &ValidationError{Name: "is_active", err: errors.New(`generated: missing required field "ElectionSettings.is_active"`)}
 	}
@@ -196,11 +199,8 @@ func (esc *ElectionSettingsCreate) check() error {
 			return &ValidationError{Name: "max_votes", err: fmt.Errorf(`generated: validator failed for field "ElectionSettings.max_votes": %w`, err)}
 		}
 	}
-	if _, ok := esc.mutation.StartDate(); !ok {
-		return &ValidationError{Name: "start_date", err: errors.New(`generated: missing required field "ElectionSettings.start_date"`)}
-	}
-	if _, ok := esc.mutation.EndDate(); !ok {
-		return &ValidationError{Name: "end_date", err: errors.New(`generated: missing required field "ElectionSettings.end_date"`)}
+	if _, ok := esc.mutation.Duration(); !ok {
+		return &ValidationError{Name: "duration", err: errors.New(`generated: missing required field "ElectionSettings.duration"`)}
 	}
 	if len(esc.mutation.ElectionIDs()) == 0 {
 		return &ValidationError{Name: "election", err: errors.New(`generated: missing required edge "ElectionSettings.election"`)}
@@ -231,6 +231,10 @@ func (esc *ElectionSettingsCreate) createSpec() (*ElectionSettings, *sqlgraph.Cr
 		_node = &ElectionSettings{config: esc.config}
 		_spec = sqlgraph.NewCreateSpec(electionsettings.Table, sqlgraph.NewFieldSpec(electionsettings.FieldID, field.TypeInt))
 	)
+	if value, ok := esc.mutation.CreateTime(); ok {
+		_spec.SetField(electionsettings.FieldCreateTime, field.TypeTime, value)
+		_node.CreateTime = value
+	}
 	if value, ok := esc.mutation.IsActive(); ok {
 		_spec.SetField(electionsettings.FieldIsActive, field.TypeBool, value)
 		_node.IsActive = value
@@ -247,13 +251,9 @@ func (esc *ElectionSettingsCreate) createSpec() (*ElectionSettings, *sqlgraph.Cr
 		_spec.SetField(electionsettings.FieldMaxVotes, field.TypeInt, value)
 		_node.MaxVotes = value
 	}
-	if value, ok := esc.mutation.StartDate(); ok {
-		_spec.SetField(electionsettings.FieldStartDate, field.TypeTime, value)
-		_node.StartDate = value
-	}
-	if value, ok := esc.mutation.EndDate(); ok {
-		_spec.SetField(electionsettings.FieldEndDate, field.TypeTime, value)
-		_node.EndDate = value
+	if value, ok := esc.mutation.Duration(); ok {
+		_spec.SetField(electionsettings.FieldDuration, field.TypeTime, value)
+		_node.Duration = value
 	}
 	if nodes := esc.mutation.ElectionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

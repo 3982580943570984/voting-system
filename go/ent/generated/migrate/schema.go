@@ -90,15 +90,41 @@ var (
 			},
 		},
 	}
+	// ElectionFiltersColumns holds the columns for the "election_filters" table.
+	ElectionFiltersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "has_first_name", Type: field.TypeBool, Default: false},
+		{Name: "has_last_name", Type: field.TypeBool, Default: false},
+		{Name: "has_birthdate", Type: field.TypeBool, Default: false},
+		{Name: "has_phone_number", Type: field.TypeBool, Default: false},
+		{Name: "has_bio", Type: field.TypeBool, Default: false},
+		{Name: "has_address", Type: field.TypeBool, Default: false},
+		{Name: "has_photo_url", Type: field.TypeBool, Default: false},
+		{Name: "election_filters", Type: field.TypeInt, Unique: true},
+	}
+	// ElectionFiltersTable holds the schema information for the "election_filters" table.
+	ElectionFiltersTable = &schema.Table{
+		Name:       "election_filters",
+		Columns:    ElectionFiltersColumns,
+		PrimaryKey: []*schema.Column{ElectionFiltersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "election_filters_elections_filters",
+				Columns:    []*schema.Column{ElectionFiltersColumns[8]},
+				RefColumns: []*schema.Column{ElectionsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// ElectionSettingsColumns holds the columns for the "election_settings" table.
 	ElectionSettingsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "create_time", Type: field.TypeTime},
 		{Name: "is_active", Type: field.TypeBool, Default: true},
 		{Name: "is_anonymous", Type: field.TypeBool, Default: false},
 		{Name: "allow_comments", Type: field.TypeBool, Default: true},
 		{Name: "max_votes", Type: field.TypeInt, Default: 1},
-		{Name: "start_date", Type: field.TypeTime},
-		{Name: "end_date", Type: field.TypeTime},
+		{Name: "duration", Type: field.TypeTime},
 		{Name: "election_settings", Type: field.TypeInt, Unique: true},
 	}
 	// ElectionSettingsTable holds the schema information for the "election_settings" table.
@@ -227,6 +253,7 @@ var (
 		CandidatesTable,
 		CommentsTable,
 		ElectionsTable,
+		ElectionFiltersTable,
 		ElectionSettingsTable,
 		ProfilesTable,
 		TagsTable,
@@ -242,6 +269,7 @@ func init() {
 	CommentsTable.ForeignKeys[1].RefTable = ElectionsTable
 	CommentsTable.ForeignKeys[2].RefTable = UsersTable
 	ElectionsTable.ForeignKeys[0].RefTable = UsersTable
+	ElectionFiltersTable.ForeignKeys[0].RefTable = ElectionsTable
 	ElectionSettingsTable.ForeignKeys[0].RefTable = ElectionsTable
 	ProfilesTable.ForeignKeys[0].RefTable = UsersTable
 	VotesTable.ForeignKeys[0].RefTable = CandidatesTable

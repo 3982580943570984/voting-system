@@ -246,7 +246,7 @@
         if (token) {
           // Опционально, можно проверить валидность токена здесь
           // Для простоты предположим, что он валиден и перенаправляем
-          window.location.href = "elections.html";
+          window.location.href = "active.html";
         }
       }
 
@@ -356,7 +356,7 @@
               localStorage.setItem("jwt_token", data.token);
 
               // Перенаправить на страницу выборов
-              window.location.href = "elections.html";
+              window.location.href = "active.html";
             })
             .catch((error) => {
               alert(error.message);
