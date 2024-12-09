@@ -74,6 +74,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "title", Type: field.TypeString, Size: 64},
 		{Name: "description", Type: field.TypeString, Size: 1000},
+		{Name: "completed", Type: field.TypeBool, Default: false},
 		{Name: "user_elections", Type: field.TypeInt, Nullable: true},
 	}
 	// ElectionsTable holds the schema information for the "elections" table.
@@ -84,7 +85,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "elections_users_elections",
-				Columns:    []*schema.Column{ElectionsColumns[3]},
+				Columns:    []*schema.Column{ElectionsColumns[4]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

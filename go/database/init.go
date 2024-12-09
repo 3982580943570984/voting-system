@@ -3,14 +3,14 @@ package database
 import (
 	"context"
 	"log"
-	ent "voting-system/ent/generated"
+	"voting-system/ent/generated"
 
 	"entgo.io/ent/dialect"
 	_ "github.com/lib/pq"
 )
 
 var (
-	Client *ent.Client
+	Client *generated.Client
 )
 
 func init() {
@@ -18,7 +18,7 @@ func init() {
 
 	dsn := "postgresql://postgres@postgres:5432/database?sslmode=disable"
 
-	Client, err = ent.Open(dialect.Postgres, dsn)
+	Client, err = generated.Open(dialect.Postgres, dsn)
 	if err != nil {
 		log.Fatalf("Error during database open: %v", err)
 	}

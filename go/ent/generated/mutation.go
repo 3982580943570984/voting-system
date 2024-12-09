@@ -1561,6 +1561,7 @@ type ElectionMutation struct {
 	id                *int
 	title             *string
 	description       *string
+	completed         *bool
 	clearedFields     map[string]struct{}
 	user              *int
 	cleareduser       bool
@@ -1750,6 +1751,42 @@ func (m *ElectionMutation) OldDescription(ctx context.Context) (v string, err er
 // ResetDescription resets all changes to the "description" field.
 func (m *ElectionMutation) ResetDescription() {
 	m.description = nil
+}
+
+// SetCompleted sets the "completed" field.
+func (m *ElectionMutation) SetCompleted(b bool) {
+	m.completed = &b
+}
+
+// Completed returns the value of the "completed" field in the mutation.
+func (m *ElectionMutation) Completed() (r bool, exists bool) {
+	v := m.completed
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCompleted returns the old "completed" field's value of the Election entity.
+// If the Election object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ElectionMutation) OldCompleted(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCompleted is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCompleted requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCompleted: %w", err)
+	}
+	return oldValue.Completed, nil
+}
+
+// ResetCompleted resets all changes to the "completed" field.
+func (m *ElectionMutation) ResetCompleted() {
+	m.completed = nil
 }
 
 // SetUserID sets the "user" edge to the User entity by id.
@@ -2065,12 +2102,15 @@ func (m *ElectionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ElectionMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 3)
 	if m.title != nil {
 		fields = append(fields, election.FieldTitle)
 	}
 	if m.description != nil {
 		fields = append(fields, election.FieldDescription)
+	}
+	if m.completed != nil {
+		fields = append(fields, election.FieldCompleted)
 	}
 	return fields
 }
@@ -2084,6 +2124,8 @@ func (m *ElectionMutation) Field(name string) (ent.Value, bool) {
 		return m.Title()
 	case election.FieldDescription:
 		return m.Description()
+	case election.FieldCompleted:
+		return m.Completed()
 	}
 	return nil, false
 }
@@ -2097,6 +2139,8 @@ func (m *ElectionMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldTitle(ctx)
 	case election.FieldDescription:
 		return m.OldDescription(ctx)
+	case election.FieldCompleted:
+		return m.OldCompleted(ctx)
 	}
 	return nil, fmt.Errorf("unknown Election field %s", name)
 }
@@ -2119,6 +2163,13 @@ func (m *ElectionMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDescription(v)
+		return nil
+	case election.FieldCompleted:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCompleted(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Election field %s", name)
@@ -2174,6 +2225,9 @@ func (m *ElectionMutation) ResetField(name string) error {
 		return nil
 	case election.FieldDescription:
 		m.ResetDescription()
+		return nil
+	case election.FieldCompleted:
+		m.ResetCompleted()
 		return nil
 	}
 	return fmt.Errorf("unknown Election field %s", name)

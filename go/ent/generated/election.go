@@ -23,6 +23,8 @@ type Election struct {
 	Title string `json:"title,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
+	// Completed holds the value of the "completed" field.
+	Completed bool `json:"completed,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ElectionQuery when eager-loading is set.
 	Edges          ElectionEdges `json:"edges"`
@@ -114,6 +116,8 @@ func (*Election) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case election.FieldCompleted:
+			values[i] = new(sql.NullBool)
 		case election.FieldID:
 			values[i] = new(sql.NullInt64)
 		case election.FieldTitle, election.FieldDescription:
@@ -152,6 +156,12 @@ func (e *Election) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
 				e.Description = value.String
+			}
+		case election.FieldCompleted:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field completed", values[i])
+			} else if value.Valid {
+				e.Completed = value.Bool
 			}
 		case election.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -231,6 +241,9 @@ func (e *Election) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("description=")
 	builder.WriteString(e.Description)
+	builder.WriteString(", ")
+	builder.WriteString("completed=")
+	builder.WriteString(fmt.Sprintf("%v", e.Completed))
 	builder.WriteByte(')')
 	return builder.String()
 }

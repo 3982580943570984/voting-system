@@ -3,11 +3,16 @@ package services
 import (
 	"context"
 	"fmt"
+	"log"
+	"time"
 	"voting-system/database"
 	"voting-system/ent/generated"
 	"voting-system/ent/generated/election"
 	filters "voting-system/ent/generated/electionfilters"
 	"voting-system/ent/generated/user"
+	"voting-system/scheduler"
+
+	"github.com/go-co-op/gocron/v2"
 )
 
 // Elections представляет сервис для работы с выборами
@@ -35,20 +40,11 @@ type ElectionCreate struct {
 	} `json:"filters"`
 }
 
-// ElectionUpdate представляет структуру данных для обновления информации о существующих выборах
-// Используется при обновлении данных выборов.
 type ElectionUpdate struct {
-	// ID — уникальный идентификатор выбора, который необходимо обновить
-	// Это обязательное поле для обновления информации о конкретном выборе.
-	ID int `json:"id"`
-
-	// Title — новое название выборов
-	// Это обязательное поле при обновлении данных.
-	Title *string `json:"title,omitempty"`
-
-	// Description — новое описание выборов
-	// Это необязательное поле при обновлении данных.
+	ID          int     `json:"id"`
+	Title       *string `json:"title,omitempty"`
 	Description *string `json:"description,omitempty"`
+	Completed   *bool   `json:"completed,omitempty"`
 }
 
 func NewElections() *Elections {
@@ -114,6 +110,28 @@ func (e *Elections) Create(ctx context.Context, ec *ElectionCreate) (*generated.
 		if rerr := tx.Rollback(); rerr != nil {
 			err = fmt.Errorf("%w: %v", err, rerr)
 		}
+		return nil, err
+	}
+
+	_, err = scheduler.Scheduler.NewJob(
+		gocron.OneTimeJob(
+			// gocron.OneTimeJobStartDateTime(
+			// 	settings.Duration,
+			// ),
+			gocron.OneTimeJobStartDateTime(
+				time.Now().Add(5*time.Second),
+			),
+		),
+		gocron.NewTask(
+			func() {
+				_, err := NewElections().UpdateCompleted(ctx, election.ID, true)
+				if err != nil {
+					log.Fatalf("Error during election update: %v", err)
+				}
+			},
+		),
+	)
+	if err != nil {
 		return nil, err
 	}
 
@@ -230,6 +248,13 @@ func (e *Elections) Update(ctx context.Context, eu *ElectionUpdate) (*generated.
 	return e.DB.UpdateOneID(eu.ID).
 		SetNillableTitle(eu.Title).
 		SetNillableDescription(eu.Description).
+		SetNillableCompleted(eu.Completed).
+		Save(ctx)
+}
+
+func (e *Elections) UpdateCompleted(ctx context.Context, id int, completed bool) (*generated.Election, error) {
+	return e.DB.UpdateOneID(id).
+		SetCompleted(completed).
 		Save(ctx)
 }
 

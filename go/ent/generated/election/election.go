@@ -17,6 +17,8 @@ const (
 	FieldTitle = "title"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
+	// FieldCompleted holds the string denoting the completed field in the database.
+	FieldCompleted = "completed"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// EdgeTags holds the string denoting the tags edge name in mutations.
@@ -78,6 +80,7 @@ var Columns = []string{
 	FieldID,
 	FieldTitle,
 	FieldDescription,
+	FieldCompleted,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "elections"
@@ -118,6 +121,8 @@ var (
 	TitleValidator func(string) error
 	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	DescriptionValidator func(string) error
+	// DefaultCompleted holds the default value on creation for the "completed" field.
+	DefaultCompleted bool
 )
 
 // OrderOption defines the ordering options for the Election queries.
@@ -136,6 +141,11 @@ func ByTitle(opts ...sql.OrderTermOption) OrderOption {
 // ByDescription orders the results by the description field.
 func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
+}
+
+// ByCompleted orders the results by the completed field.
+func ByCompleted(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCompleted, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.

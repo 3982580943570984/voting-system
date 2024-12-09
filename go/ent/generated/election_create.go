@@ -37,6 +37,20 @@ func (ec *ElectionCreate) SetDescription(s string) *ElectionCreate {
 	return ec
 }
 
+// SetCompleted sets the "completed" field.
+func (ec *ElectionCreate) SetCompleted(b bool) *ElectionCreate {
+	ec.mutation.SetCompleted(b)
+	return ec
+}
+
+// SetNillableCompleted sets the "completed" field if the given value is not nil.
+func (ec *ElectionCreate) SetNillableCompleted(b *bool) *ElectionCreate {
+	if b != nil {
+		ec.SetCompleted(*b)
+	}
+	return ec
+}
+
 // SetUserID sets the "user" edge to the User entity by ID.
 func (ec *ElectionCreate) SetUserID(id int) *ElectionCreate {
 	ec.mutation.SetUserID(id)
@@ -146,6 +160,9 @@ func (ec *ElectionCreate) Mutation() *ElectionMutation {
 
 // Save creates the Election in the database.
 func (ec *ElectionCreate) Save(ctx context.Context) (*Election, error) {
+	if err := ec.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, ec.sqlSave, ec.mutation, ec.hooks)
 }
 
@@ -171,6 +188,15 @@ func (ec *ElectionCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (ec *ElectionCreate) defaults() error {
+	if _, ok := ec.mutation.Completed(); !ok {
+		v := election.DefaultCompleted
+		ec.mutation.SetCompleted(v)
+	}
+	return nil
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (ec *ElectionCreate) check() error {
 	if _, ok := ec.mutation.Title(); !ok {
@@ -188,6 +214,9 @@ func (ec *ElectionCreate) check() error {
 		if err := election.DescriptionValidator(v); err != nil {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generated: validator failed for field "Election.description": %w`, err)}
 		}
+	}
+	if _, ok := ec.mutation.Completed(); !ok {
+		return &ValidationError{Name: "completed", err: errors.New(`generated: missing required field "Election.completed"`)}
 	}
 	return nil
 }
@@ -222,6 +251,10 @@ func (ec *ElectionCreate) createSpec() (*Election, *sqlgraph.CreateSpec) {
 	if value, ok := ec.mutation.Description(); ok {
 		_spec.SetField(election.FieldDescription, field.TypeString, value)
 		_node.Description = value
+	}
+	if value, ok := ec.mutation.Completed(); ok {
+		_spec.SetField(election.FieldCompleted, field.TypeBool, value)
+		_node.Completed = value
 	}
 	if nodes := ec.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -341,6 +374,7 @@ func (ecb *ElectionCreateBulk) Save(ctx context.Context) ([]*Election, error) {
 	for i := range ecb.builders {
 		func(i int, root context.Context) {
 			builder := ecb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*ElectionMutation)
 				if !ok {

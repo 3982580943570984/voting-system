@@ -150,6 +150,10 @@ func init() {
 			return nil
 		}
 	}()
+	// electionDescCompleted is the schema descriptor for completed field.
+	electionDescCompleted := electionFields[2].Descriptor()
+	// election.DefaultCompleted holds the default value on creation for the completed field.
+	election.DefaultCompleted = electionDescCompleted.Default.(bool)
 	electionfiltersFields := schema.ElectionFilters{}.Fields()
 	_ = electionfiltersFields
 	// electionfiltersDescHasFirstName is the schema descriptor for has_first_name field.

@@ -519,7 +519,12 @@
         const electionList = document.getElementById("election-list");
         electionList.innerHTML = ""; // Clear any existing elections
 
-        if (allElections.length === 0) {
+        // **Filter out completed elections**
+        const activeElections = allElections.filter(
+          (election) => !election.completed
+        );
+
+        if (activeElections.length === 0) {
           electionList.innerHTML = "<p>Активных выборов нет.</p>";
           return;
         }
@@ -531,11 +536,13 @@
         const userElectionIds = new Set(userElections.map((e) => e.id));
         const userIsOrganizer = isUserOrganizer();
 
-        // Fetch tags for all elections
-        const electionsWithTagsPromises = allElections.map(async (election) => {
-          const tags = await fetchElectionTags(election.id);
-          return { ...election, tags };
-        });
+        // Fetch tags for all active elections
+        const electionsWithTagsPromises = activeElections.map(
+          async (election) => {
+            const tags = await fetchElectionTags(election.id);
+            return { ...election, tags };
+          }
+        );
 
         const electionsWithTags = await Promise.all(electionsWithTagsPromises);
 

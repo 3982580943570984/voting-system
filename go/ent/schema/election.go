@@ -27,6 +27,9 @@ func (Election) Fields() []ent.Field {
 		field.String("description").
 			NotEmpty().
 			MaxLen(1000),
+
+		field.Bool("completed").
+			Default(false),
 	}
 }
 
@@ -74,7 +77,7 @@ func (Election) Hooks() []ent.Hook {
 				_, err = em.Client().ElectionSettings.
 					Create().
 					SetElection(election).
-					Save(ctx)
+					Save(context.Background())
 				if err != nil {
 					return nil, err
 				}

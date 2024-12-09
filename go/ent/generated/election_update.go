@@ -61,6 +61,20 @@ func (eu *ElectionUpdate) SetNillableDescription(s *string) *ElectionUpdate {
 	return eu
 }
 
+// SetCompleted sets the "completed" field.
+func (eu *ElectionUpdate) SetCompleted(b bool) *ElectionUpdate {
+	eu.mutation.SetCompleted(b)
+	return eu
+}
+
+// SetNillableCompleted sets the "completed" field if the given value is not nil.
+func (eu *ElectionUpdate) SetNillableCompleted(b *bool) *ElectionUpdate {
+	if b != nil {
+		eu.SetCompleted(*b)
+	}
+	return eu
+}
+
 // SetUserID sets the "user" edge to the User entity by ID.
 func (eu *ElectionUpdate) SetUserID(id int) *ElectionUpdate {
 	eu.mutation.SetUserID(id)
@@ -308,6 +322,9 @@ func (eu *ElectionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := eu.mutation.Description(); ok {
 		_spec.SetField(election.FieldDescription, field.TypeString, value)
+	}
+	if value, ok := eu.mutation.Completed(); ok {
+		_spec.SetField(election.FieldCompleted, field.TypeBool, value)
 	}
 	if eu.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -575,6 +592,20 @@ func (euo *ElectionUpdateOne) SetDescription(s string) *ElectionUpdateOne {
 func (euo *ElectionUpdateOne) SetNillableDescription(s *string) *ElectionUpdateOne {
 	if s != nil {
 		euo.SetDescription(*s)
+	}
+	return euo
+}
+
+// SetCompleted sets the "completed" field.
+func (euo *ElectionUpdateOne) SetCompleted(b bool) *ElectionUpdateOne {
+	euo.mutation.SetCompleted(b)
+	return euo
+}
+
+// SetNillableCompleted sets the "completed" field if the given value is not nil.
+func (euo *ElectionUpdateOne) SetNillableCompleted(b *bool) *ElectionUpdateOne {
+	if b != nil {
+		euo.SetCompleted(*b)
 	}
 	return euo
 }
@@ -856,6 +887,9 @@ func (euo *ElectionUpdateOne) sqlSave(ctx context.Context) (_node *Election, err
 	}
 	if value, ok := euo.mutation.Description(); ok {
 		_spec.SetField(election.FieldDescription, field.TypeString, value)
+	}
+	if value, ok := euo.mutation.Completed(); ok {
+		_spec.SetField(election.FieldCompleted, field.TypeBool, value)
 	}
 	if euo.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
