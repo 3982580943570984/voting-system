@@ -4,19 +4,17 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 	"voting-system/database"
 	"voting-system/ent/generated"
 	"voting-system/ent/generated/election"
 	filters "voting-system/ent/generated/electionfilters"
+	"voting-system/ent/generated/electionsettings"
 	"voting-system/ent/generated/user"
 	"voting-system/scheduler"
 
 	"github.com/go-co-op/gocron/v2"
 )
 
-// Elections представляет сервис для работы с выборами
-// Этот сервис предоставляет методы для создания, получения всех и получения выбора по ID.
 type Elections struct {
 	DB *generated.ElectionClient
 }
@@ -38,6 +36,7 @@ type ElectionCreate struct {
 		HasAddress     *bool `json:"has_address,omitempty"`
 		HasPhotoURL    *bool `json:"has_photo_url,omitempty"`
 	} `json:"filters"`
+	Tags []string `json:"tags,omitempty"`
 }
 
 type ElectionUpdate struct {
@@ -54,8 +53,14 @@ func NewElections() *Elections {
 }
 
 func (e *Elections) Create(ctx context.Context, ec *ElectionCreate) (*generated.Election, error) {
-	tx, err := database.Client.Tx(ctx)
+	rollback := func(tx *generated.Tx, err error) error {
+		if rerr := tx.Rollback(); rerr != nil {
+			err = fmt.Errorf("%w: %v", err, rerr)
+		}
+		return err
+	}
 
+	tx, err := database.Client.Tx(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -65,12 +70,13 @@ func (e *Elections) Create(ctx context.Context, ec *ElectionCreate) (*generated.
 		SetTitle(ec.Title).
 		SetDescription(ec.Description).
 		Save(ctx)
-
 	if err != nil {
-		if rerr := tx.Rollback(); rerr != nil {
-			err = fmt.Errorf("%w: %v", err, rerr)
-		}
-		return nil, err
+		return nil, rollback(tx, err)
+	}
+
+	settings, err := election.QuerySettings().Only(ctx)
+	if err != nil {
+		return nil, rollback(tx, err)
 	}
 
 	_, err = tx.Candidate.MapCreateBulk(ec.Candidates, func(cc *generated.CandidateCreate, i int) {
@@ -79,21 +85,13 @@ func (e *Elections) Create(ctx context.Context, ec *ElectionCreate) (*generated.
 			SetName(candidate.Name).
 			SetDescription(candidate.Description)
 	}).Save(ctx)
-
 	if err != nil {
-		if rerr := tx.Rollback(); rerr != nil {
-			err = fmt.Errorf("%w: %v", err, rerr)
-		}
-		return nil, err
+		return nil, rollback(tx, err)
 	}
 
 	filters, err := election.QueryFilters().Only(ctx)
-
 	if err != nil {
-		if rerr := tx.Rollback(); rerr != nil {
-			err = fmt.Errorf("%w: %v", err, rerr)
-		}
-		return nil, err
+		return nil, rollback(tx, err)
 	}
 
 	err = filters.Update().
@@ -105,26 +103,23 @@ func (e *Elections) Create(ctx context.Context, ec *ElectionCreate) (*generated.
 		SetNillableHasAddress(ec.Filters.HasAddress).
 		SetNillableHasPhotoURL(ec.Filters.HasPhotoURL).
 		Exec(ctx)
-
 	if err != nil {
-		if rerr := tx.Rollback(); rerr != nil {
-			err = fmt.Errorf("%w: %v", err, rerr)
-		}
-		return nil, err
+		return nil, rollback(tx, err)
 	}
 
 	_, err = scheduler.Scheduler.NewJob(
 		gocron.OneTimeJob(
-			// gocron.OneTimeJobStartDateTime(
-			// 	settings.Duration,
-			// ),
 			gocron.OneTimeJobStartDateTime(
-				time.Now().Add(5*time.Second),
+				settings.Duration,
 			),
 		),
 		gocron.NewTask(
 			func() {
-				_, err := NewElections().UpdateCompleted(ctx, election.ID, true)
+				_, err := NewElections().UpdateCompleted(
+					context.Background(),
+					election.ID,
+					true,
+				)
 				if err != nil {
 					log.Fatalf("Error during election update: %v", err)
 				}
@@ -132,10 +127,24 @@ func (e *Elections) Create(ctx context.Context, ec *ElectionCreate) (*generated.
 		),
 	)
 	if err != nil {
-		return nil, err
+		return nil, rollback(tx, err)
 	}
 
-	tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		return nil, rollback(tx, err)
+	}
+
+	tagsService := NewTags()
+	for _, tag := range ec.Tags {
+		_, err := tagsService.Create(ctx, &TagCreate{
+			ElectionId: election.ID,
+			Name:       tag,
+		})
+		if err != nil {
+			return nil, rollback(tx, err)
+		}
+	}
 
 	return election, nil
 }
@@ -146,17 +155,12 @@ func (e *Elections) GetAll(ctx context.Context) ([]*generated.Election, error) {
 		All(ctx)
 }
 
-func (e *Elections) GetById(ctx context.Context, id int) (*generated.Election, error) {
+func (e *Elections) GetAllWithDuration(ctx context.Context) ([]*generated.Election, error) {
 	return e.DB.Query().
 		Select(election.Columns...).
-		Where(election.ID(id)).
-		Only(ctx)
-}
-
-func (e *Elections) GetByUserId(ctx context.Context, id int) ([]*generated.Election, error) {
-	return e.DB.Query().
-		Select(election.Columns...).
-		Where(election.HasUserWith(user.ID(id))).
+		WithSettings(func(esq *generated.ElectionSettingsQuery) {
+			esq.Select(electionsettings.FieldDuration)
+		}).
 		All(ctx)
 }
 
@@ -230,6 +234,20 @@ func (e *Elections) GetAllFiltered(ctx context.Context, id int) ([]*generated.El
 	}
 
 	return elections, nil
+}
+
+func (e *Elections) GetById(ctx context.Context, id int) (*generated.Election, error) {
+	return e.DB.Query().
+		Select(election.Columns...).
+		Where(election.ID(id)).
+		Only(ctx)
+}
+
+func (e *Elections) GetByUserId(ctx context.Context, id int) ([]*generated.Election, error) {
+	return e.DB.Query().
+		Select(election.Columns...).
+		Where(election.HasUserWith(user.ID(id))).
+		All(ctx)
 }
 
 func (e *Elections) GetCandidates(ctx context.Context, id int) ([]*generated.Candidate, error) {

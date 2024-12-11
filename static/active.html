@@ -38,8 +38,15 @@
         --max-width: 1200px;
         --color-tag: #b9b9b9;
         --color-tag-hover: #868686;
-        --color-restricted-bg: #e0e0e0; /* Gray background for restricted elections */
-        --color-restricted-text: #777; /* Gray text for restricted elections */
+        --color-restricted-bg: #e0e0e0;
+        --color-restricted-text: #777;
+        --color-search-bg: #ffffff;
+        --color-search-border: #ccc;
+        --color-search-focus-border: var(--color-primary);
+        --color-search-placeholder: #999;
+        --color-time-bg: #e9ecef;
+        --color-time-number: #343a40;
+        --color-time-label: #6c757d;
       }
 
       /* ======= Global Styles ======= */
@@ -50,10 +57,26 @@
         background-color: var(--color-background);
       }
 
+      header {
+        /* Add a subtle shadow to separate header from page */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        padding: 20px 0;
+        display: flex;
+        justify-content: center;
+      }
+
       h1,
       h2,
       h3 {
         color: var(--color-text);
+        margin: 0;
+      }
+
+      p {
+        margin: 0;
       }
 
       /* ======= Container ======= */
@@ -66,7 +89,13 @@
       /* ======= Navigation Bar Styles ======= */
       .navbar {
         background-color: var(--color-primary);
-        padding: 10px 20px;
+        padding: 5px 10px;
+        color: black;
+
+        /* Make navbar flex to place nav items and search bar on one line */
+        display: flex;
+        justify-content: space-between; /* Space between menu and search bar */
+        align-items: center; /* Vertically center all items */
       }
 
       .nav-menu {
@@ -147,11 +176,41 @@
         }
       }
 
+      /* ======= Search Bar Styling ======= */
+      .search-container {
+        background: #fff;
+        padding: 5px 10px;
+        border-radius: var(--border-radius);
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .search-container::before {
+        content: "\f002"; /* Font Awesome search icon */
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        color: #aaa;
+        margin-right: 8px;
+      }
+
+      #search-bar {
+        border: none;
+        outline: none;
+        font-size: 14px;
+        background: transparent;
+        width: 200px;
+      }
+
+      #search-bar::placeholder {
+        color: #aaa;
+      }
+
       /* ======= Election List Container ======= */
       .election-list {
         display: grid;
-        grid-template-columns: repeat(2, 1fr); /* 2 columns layout */
-        gap: 20px; /* Space between cards */
+        grid-template-columns: 1fr; /* One per line */
+        gap: 20px;
         margin-top: 20px;
       }
 
@@ -163,26 +222,18 @@
         border: 1px solid var(--color-border);
         border-radius: var(--border-radius);
         box-shadow: 0 4px 10px var(--color-shadow);
-        background-color: var(--color-card-bg); /* White background for cards */
+        background-color: var(--color-card-bg);
         transition: transform var(--transition-speed) ease,
           box-shadow var(--transition-speed) ease;
       }
 
       .election-card:hover {
-        transform: translateY(-5px); /* Subtle lift effect */
+        transform: translateY(-5px);
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
       }
 
-      /* ======= Restricted Election Styling ======= */
-      .election-card.restricted {
-        background-color: var(--color-restricted-bg);
-        color: var(--color-restricted-text);
-        box-shadow: none;
-      }
-
-      /* ======= Card Title and Description ======= */
       .election-card h3 {
-        margin-bottom: 10px;
+        margin: 0;
         font-size: 1.25rem;
         color: var(--color-text);
       }
@@ -192,33 +243,99 @@
       }
 
       .election-card p {
-        margin-bottom: 10px;
         font-size: 14px;
         color: var(--color-text-secondary);
         line-height: 1.5;
       }
 
+      .election-card > div,
+      .election-card > p {
+        margin: 10px 0; /* Uniform vertical spacing */
+        min-height: 30px; /* Adjust this to the desired height */
+        display: flex;
+        align-items: center; /* Vertically centers the content inside */
+      }
+
+      .top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* Adjust .time-left positioning */
+      .time-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        margin: 0; /* Remove top margin if any */
+      }
+
+      /* Keep previous .time-left styles but ensure minimal vertical space */
+      .time-left .clock-icon {
+        font-size: 1.1rem;
+        color: var(--color-primary);
+        margin-right: 4px;
+      }
+
+      .time-left .time-item {
+        background-color: #f1f1f1;
+        padding: 5px 8px;
+        border-radius: 5px;
+        text-align: center;
+        min-width: 35px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .time-left .time-number {
+        font-size: 1rem;
+        font-weight: bold;
+        color: var(--color-time-number);
+        line-height: 1.2;
+      }
+
+      .time-left .time-label {
+        font-size: 0.8rem;
+        color: var(--color-time-label);
+        margin-top: 2px;
+      }
+
       /* ======= Tags Styling ======= */
+      .tags-container {
+        margin: 15px 0;
+        gap: 10px;
+      }
+
       .tag {
         display: inline-block;
-        background-color: var(--color-tag); /* Tag color */
-        color: #fff; /* Text color */
-        padding: 5px 10px;
-        border-radius: 15px;
+        background-color: var(--color-tag);
+        color: #fff;
+        padding: 4px 10px;
+        border-radius: 8px;
         font-size: 12px;
-        margin: 10px 5px;
         transition: background-color var(--transition-speed);
+        cursor: pointer;
       }
 
       .tag:hover {
-        background-color: var(--color-tag-hover); /* Darker on hover */
+        background-color: var(--color-tag-hover);
       }
 
       /* ======= Button Styling ======= */
+      .button-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        /* margin-top: 20px; */
+      }
+
       .view-btn,
       .modify-btn,
       .delete-btn {
-        padding: 10px 16px;
+        padding: 8px 16px;
         border: none;
         border-radius: 8px;
         color: #fff;
@@ -227,9 +344,10 @@
         text-decoration: none;
         transition: background-color var(--transition-speed),
           transform var(--transition-speed-fast);
-        display: flex;
+        display: inline-flex;
         align-items: center;
         gap: 5px;
+        font-size: 14px;
       }
 
       .view-btn {
@@ -269,9 +387,11 @@
 
       /* ======= Responsive Design ======= */
       @media (max-width: 768px) {
-        .election-list {
-          grid-template-columns: 1fr;
-          padding: 0 10px;
+        .time-left {
+          flex-direction: row;
+          gap: 5px;
+          flex-wrap: wrap;
+          justify-content: flex-start;
         }
       }
     </style>
@@ -316,6 +436,15 @@
               </ul>
             </li>
           </ul>
+
+          <!-- Search Bar for Tag Filtering moved here -->
+          <div class="search-container">
+            <input
+              type="text"
+              id="search-bar"
+              placeholder="Поиск по тегам..."
+            />
+          </div>
         </nav>
       </header>
 
@@ -327,26 +456,26 @@
     </div>
 
     <script>
-      // Function to decode JWT and retrieve claims
+      let allElections = [];
+      let userElectionsIds = new Set();
+
       function getJwtClaims() {
         const token = localStorage.getItem("jwt_token");
         if (!token) return null;
 
         try {
-          const decoded = jwt_decode(token);
-          return decoded;
+          return jwt_decode(token);
         } catch (error) {
           console.error("Invalid JWT token", error);
           return null;
         }
       }
 
-      // Function to check JWT token and redirect if not present or invalid
       function checkAuthentication() {
         const token = localStorage.getItem("jwt_token");
         if (!token) {
           alert("Вы не вошли в систему. Пожалуйста, войдите сначала.");
-          window.location.href = "index.html"; // Replace with your actual login page
+          window.location.href = "index.html";
           return;
         }
 
@@ -354,63 +483,49 @@
         if (!claims) {
           alert("Неверный токен. Пожалуйста, войдите снова.");
           localStorage.removeItem("jwt_token");
-          window.location.href = "index.html"; // Replace with your actual login page
+          window.location.href = "index.html";
           return;
         }
 
-        // Check token expiration if 'exp' claim exists
         if (claims.exp) {
-          const currentTime = Date.now() / 1000; // in seconds
+          const currentTime = Date.now() / 1000;
           if (claims.exp < currentTime) {
             alert("Сессия истекла. Пожалуйста, войдите снова.");
             localStorage.removeItem("jwt_token");
-            window.location.href = "index.html"; // Replace with your actual login page
+            window.location.href = "index.html";
             return;
           }
         }
       }
 
-      // Function to determine if the user is an organizer
       function isUserOrganizer() {
         const claims = getJwtClaims();
-        if (claims && claims.is_organizer) {
-          return true;
-        }
-        return false;
+        return claims && claims.is_organizer;
       }
 
-      // Function to get the current user's ID
       function getCurrentUserId() {
         const claims = getJwtClaims();
-        if (claims && claims.id) {
-          return claims.id;
-        }
-        return null;
+        return claims && claims.id ? claims.id : null;
       }
 
-      // Function to update UI based on user role
       function updateHeaderBasedOnRole() {
         const createElectionLink = document.getElementById(
           "create-election-link"
         );
         if (createElectionLink) {
-          if (isUserOrganizer()) {
-            createElectionLink.style.display = "block";
-          } else {
-            createElectionLink.style.display = "none";
-          }
+          createElectionLink.style.display = isUserOrganizer()
+            ? "block"
+            : "none";
         }
       }
 
-      // Function to handle logout
       function handleLogout() {
         if (confirm("Вы уверены, что хотите выйти?")) {
           localStorage.removeItem("jwt_token");
-          window.location.href = "index.html"; // Redirect to login page
+          window.location.href = "index.html";
         }
       }
 
-      // Attach event listener to logout link
       const logoutLink = document.getElementById("logout-link");
       if (logoutLink) {
         logoutLink.addEventListener("click", function (e) {
@@ -419,231 +534,85 @@
         });
       }
 
-      // Function to fetch all active elections
-      function fetchAllElections() {
-        return fetch("http://localhost:3000/elections", {
-          // Changed endpoint to /elections
-          method: "GET",
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
-          },
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Не удалось получить все выборы");
-            }
-            return response.json();
-          })
-          .catch((error) => {
-            console.error("Ошибка при получении всех выборов:", error);
-            alert("Не удалось загрузить выборы");
-            return [];
+      async function fetchAllElections() {
+        try {
+          const response = await fetch("http://localhost:3000/elections", {
+            method: "GET",
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
           });
-      }
 
-      // Function to fetch filtered elections
-      function fetchFilteredElections() {
-        return fetch("http://localhost:3000/elections/filtered", {
-          method: "GET",
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
-          },
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Не удалось получить отфильтрованные выборы");
-            }
-            return response.json();
-          })
-          .catch((error) => {
-            console.error(
-              "Ошибка при получении отфильтрованных выборов:",
-              error
-            );
-            alert("Не удалось загрузить отфильтрованные выборы");
-            return [];
-          });
-      }
+          if (!response.ok) throw new Error("Не удалось получить все выборы");
 
-      // Function to fetch elections created by the user
-      function fetchUserCreatedElections() {
-        return fetch("http://localhost:3000/elections/created", {
-          method: "GET",
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
-          },
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Не удалось получить ваши выборы");
-            }
-            return response.json();
-          })
-          .catch((error) => {
-            console.error("Ошибка при получении ваших выборов:", error);
-            alert("Не удалось загрузить ваши выборы");
-            return [];
-          });
-      }
-
-      // Function to fetch tags for a specific election
-      function fetchElectionTags(electionId) {
-        return fetch(`http://localhost:3000/elections/${electionId}/tags`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
-          },
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Не удалось получить теги для выборов");
-            }
-            return response.json();
-          })
-          .then((tags) => {
-            return tags; // Return the array of tags
-          })
-          .catch((error) => {
-            console.error("Ошибка при получении тегов:", error);
-            return []; // Return empty array on error
-          });
-      }
-
-      // Function to display elections
-      async function displayElections(
-        allElections,
-        filteredElections,
-        userElections
-      ) {
-        const electionList = document.getElementById("election-list");
-        electionList.innerHTML = ""; // Clear any existing elections
-
-        // **Filter out completed elections**
-        const activeElections = allElections.filter(
-          (election) => !election.completed
-        );
-
-        if (activeElections.length === 0) {
-          electionList.innerHTML = "<p>Активных выборов нет.</p>";
-          return;
+          const elections = await response.json();
+          const activeElections = elections.filter((e) => !e.completed);
+          return activeElections;
+        } catch (error) {
+          console.error("Ошибка при получении всех выборов:", error);
+          alert("Не удалось загрузить выборы");
+          return [];
         }
-
-        // Create a set of filtered election IDs for quick lookup
-        const filteredElectionIds = new Set(filteredElections.map((e) => e.id));
-
-        // Create a set of user-created election IDs
-        const userElectionIds = new Set(userElections.map((e) => e.id));
-        const userIsOrganizer = isUserOrganizer();
-
-        // Fetch tags for all active elections
-        const electionsWithTagsPromises = activeElections.map(
-          async (election) => {
-            const tags = await fetchElectionTags(election.id);
-            return { ...election, tags };
-          }
-        );
-
-        const electionsWithTags = await Promise.all(electionsWithTagsPromises);
-
-        electionsWithTags.forEach((election) => {
-          // Determine if the election is accessible (passes the filter OR is created by the user)
-          const isCreator = userElectionIds.has(election.id);
-          const isAccessible =
-            filteredElectionIds.has(election.id) || isCreator;
-
-          // Create election card
-          const card = document.createElement("div");
-          card.className = "election-card";
-          if (!isAccessible) {
-            card.classList.add("restricted");
-          }
-
-          // Title
-          const title = document.createElement("h3");
-          title.innerText = election.title;
-          card.appendChild(title);
-
-          // Description
-          const description = document.createElement("p");
-          description.innerText =
-            election.description.length > 100
-              ? election.description.substring(0, 100) + "..."
-              : election.description;
-          card.appendChild(description);
-
-          // Tags
-          const tagsContainer = document.createElement("div");
-          if (election.tags && election.tags.length > 0) {
-            election.tags.forEach((tag) => {
-              const tagElement = document.createElement("span");
-              tagElement.className = "tag";
-              tagElement.innerText = tag.name;
-              tagsContainer.appendChild(tagElement);
-            });
-          }
-          card.appendChild(tagsContainer);
-
-          if (isAccessible) {
-            // Button Container
-            const buttonContainer = document.createElement("div");
-            buttonContainer.style.display = "flex";
-            buttonContainer.style.gap = "10px";
-            buttonContainer.style.marginTop = "auto"; // Push buttons to bottom
-
-            // View Election Button
-            const viewButton = document.createElement("a");
-            viewButton.href = "view.html?id=" + election.id;
-            viewButton.className = "view-btn";
-            viewButton.innerHTML =
-              '<i class="fa-solid fa-eye"></i> Просмотреть';
-            buttonContainer.appendChild(viewButton);
-
-            // Modify Election Button (only for organizers and if the user is the creator)
-            if (userIsOrganizer && isCreator) {
-              const modifyButton = document.createElement("a");
-              modifyButton.href = "modify.html?id=" + election.id; // Redirect to edit page
-              modifyButton.className = "modify-btn";
-              modifyButton.innerHTML =
-                '<i class="fa-solid fa-edit"></i> Редактировать';
-              buttonContainer.appendChild(modifyButton);
-            }
-
-            // Delete Election Button (only for organizers and if the user is the creator)
-            if (userIsOrganizer && isCreator) {
-              const deleteButton = document.createElement("button");
-              deleteButton.className = "delete-btn";
-              deleteButton.innerHTML =
-                '<i class="fa-solid fa-trash-alt"></i> Удалить';
-              deleteButton.onclick = function () {
-                deleteElection(election.id);
-              };
-              buttonContainer.appendChild(deleteButton);
-            }
-
-            // Append button container to card
-            card.appendChild(buttonContainer);
-          } else {
-            // Display a message indicating restrictions
-            const restrictedMessage = document.createElement("p");
-            restrictedMessage.className = "restricted-message";
-            restrictedMessage.innerText =
-              "Вы не соответствуете ограничениям для просмотра этих выборов";
-            card.appendChild(restrictedMessage);
-          }
-
-          // Append card to list
-          electionList.appendChild(card);
-        });
       }
 
-      // Delete Election function
+      async function fetchElectionTags(electionId) {
+        try {
+          const response = await fetch(
+            `http://localhost:3000/elections/${electionId}/tags`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+                Accept: "application/json",
+              },
+            }
+          );
+
+          if (!response.ok)
+            throw new Error("Не удалось получить теги для выборов");
+
+          return await response.json();
+        } catch (error) {
+          console.error("Ошибка при получении тегов:", error);
+          return [];
+        }
+      }
+
+      async function fetchUserCreatedElections() {
+        try {
+          const response = await fetch(
+            "http://localhost:3000/elections/created",
+            {
+              method: "GET",
+              headers: {
+                Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+            }
+          );
+
+          if (!response.ok) throw new Error("Не удалось получить ваши выборы");
+
+          return await response.json();
+        } catch (error) {
+          console.error("Ошибка при получении ваших выборов:", error);
+          alert("Не удалось загрузить ваши выборы");
+          return [];
+        }
+      }
+
       function deleteElection(id) {
         if (confirm("Вы уверены, что хотите удалить эти выборы?")) {
           fetch("http://localhost:3000/elections/" + id, {
             method: "DELETE",
             headers: {
               Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+              "Content-Type": "application/json",
+              Accept: "application/json",
             },
           })
             .then((response) => {
@@ -651,7 +620,7 @@
                 throw new Error("Не удалось удалить выборы");
               }
               alert("Выборы успешно удалены!");
-              initializePage(); // Refresh the list of elections
+              initializePage();
             })
             .catch((error) => {
               console.error("Ошибка при удалении выборов:", error);
@@ -660,22 +629,225 @@
         }
       }
 
-      // Function to initialize the page by fetching data and updating UI
-      async function initializePage() {
-        // Fetch all elections
-        const allElections = await fetchAllElections();
+      async function displayElections(electionsToDisplay, userElectionsIds) {
+        const electionList = document.getElementById("election-list");
+        electionList.innerHTML = "";
 
-        // Fetch filtered elections
-        const filteredElections = await fetchFilteredElections();
+        if (electionsToDisplay.length === 0) {
+          electionList.innerHTML = "<p>Активных выборов нет.</p>";
+          return;
+        }
 
-        // Fetch elections created by the user
-        const userElections = await fetchUserCreatedElections();
+        electionsToDisplay.forEach((election) => {
+          const card = document.createElement("div");
+          card.className = "election-card";
 
-        // Display elections with accessibility information
-        displayElections(allElections, filteredElections, userElections);
+          // Create a container for the title and timer
+          const topRow = document.createElement("div");
+          topRow.className = "top-row";
+
+          // Title
+          const title = document.createElement("h3");
+          title.innerText = election.title;
+          topRow.appendChild(title);
+
+          // Time Left at the top just under the title
+          const timeLeftContainer = document.createElement("div");
+          timeLeftContainer.className = "time-left";
+
+          const clockIcon = document.createElement("i");
+          clockIcon.className = "fa-solid fa-clock clock-icon";
+          timeLeftContainer.appendChild(clockIcon);
+
+          const timeItemsContainer = document.createElement("div");
+          timeItemsContainer.style.display = "flex";
+          timeItemsContainer.style.gap = "10px";
+          timeLeftContainer.appendChild(timeItemsContainer);
+
+          const timeLabels = ["дн", "ч", "м", "с"];
+          for (let i = 0; i < timeLabels.length; i++) {
+            const item = document.createElement("div");
+            item.className = "time-item";
+            const numberEl = document.createElement("span");
+            numberEl.className = "time-number";
+            numberEl.innerText = "0";
+            const labelEl = document.createElement("span");
+            labelEl.className = "time-label";
+            labelEl.innerText = timeLabels[i];
+            item.appendChild(numberEl);
+            item.appendChild(labelEl);
+            timeItemsContainer.appendChild(item);
+          }
+
+          if (
+            election.edges &&
+            election.edges.settings &&
+            election.edges.settings.duration
+          ) {
+            timeLeftContainer.setAttribute(
+              "data-duration",
+              election.edges.settings.duration
+            );
+          } else {
+            timeLeftContainer.setAttribute("data-duration", "");
+          }
+
+          topRow.appendChild(timeLeftContainer);
+
+          card.appendChild(topRow);
+
+          // Description
+          const description = document.createElement("p");
+          // description.style.marginTop = "10px";
+          description.innerText =
+            election.description.length > 100
+              ? election.description.substring(0, 100) + "..."
+              : election.description;
+          card.appendChild(description);
+
+          // Tags
+          if (election.tags && election.tags.length > 0) {
+            const tagsContainer = document.createElement("div");
+            tagsContainer.className = "tags-container";
+            election.tags.forEach((tag) => {
+              const tagElement = document.createElement("span");
+              tagElement.className = "tag";
+              tagElement.innerText = tag.name;
+              tagElement.onclick = function () {
+                document.getElementById("search-bar").value = tag.name;
+                filterElectionsByTag(tag.name);
+              };
+              tagsContainer.appendChild(tagElement);
+            });
+            card.appendChild(tagsContainer);
+          }
+
+          // Buttons
+          const buttonContainer = document.createElement("div");
+          buttonContainer.className = "button-container";
+
+          const viewButton = document.createElement("a");
+          viewButton.href = "view.html?id=" + election.id;
+          viewButton.className = "view-btn";
+          viewButton.innerHTML = '<i class="fa-solid fa-eye"></i> Просмотреть';
+          buttonContainer.appendChild(viewButton);
+
+          const isCreator = userElectionsIds.has(election.id);
+          const userIsOrganizer = isUserOrganizer();
+
+          if (userIsOrganizer && isCreator) {
+            const modifyButton = document.createElement("a");
+            modifyButton.href = "modify.html?id=" + election.id;
+            modifyButton.className = "modify-btn";
+            modifyButton.innerHTML =
+              '<i class="fa-solid fa-edit"></i> Редактировать';
+            buttonContainer.appendChild(modifyButton);
+
+            const deleteButton = document.createElement("button");
+            deleteButton.className = "delete-btn";
+            deleteButton.innerHTML =
+              '<i class="fa-solid fa-trash-alt"></i> Удалить';
+            deleteButton.onclick = function () {
+              deleteElection(election.id);
+            };
+            buttonContainer.appendChild(deleteButton);
+          }
+
+          card.appendChild(buttonContainer);
+          electionList.appendChild(card);
+        });
       }
 
-      // Initialize the Active Elections Page by fetching data and updating UI
+      function filterElectionsByTag(tagName) {
+        if (tagName.trim() === "") {
+          displayElections(allElections, userElectionsIds);
+          return;
+        }
+
+        const filtered = allElections.filter((election) => {
+          if (!election.tags || election.tags.length === 0) return false;
+          return election.tags.some((tag) =>
+            tag.name.toLowerCase().includes(tagName.toLowerCase())
+          );
+        });
+
+        displayElections(filtered, userElectionsIds);
+      }
+
+      function debounce(func, delay) {
+        let debounceTimer;
+        return function () {
+          const context = this;
+          const args = arguments;
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(() => func.apply(context, args), delay);
+        };
+      }
+
+      function updateTimeLeft() {
+        const now = new Date();
+        document.querySelectorAll(".time-left").forEach((element) => {
+          const durationStr = element.getAttribute("data-duration");
+          const timeNumbers = element.querySelectorAll(
+            ".time-item .time-number"
+          );
+          const timeLabels = element.querySelectorAll(".time-item .time-label");
+
+          if (!durationStr) {
+            timeNumbers.forEach((num) => (num.innerText = "0"));
+            timeLabels.forEach((label) => (label.innerText = "нет данных"));
+            return;
+          }
+
+          const duration = new Date(durationStr);
+          const diff = duration - now;
+
+          if (diff <= 0) {
+            timeNumbers.forEach((num) => (num.innerText = "0"));
+            timeLabels.forEach((label) => (label.innerText = "завершено"));
+            return;
+          }
+
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+          const minutes = Math.floor((diff / (1000 * 60)) % 60);
+          const seconds = Math.floor((diff / 1000) % 60);
+
+          timeNumbers[0].innerText = days;
+          timeNumbers[1].innerText = hours;
+          timeNumbers[2].innerText = minutes;
+          timeNumbers[3].innerText = seconds;
+        });
+      }
+
+      async function initializePage() {
+        allElections = await fetchAllElections();
+        const electionsWithTagsPromises = allElections.map(async (election) => {
+          const tags = await fetchElectionTags(election.id);
+          return { ...election, tags };
+        });
+
+        allElections = await Promise.all(electionsWithTagsPromises);
+        const userElections = await fetchUserCreatedElections();
+        userElectionsIds = new Set(userElections.map((e) => e.id));
+
+        displayElections(allElections, userElectionsIds);
+
+        updateTimeLeft();
+        setInterval(updateTimeLeft, 1000);
+      }
+
+      const searchBar = document.getElementById("search-bar");
+      if (searchBar) {
+        searchBar.addEventListener(
+          "input",
+          debounce(function (e) {
+            const query = e.target.value.trim();
+            filterElectionsByTag(query);
+          }, 300)
+        );
+      }
+
       window.onload = function () {
         checkAuthentication();
         updateHeaderBasedOnRole();

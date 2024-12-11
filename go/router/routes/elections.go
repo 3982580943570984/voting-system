@@ -107,7 +107,7 @@ func create(w http.ResponseWriter, r *http.Request) {
 // @Router /elections [get]
 func getAll(w http.ResponseWriter, r *http.Request) {
 	elections, err := services.NewElections().
-		GetAll(r.Context())
+		GetAllWithDuration(r.Context())
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

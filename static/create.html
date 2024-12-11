@@ -820,12 +820,12 @@
             user_id: getCurrentUserId(), // Ensure user_id is included
             title: title,
             description: description,
-            tags: tags,
             candidates: candidates.map((c) => ({
               name: c.name,
               description: c.description,
             })),
             filters: filters,
+            tags: tags,
           };
 
           // Send POST request to create election with candidates
@@ -840,7 +840,9 @@
           })
             .then((response) => {
               if (!response.ok) {
-                return response.json().then((data) => {
+                return response.text().then((data) => {
+                  console.log(data);
+
                   throw new Error(data.message || "Не удалось создать выборы");
                 });
               }

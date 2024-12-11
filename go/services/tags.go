@@ -38,16 +38,18 @@ func (t *Tags) Create(ctx context.Context, tc *TagCreate) (*generated.Tag, error
 	exists, err := t.DB.Query().
 		Where(tag.Name(tc.Name)).
 		Exist(ctx)
-
 	if err != nil {
 		return nil, err
 	}
 
 	if exists {
-		t.DB.Update().
+		err = t.DB.Update().
 			Where(tag.Name(tc.Name)).
 			AddElectionIDs(tc.ElectionId).
-			Save(ctx)
+			Exec(ctx)
+		if err != nil {
+			return nil, err
+		}
 
 		return t.DB.Query().
 			Where(tag.Name(tc.Name)).
