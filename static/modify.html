@@ -1050,10 +1050,10 @@
               "election-settings-form"
             );
 
+            // <label><input type="checkbox" id="is_active" ${
+            //   settings.is_active ? "checked" : ""
+            // }> Активные</label>
             settingsForm.innerHTML = `
-          <label><input type="checkbox" id="is_active" ${
-            settings.is_active ? "checked" : ""
-          }> Активные</label>
           <label><input type="checkbox" id="is_anonymous" ${
             settings.is_anonymous ? "checked" : ""
           }> Анонимные</label>
@@ -1090,7 +1090,7 @@
 
       function updateElectionSettings(settingsId) {
         const updatedSettings = {
-          is_active: document.getElementById("is_active").checked,
+          // is_active: document.getElementById("is_active").checked,
           is_anonymous: document.getElementById("is_anonymous").checked,
           allow_comments: document.getElementById("allow_comments").checked,
           max_votes: parseInt(document.getElementById("max_votes").value),
