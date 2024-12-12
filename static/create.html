@@ -1,928 +1,1004 @@
 <!DOCTYPE html>
 <html lang="ru">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Создать Выборы</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
-        integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+      integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
     <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
     <style>
-        /* ======= Variables ======= */
-        :root {
-            --font-family: "Arial", sans-serif;
-            --color-background: #f8f9fa;
-            --color-card-bg: #ffffff;
-            --color-border: #ddd;
-            --color-shadow: rgba(0, 0, 0, 0.1);
-            --color-primary: #007bff;
-            --color-primary-hover: #0056b3;
-            --color-danger: #dc3545;
-            --color-danger-hover: #c82333;
-            --color-success: #28a745;
-            --color-success-hover: #218838;
-            --color-text: #333;
-            --color-text-secondary: #555;
-            --transition-speed: 0.3s;
-            --transition-speed-fast: 0.2s;
-            --border-radius: 10px;
-            --color-modify: #17a2b8;
-            --color-modify-hover: #117a8b;
-            --color-profile: #6f42c1;
-            --color-profile-hover: #5936a3;
-            --color-tag: #b9b9b9;
-            --color-tag-hover: #868686;
-            --max-width: 1200px;
-            --color-restricted-bg: #e0e0e0;
-            /* Gray background for restricted elections */
-            --color-restricted-text: #777;
-            /* Gray text for restricted elections */
-             --color-input-border: #ccc; /* Default border color for input fields */
-            --color-input-focus-border: var(--color-primary); /* Border color on focus */
-            --color-input-focus-shadow: rgba(0, 123, 255, 0.3); /* Shadow color on focus */
-        }
-
-        /* ======= Global Styles ======= */
-        body {
-            font-family: var(--font-family);
-            margin: 0;
-            padding: 0;
-            background-color: var(--color-background);
-        }
-
-        h1,
-        h2,
-        h3 {
-            color: var(--color-text);
-        }
-
-        /* ======= Container ======= */
-        .container {
-            max-width: var(--max-width);
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* ======= Button Container ======= */
-        .button-container {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        /* ======= Create Election Form Styling ======= */
-        .create-election-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            max-width: 800px;
-            margin: 30px auto;
-            padding: 30px;
-            border: 1px solid var(--color-border);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px var(--color-shadow);
-            background-color: var(--color-card-bg);
-            transition: box-shadow var(--transition-speed);
-        }
-
-        .create-election-container:hover {
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .create-election-container h2 {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .create-election-form {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-          .create-election-form input,
-          .create-election-form textarea,
-          .create-election-form button {
-              width: 100%;
-              padding: 12px 20px;
-              border: 1px solid var(--color-input-border);
-              border-radius: var(--border-radius);
-              outline: none;
-              font-size: 1rem;
-              box-sizing: border-box;
-              transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
-          }
-
-          .create-election-form input:not(:last-of-type),
-          .create-election-form textarea:not(:last-of-type) {
-              margin-bottom: 15px;
-          }
-
-          .create-election-form input:focus,
-          .create-election-form textarea:focus {
-            border-color: var(--color-input-focus-border);
-            box-shadow: 0 0 5px var(--color-input-focus-shadow);
-          }
-
-
-        .create-election-form button {
-            background-color: var(--color-success);
-            color: #ffffff;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color var(--transition-speed),
-                transform var(--transition-speed-fast),
-                box-shadow var(--transition-speed);
-            display: inline-block;
-        }
-
-        .create-election-form button:hover {
-            background-color: var(--color-success-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-
-        /* ======= Settings Section ======= */
-        .settings-section {
-             width: 100%;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Adjusted minmax for spacing */
-            gap: 15px;
-            padding: 20px;
-            border: 1px solid var(--color-border);
-            border-radius: var(--border-radius);
-             background-color: #f9f9f9;  /* Slightly different background for contrast */
-           margin-bottom: 20px;
-             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.07); /* subtle shadow */
-         }
-
-        .settings-section h3 {
-            grid-column: 1 / -1;
-            /* Span all columns */
-            font-size: 1.3rem;
-            margin-bottom: 15px; /* Increased margin */
-            color: var(--color-text);
-            text-align: center;
-             padding-bottom: 10px;
-              border-bottom: 1px solid #eee; /* Added a border for clear separation */
-        }
-
-        .settings-section label {
-             display: flex;
-             align-items: center;
-             gap: 10px;
-            position: relative;
-             padding-left: 25px; /* Space for custom checkbox */
-            cursor: pointer;
-            font-size: 1rem;
-            color: var(--color-text-secondary);
-             user-select: none;
-           margin-bottom: 8px; /* Add some space between settings */
-
-        }
-
-
-        .settings-section input[type="number"] {
-          width: 80px;
-          padding: 8px;
-           border: 1px solid var(--color-input-border);
-           border-radius: 4px;
-            box-sizing: border-box;
-          margin-left: auto;
-         font-size: 1rem;
-           transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
-         }
-        .settings-section input[type="number"]:focus {
-         border-color: var(--color-input-focus-border);
-          box-shadow: 0 0 3px var(--color-input-focus-shadow);
-
-        }
-
-
-
-        /* ======= Filters Section ======= */
-       .filters-section {
-           width: 100%;
-           display: grid;
-           grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Adjusted minmax for spacing */
-            gap: 15px;
-           padding: 20px;
-            border: 1px solid var(--color-border);
-           border-radius: var(--border-radius);
-          background-color: #f9f9f9;  /* Slightly different background for contrast */
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.07); /* subtle shadow */
-        }
-
-        .filters-section h3 {
-            grid-column: 1 / -1;
-            /* Span all columns */
-            font-size: 1.3rem;
-            margin-bottom: 15px; /* Increased margin */
-           color: var(--color-text);
-           text-align: center;
-            padding-bottom: 10px;
-             border-bottom: 1px solid #eee; /* Added a border for clear separation */
-        }
-
-        /* ======= Custom Checkbox Styling ======= */
-        .filter-option {
-             display: flex;
-             align-items: center;
-             gap: 10px;
-            position: relative;
-             padding-left: 25px; /* Space for custom checkbox */
-            cursor: pointer;
-             font-size: 1rem;
-            color: var(--color-text-secondary);
-            user-select: none;
-          margin-bottom: 8px;
-       }
-
-        /* Hide the default checkbox */
-        .filter-option input {
-             position: absolute;
-             opacity: 0;
-             cursor: pointer;
-             height: 0;
-             width: 0;
-       }
-
-        /* Create a custom checkbox */
-        .filter-option .custom-checkbox {
-            position: absolute;
-            left: 0;
-           top: 0;
-           height: 18px;
-           width: 18px;
-            background-color: #eee;
-           border: 1px solid #ccc;
-            border-radius: 4px;
-           transition: background-color var(--transition-speed);
-        }
-
-        /* When the checkbox is checked, add a background color */
-       .filter-option input:checked~.custom-checkbox {
-            background-color: var(--color-primary);
-            border-color: var(--color-primary);
+      /* ======= Variables ======= */
+      :root {
+        --font-family: "Arial", sans-serif;
+        --color-background: #f8f9fa;
+        --color-card-bg: #ffffff;
+        --color-border: #ddd;
+        --color-shadow: rgba(0, 0, 0, 0.1);
+        --color-primary: #007bff;
+        --color-primary-hover: #0056b3;
+        --color-danger: #dc3545;
+        --color-danger-hover: #c82333;
+        --color-success: #28a745;
+        --color-success-hover: #218838;
+        --color-text: #333;
+        --color-text-secondary: #555;
+        --transition-speed: 0.3s;
+        --transition-speed-fast: 0.2s;
+        --border-radius: 10px;
+        --color-modify: #17a2b8;
+        --color-modify-hover: #117a8b;
+        --color-profile: #6f42c1;
+        --color-profile-hover: #5936a3;
+        --color-tag: #b9b9b9;
+        --color-tag-hover: #868686;
+        --max-width: 1200px;
+        --color-restricted-bg: #e0e0e0;
+        /* Gray background for restricted elections */
+        --color-restricted-text: #777;
+        /* Gray text for restricted elections */
+        --color-input-border: #ccc; /* Default border color for input fields */
+        --color-input-focus-border: var(
+          --color-primary
+        ); /* Border color on focus */
+        --color-input-focus-shadow: rgba(
+          0,
+          123,
+          255,
+          0.3
+        ); /* Shadow color on focus */
       }
 
-        /* Create the checkmark/indicator (hidden when not checked) */
+      /* ======= Global Styles ======= */
+      body {
+        font-family: var(--font-family);
+        margin: 0;
+        padding: 0;
+        background-color: var(--color-background);
+      }
+
+      h1,
+      h2,
+      h3 {
+        color: var(--color-text);
+      }
+
+      /* ======= Container ======= */
+      .container {
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      /* ======= Button Container ======= */
+      .button-container {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      /* ======= Create Election Form Styling ======= */
+      .create-election-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        max-width: 800px;
+        margin: 30px auto;
+        padding: 30px;
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        box-shadow: 0 4px 15px var(--color-shadow);
+        background-color: var(--color-card-bg);
+        transition: box-shadow var(--transition-speed);
+      }
+
+      .create-election-container:hover {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      .create-election-container h2 {
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .create-election-form {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .create-election-form input,
+      .create-election-form textarea,
+      .create-election-form button {
+        width: 100%;
+        padding: 12px 20px;
+        border: 1px solid var(--color-input-border);
+        border-radius: var(--border-radius);
+        outline: none;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color var(--transition-speed),
+          box-shadow var(--transition-speed);
+      }
+
+      .create-election-form input:not(:last-of-type),
+      .create-election-form textarea:not(:last-of-type) {
+        margin-bottom: 15px;
+      }
+
+      .create-election-form input:focus,
+      .create-election-form textarea:focus {
+        border-color: var(--color-input-focus-border);
+        box-shadow: 0 0 5px var(--color-input-focus-shadow);
+      }
+
+      .create-election-form button {
+        background-color: var(--color-success);
+        color: #ffffff;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color var(--transition-speed),
+          transform var(--transition-speed-fast),
+          box-shadow var(--transition-speed);
+        display: inline-block;
+      }
+
+      .create-election-form button:hover {
+        background-color: var(--color-success-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      /* ======= Settings Section ======= */
+      .settings-section {
+        display: grid;
+        grid-template-columns: repeat(
+          auto-fit,
+          minmax(280px, 1fr)
+        ); /* Adjusted minmax for spacing */
+        gap: 15px;
+        padding: 20px;
+        border: 1px solid var(--color-border);
+        border-radius: var(--border-radius);
+        background-color: #f9f9f9; /* Slightly different background for contrast */
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.07); /* subtle shadow */
+      }
+
+      .settings-section h3 {
+        grid-column: 1 / -1;
+        /* Span all columns */
+        font-size: 1.3rem;
+        margin-bottom: 15px; /* Increased margin */
+        color: var(--color-text);
+        text-align: center;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee; /* Added a border for clear separation */
+      }
+
+      .settings-section label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+        padding-left: 25px; /* Space for custom checkbox */
+        cursor: pointer;
+        font-size: 1rem;
+        color: var(--color-text-secondary);
+        user-select: none;
+        margin-bottom: 8px; /* Add some space between settings */
+      }
+
+      .settings-section input[type="number"] {
+        width: 80px;
+        padding: 8px;
+        border: 1px solid var(--color-input-border);
+        border-radius: 4px;
+        box-sizing: border-box;
+        margin-left: auto;
+        font-size: 1rem;
+        transition: border-color var(--transition-speed),
+          box-shadow var(--transition-speed);
+      }
+      .settings-section input[type="number"]:focus {
+        border-color: var(--color-input-focus-border);
+        box-shadow: 0 0 3px var(--color-input-focus-shadow);
+      }
+
+      /* ======= Filters Section ======= */
+      .filters-section {
+        display: grid;
+        grid-template-columns: repeat(
+          auto-fit,
+          minmax(280px, 1fr)
+        ); /* Adjusted minmax for spacing */
+        gap: 15px;
+        padding: 20px;
+        border: 1px solid var(--color-border);
+        border-radius: var(--border-radius);
+        background-color: #f9f9f9; /* Slightly different background for contrast */
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.07); /* subtle shadow */
+      }
+
+      .filters-section h3 {
+        grid-column: 1 / -1;
+        /* Span all columns */
+        font-size: 1.3rem;
+        margin-bottom: 15px; /* Increased margin */
+        color: var(--color-text);
+        text-align: center;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee; /* Added a border for clear separation */
+      }
+
+      /* ======= Custom Checkbox Styling ======= */
+      .filter-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+        padding-left: 25px; /* Space for custom checkbox */
+        cursor: pointer;
+        font-size: 1rem;
+        color: var(--color-text-secondary);
+        user-select: none;
+        margin-bottom: 8px;
+      }
+
+      /* Hide the default checkbox */
+      .filter-option input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+      }
+
+      /* Create a custom checkbox */
+      .filter-option .custom-checkbox {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 18px;
+        width: 18px;
+        background-color: #eee;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        transition: background-color var(--transition-speed);
+      }
+
+      /* When the checkbox is checked, add a background color */
+      .filter-option input:checked ~ .custom-checkbox {
+        background-color: var(--color-primary);
+        border-color: var(--color-primary);
+      }
+
+      /* Create the checkmark/indicator (hidden when not checked) */
       .filter-option .custom-checkbox::after {
-            content: "";
-           position: absolute;
-           display: none;
+        content: "";
+        position: absolute;
+        display: none;
       }
 
-        /* Show the checkmark when checked */
-      .filter-option input:checked~.custom-checkbox::after {
-            display: block;
-        }
-
-        /* Style the checkmark */
-       .filter-option .custom-checkbox::after {
-            left: 6px;
-            top: 2px;
-           width: 5px;
-            height: 10px;
-           border: solid white;
-           border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
+      /* Show the checkmark when checked */
+      .filter-option input:checked ~ .custom-checkbox::after {
+        display: block;
       }
 
-        /* Hover effects */
-        .filter-option:hover .custom-checkbox {
-            background-color: #ddd;
+      /* Style the checkmark */
+      .filter-option .custom-checkbox::after {
+        left: 6px;
+        top: 2px;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+
+      /* Hover effects */
+      .filter-option:hover .custom-checkbox {
+        background-color: #ddd;
+      }
+
+      .filter-option input:focus ~ .custom-checkbox {
+        box-shadow: 0 0 3px var(--color-primary);
+      }
+
+      /* Responsive Adjustments */
+      @media (max-width: 480px) {
+        .filters-section h3 {
+          font-size: 1.1rem;
         }
 
-        .filter-option input:focus~.custom-checkbox {
-            box-shadow: 0 0 3px var(--color-primary);
-       }
+        .filter-option {
+          font-size: 0.95rem;
+        }
+      }
 
-        /* Responsive Adjustments */
-       @media (max-width: 480px) {
-            .filters-section h3 {
-               font-size: 1.1rem;
-           }
+      /* ======= Candidates Section ======= */
+      .candidates-section {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
 
-            .filter-option {
-                font-size: 0.95rem;
-            }
-       }
+      .candidates-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
 
-        /* ======= Candidates Section ======= */
-        .candidates-section {
-             width: 100%;
-             display: flex;
-            flex-direction: column;
-            gap: 20px;
+      .candidates-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .candidate-card {
+        position: relative;
+        padding: 20px;
+        border: 1px solid var(--color-border);
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 10px var(--color-shadow);
+        background-color: var(--color-card-bg);
+        transition: transform var(--transition-speed) ease,
+          box-shadow var(--transition-speed) ease;
+      }
+
+      .candidate-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .candidate-card h4 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+        color: var(--color-text);
+      }
+
+      .candidate-card textarea,
+      .candidate-card input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: var(--border-radius);
+        outline: none;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color var(--transition-speed),
+          box-shadow var(--transition-speed);
+      }
+
+      .candidate-card textarea:focus,
+      .candidate-card input:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+      }
+
+      /* ======= Remove Button Styling ======= */
+      .candidate-card .remove-candidate-btn {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background-color: #ff4d4d;
+        border: none;
+        border-radius: 50%;
+        color: #fff;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 24px;
+        text-align: center;
+        padding: 0;
+        transition: background-color var(--transition-speed-fast);
+      }
+
+      .candidate-card .remove-candidate-btn:hover {
+        background-color: #cc0000;
+      }
+
+      /* ======= Submit Button ======= */
+      .submit-btn {
+        background-color: var(--color-success);
+        color: #ffffff;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color var(--transition-speed),
+          transform var(--transition-speed-fast),
+          box-shadow var(--transition-speed);
+        padding: 12px 20px;
+        border: none;
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+      }
+
+      .submit-btn:hover {
+        background-color: var(--color-success-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      /* ======= Add Candidate Placeholder ======= */
+      .add-candidate-placeholder {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 2px dashed var(--color-border);
+        border-radius: var(--border-radius);
+        padding: 20px;
+        cursor: pointer;
+        transition: background-color var(--transition-speed),
+          border-color var(--transition-speed);
+      }
+
+      .add-candidate-placeholder i {
+        margin-right: 2px;
+      }
+
+      .add-candidate-placeholder:hover {
+        background-color: #f1f1f1;
+        border-color: var(--color-primary);
+      }
+
+      /* ======= Responsive Design ======= */
+      @media (max-width: 768px) {
+        .create-election-container {
+          padding: 20px;
         }
 
         .candidates-header {
-             display: flex;
-             justify-content: space-between;
-             align-items: center;
-       }
-
-        .candidates-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
         }
-
-       .candidate-card {
-            position: relative;
-             padding: 20px;
-           border: 1px solid var(--color-border);
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 10px var(--color-shadow);
-           background-color: var(--color-card-bg);
-          transition: transform var(--transition-speed) ease,
-             box-shadow var(--transition-speed) ease;
-        }
-
-        .candidate-card:hover {
-            transform: translateY(-5px);
-          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .candidate-card h4 {
-          margin-top: 0;
-             margin-bottom: 10px;
-            font-size: 1.1rem;
-            color: var(--color-text);
       }
 
-       .candidate-card textarea,
-        .candidate-card input {
-           width: 100%;
-            padding: 10px;
-           margin-bottom: 10px;
-            border: 1px solid #ccc;
-             border-radius: var(--border-radius);
-            outline: none;
-            font-size: 1rem;
-            box-sizing: border-box;
-          transition: border-color var(--transition-speed),
-              box-shadow var(--transition-speed);
-        }
-
-        .candidate-card textarea:focus,
-        .candidate-card input:focus {
-          border-color: var(--color-primary);
-           box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+      /* ======= Navigation Bar Styles ======= */
+      .navbar {
+        background-color: var(--color-primary);
+        padding: 10px 20px;
       }
 
-        /* ======= Remove Button Styling ======= */
-       .candidate-card .remove-candidate-btn {
-           position: absolute;
-           top: -10px;
-            right: -10px;
-           background-color: #ff4d4d;
-          border: none;
-            border-radius: 50%;
-           color: #fff;
-            width: 24px;
-          height: 24px;
-            cursor: pointer;
-          font-size: 16px;
-           line-height: 24px;
-            text-align: center;
-           padding: 0;
-            transition: background-color var(--transition-speed-fast);
-       }
-
-       .candidate-card .remove-candidate-btn:hover {
-         background-color: #cc0000;
-       }
-
-        /* ======= Submit Button ======= */
-        .submit-btn {
-            background-color: var(--color-success);
-             color: #ffffff;
-           font-weight: 600;
-           cursor: pointer;
-            transition: background-color var(--transition-speed),
-               transform var(--transition-speed-fast),
-               box-shadow var(--transition-speed);
-           padding: 12px 20px;
-            border: none;
-             border-radius: var(--border-radius);
-            font-size: 1rem;
-        }
-
-        .submit-btn:hover {
-            background-color: var(--color-success-hover);
-          transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-       }
-
-        /* ======= Add Candidate Placeholder ======= */
-      .add-candidate-placeholder {
-           display: flex;
-            justify-content: center;
-             align-items: center;
-            border: 2px dashed var(--color-border);
-          border-radius: var(--border-radius);
-           padding: 20px;
-            cursor: pointer;
-            transition: background-color var(--transition-speed),
-               border-color var(--transition-speed);
-       }
-
-        .add-candidate-placeholder i {
-            margin-right: 2px;
+      .nav-menu {
+        list-style: none;
+        display: flex;
+        gap: 20px;
+        margin: 0;
+        padding: 0;
       }
 
-       .add-candidate-placeholder:hover {
-           background-color: #f1f1f1;
-           border-color: var(--color-primary);
-       }
-
-        /* ======= Responsive Design ======= */
-       @media (max-width: 768px) {
-           .create-election-container {
-              padding: 20px;
-         }
-
-           .candidates-header {
-              flex-direction: column;
-                align-items: flex-start;
-               gap: 10px;
-          }
+      .nav-item {
+        position: relative;
       }
 
-        /* ======= Navigation Bar Styles ======= */
-        .navbar {
-          background-color: var(--color-primary);
-           padding: 10px 20px;
-       }
-
-        .nav-menu {
-           list-style: none;
-          display: flex;
-           gap: 20px;
-            margin: 0;
-           padding: 0;
+      .nav-link {
+        color: #fff;
+        text-decoration: none;
+        font-weight: bold;
+        cursor: pointer;
+        display: block;
+        padding: 8px 12px;
+        transition: background-color var(--transition-speed);
       }
 
-        .nav-item {
-            position: relative;
-        }
+      .nav-link:hover {
+        background-color: var(--color-primary-hover);
+        border-radius: var(--border-radius);
+      }
 
-       .nav-link {
-         color: #fff;
-          text-decoration: none;
-            font-weight: bold;
-            cursor: pointer;
-            display: block;
-          padding: 8px 12px;
-          transition: background-color var(--transition-speed);
-        }
+      /* Dropdown Menu Styles */
+      .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background-color: var(--color-card-bg);
+        min-width: 150px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        border-radius: var(--border-radius);
+        z-index: 1000;
+      }
 
-       .nav-link:hover {
-            background-color: var(--color-primary-hover);
-           border-radius: var(--border-radius);
-        }
+      .dropdown-menu li {
+        border-bottom: 1px solid var(--color-border);
+      }
 
-        /* Dropdown Menu Styles */
-       .dropdown-menu {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-          background-color: var(--color-card-bg);
-           min-width: 150px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-           border-radius: var(--border-radius);
-            z-index: 1000;
-       }
+      .dropdown-menu li:last-child {
+        border-bottom: none;
+      }
 
-        .dropdown-menu li {
-          border-bottom: 1px solid var(--color-border);
-       }
+      .dropdown-link {
+        color: var(--color-text);
+        padding: 10px 16px;
+        text-decoration: none;
+        display: block;
+        transition: background-color var(--transition-speed);
+      }
 
-       .dropdown-menu li:last-child {
-            border-bottom: none;
-       }
+      .dropdown-link:hover {
+        background-color: var(--color-background);
+      }
 
-        .dropdown-link {
-            color: var(--color-text);
-           padding: 10px 16px;
-            text-decoration: none;
-           display: block;
-           transition: background-color var(--transition-speed);
-        }
-
-       .dropdown-link:hover {
-          background-color: var(--color-background);
-       }
-
-        /* Show Dropdown on Hover */
-        .dropdown:hover .dropdown-menu {
-           display: block;
+      /* Show Dropdown on Hover */
+      .dropdown:hover .dropdown-menu {
+        display: block;
       }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="container">
-        <!-- Header Section -->
-        <header>
-            <nav class="navbar">
-                <ul class="nav-menu">
-                    <!-- Выборы Dropdown -->
-                    <li class="nav-item dropdown">
-                        <a href="#" class="nav-link">Выборы ▾</a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <a href="create.html" class="dropdown-link" id="create-election-link">Создать</a>
-                            </li>
-                            <li>
-                                <a href="active.html" class="dropdown-link">Активные</a>
-                            </li>
-                            <li>
-                                <a href="completed.html" class="dropdown-link">Завершенные</a>
-                            </li>
-                        </ul>
-                    </li>
+      <!-- Header Section -->
+      <header>
+        <nav class="navbar">
+          <ul class="nav-menu">
+            <!-- Выборы Dropdown -->
+            <li class="nav-item dropdown">
+              <a href="#" class="nav-link">Выборы ▾</a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a
+                    href="create.html"
+                    class="dropdown-link"
+                    id="create-election-link"
+                    >Создать</a
+                  >
+                </li>
+                <li>
+                  <a href="active.html" class="dropdown-link">Активные</a>
+                </li>
+                <li>
+                  <a href="completed.html" class="dropdown-link">Завершенные</a>
+                </li>
+              </ul>
+            </li>
 
-                    <!-- Профиль Dropdown -->
-                    <li class="nav-item dropdown">
-                        <a href="#" class="nav-link">Профиль ▾</a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <a href="profile.html" class="dropdown-link">Мой профиль</a>
-                            </li>
-                            <li>
-                                <a href="#" class="dropdown-link" id="logout-link">Выйти</a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </nav>
-        </header>
+            <!-- Профиль Dropdown -->
+            <li class="nav-item dropdown">
+              <a href="#" class="nav-link">Профиль ▾</a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a href="profile.html" class="dropdown-link">Мой профиль</a>
+                </li>
+                <li>
+                  <a href="#" class="dropdown-link" id="logout-link">Выйти</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+      </header>
 
-        <!-- Create Election Form Container -->
-        <div class="create-election-container">
-            <h2>Создать новые выборы</h2>
-            <form id="create-election-form" class="create-election-form">
-                <input type="text" id="election-title" name="title" placeholder="Название выборов" required />
-                <textarea id="election-description" name="description" placeholder="Описание выборов" rows="4"
-                    required></textarea>
-                <input type="text" id="election-tags" name="tags" placeholder="Теги (через запятую)" />
+      <!-- Create Election Form Container -->
+      <div class="create-election-container">
+        <h2>Создать новые выборы</h2>
+        <form id="create-election-form" class="create-election-form">
+          <input
+            type="text"
+            id="election-title"
+            name="title"
+            placeholder="Название выборов"
+            required
+          />
+          <textarea
+            id="election-description"
+            name="description"
+            placeholder="Описание выборов"
+            rows="4"
+            required
+          ></textarea>
+          <input
+            type="text"
+            id="election-tags"
+            name="tags"
+            placeholder="Теги (через запятую)"
+          />
 
-                <!-- Settings Section -->
-                <div class="settings-section">
-                    <h3>Настройки выборов</h3>
-                     <label>
-                       Активные
-                        <input type="checkbox" id="setting-is-active" name="is_active" checked/>
-                     </label>
-                     <label>
-                       Анонимные
-                        <input type="checkbox" id="setting-is-anonymous" name="is_anonymous" />
-                    </label>
-                    <label>
-                      Разрешить комментарии
-                        <input type="checkbox" id="setting-allow-comments" name="allow_comments" checked/>
-                   </label>
-                    <label>
-                      Макс. кол-во голосов
-                        <input type="number" id="setting-max-votes" name="max_votes"  value="1" min="1" />
-                    </label>
-                </div>
+          <!-- Settings Section -->
+          <div class="settings-section">
+            <h3>Настройки выборов</h3>
+            <!-- <label>
+              Активные
+              <input
+                type="checkbox"
+                id="setting-is-active"
+                name="is_active"
+                checked
+              />
+            </label> -->
+            <label>
+              Анонимные
+              <input
+                type="checkbox"
+                id="setting-is-anonymous"
+                name="is_anonymous"
+              />
+            </label>
+            <label>
+              Разрешить комментарии
+              <input
+                type="checkbox"
+                id="setting-allow-comments"
+                name="allow_comments"
+                checked
+              />
+            </label>
+            <label>
+              Макс. кол-во голосов
+              <input
+                type="number"
+                id="setting-max-votes"
+                name="max_votes"
+                value="1"
+                min="1"
+              />
+            </label>
+          </div>
 
+          <!-- Filters Section -->
+          <div class="filters-section">
+            <h3>Фильтрация голосующих</h3>
+            <label class="filter-option" for="filter-first-name">
+              <input
+                type="checkbox"
+                id="filter-first-name"
+                name="has_first_name"
+              />
+              <span class="custom-checkbox"></span>
+              Требовать наличие имени
+            </label>
+            <label class="filter-option" for="filter-last-name">
+              <input
+                type="checkbox"
+                id="filter-last-name"
+                name="has_last_name"
+              />
+              <span class="custom-checkbox"></span>
+              Требовать наличие фамилии
+            </label>
+            <label class="filter-option" for="filter-birthdate">
+              <input
+                type="checkbox"
+                id="filter-birthdate"
+                name="has_birthdate"
+              />
+              <span class="custom-checkbox"></span>
+              Требовать наличие даты рождения
+            </label>
+            <label class="filter-option" for="filter-phone-number">
+              <input
+                type="checkbox"
+                id="filter-phone-number"
+                name="has_phone_number"
+              />
+              <span class="custom-checkbox"></span>
+              Требовать наличие номера телефона
+            </label>
+            <label class="filter-option" for="filter-bio">
+              <input type="checkbox" id="filter-bio" name="has_bio" />
+              <span class="custom-checkbox"></span>
+              Требовать наличие биографии
+            </label>
+            <label class="filter-option" for="filter-address">
+              <input type="checkbox" id="filter-address" name="has_address" />
+              <span class="custom-checkbox"></span>
+              Требовать наличие адреса
+            </label>
+            <label class="filter-option" for="filter-photo-url">
+              <input
+                type="checkbox"
+                id="filter-photo-url"
+                name="has_photo_url"
+              />
+              <span class="custom-checkbox"></span>
+              Требовать наличие фотографии
+            </label>
+          </div>
 
-                <!-- Filters Section -->
-                <div class="filters-section">
-                    <h3>Фильтрация голосующих</h3>
-                    <label class="filter-option" for="filter-first-name">
-                        <input type="checkbox" id="filter-first-name" name="has_first_name" />
-                        <span class="custom-checkbox"></span>
-                        Требовать наличие имени
-                    </label>
-                    <label class="filter-option" for="filter-last-name">
-                        <input type="checkbox" id="filter-last-name" name="has_last_name" />
-                        <span class="custom-checkbox"></span>
-                        Требовать наличие фамилии
-                    </label>
-                    <label class="filter-option" for="filter-birthdate">
-                        <input type="checkbox" id="filter-birthdate" name="has_birthdate" />
-                        <span class="custom-checkbox"></span>
-                        Требовать наличие даты рождения
-                    </label>
-                    <label class="filter-option" for="filter-phone-number">
-                        <input type="checkbox" id="filter-phone-number" name="has_phone_number" />
-                        <span class="custom-checkbox"></span>
-                        Требовать наличие номера телефона
-                    </label>
-                    <label class="filter-option" for="filter-bio">
-                        <input type="checkbox" id="filter-bio" name="has_bio" />
-                        <span class="custom-checkbox"></span>
-                        Требовать наличие биографии
-                    </label>
-                    <label class="filter-option" for="filter-address">
-                        <input type="checkbox" id="filter-address" name="has_address" />
-                        <span class="custom-checkbox"></span>
-                        Требовать наличие адреса
-                    </label>
-                    <label class="filter-option" for="filter-photo-url">
-                        <input type="checkbox" id="filter-photo-url" name="has_photo_url" />
-                        <span class="custom-checkbox"></span>
-                        Требовать наличие фотографии
-                    </label>
-                </div>
+          <!-- Candidates Section -->
+          <div class="candidates-section">
+            <div id="candidates-list" class="candidates-list">
+              <!-- Candidate Cards will be added here -->
+              <div
+                id="add-candidate-placeholder"
+                class="add-candidate-placeholder"
+                onclick="addCandidate()"
+              >
+                <i class="fa fa-plus"></i> Нажмите, чтобы добавить кандидата
+              </div>
+            </div>
+          </div>
 
-                <!-- Candidates Section -->
-                <div class="candidates-section">
-                    <div id="candidates-list" class="candidates-list">
-                        <!-- Candidate Cards will be added here -->
-                        <div id="add-candidate-placeholder" class="add-candidate-placeholder"
-                            onclick="addCandidate()">
-                            <i class="fa fa-plus"></i> Нажмите, чтобы добавить кандидата
-                        </div>
-                    </div>
-                </div>
-
-                <button type="submit" class="submit-btn">
-                    <i class="fa fa-check"></i> Создать выборы
-                </button>
-            </form>
-        </div>
+          <button type="submit" class="submit-btn">
+            <i class="fa fa-check"></i> Создать выборы
+          </button>
+        </form>
+      </div>
     </div>
 
     <script>
-        // Хранение всех кандидатов
-        let candidates = [];
+      // Хранение всех кандидатов
+      let candidates = [];
 
-        // Function to create a candidate card
-        function createCandidateCard(id, name = "", description = "") {
-            const card = document.createElement("div");
-            card.className = "candidate-card";
-            card.dataset.id = id;
+      // Function to create a candidate card
+      function createCandidateCard(id, name = "", description = "") {
+        const card = document.createElement("div");
+        card.className = "candidate-card";
+        card.dataset.id = id;
 
-            // Remove button
-            const removeBtn = document.createElement("button");
-            removeBtn.className = "remove-candidate-btn";
-            removeBtn.innerHTML = "×";
-            removeBtn.onclick = function () {
-                if (confirm("Вы уверены, что хотите удалить этого кандидата?")) {
-                    removeCandidate(id);
-                }
-            };
-            card.appendChild(removeBtn);
-
-            // Name field
-            const nameInput = document.createElement("input");
-            nameInput.type = "text";
-            nameInput.placeholder = "Имя кандидата";
-            nameInput.value = name;
-            nameInput.required = true;
-            nameInput.oninput = function () {
-                updateCandidate(id, "name", nameInput.value);
-            };
-            card.appendChild(nameInput);
-
-            // Description field
-            const descriptionTextarea = document.createElement("textarea");
-            descriptionTextarea.placeholder = "Описание кандидата";
-            descriptionTextarea.rows = 3;
-            descriptionTextarea.value = description;
-            descriptionTextarea.required = true;
-            descriptionTextarea.oninput = function () {
-                updateCandidate(id, "description", descriptionTextarea.value);
-            };
-            card.appendChild(descriptionTextarea);
-
-            return card;
-        }
-
-        // Function to add a new candidate
-        function addCandidate() {
-            const id = Date.now(); // Unique ID based on timestamp
-            candidates.push({
-                id: id,
-                name: "",
-                description: "",
-            });
-            renderCandidates();
-        }
-
-        // Function to remove a candidate
-        function removeCandidate(id) {
-            candidates = candidates.filter((candidate) => candidate.id !== id);
-            renderCandidates();
-        }
-
-        // Function to update candidate data
-        function updateCandidate(id, field, value) {
-            const candidate = candidates.find((c) => c.id === id);
-            if (candidate) {
-                candidate[field] = value;
-            }
-        }
-
-        // Function to render all candidates
-        function renderCandidates() {
-            const candidatesList = document.getElementById("candidates-list");
-            candidatesList.innerHTML = ""; // Clear existing candidates
-
-            candidates.forEach((candidate) => {
-                const card = createCandidateCard(
-                    candidate.id,
-                    candidate.name,
-                    candidate.description
-                );
-                candidatesList.appendChild(card);
-            });
-
-            // Add the placeholder back
-            const placeholder = document.createElement("div");
-            placeholder.id = "add-candidate-placeholder";
-            placeholder.className = "add-candidate-placeholder";
-            placeholder.onclick = addCandidate;
-            placeholder.innerHTML =
-                '<i class="fa fa-plus"></i> Нажмите, чтобы добавить кандидата';
-            candidatesList.appendChild(placeholder);
-        }
-
-        // Function to decode JWT and retrieve claims
-        function getJwtClaims() {
-            const token = localStorage.getItem("jwt_token");
-            if (!token) return null;
-
-            try {
-                const decoded = jwt_decode(token);
-                return decoded;
-            } catch (error) {
-                console.error("Invalid JWT token", error);
-                return null;
-            }
-        }
-
-        // Function to check JWT token and redirect if not present or invalid
-        function checkAuthentication() {
-            const token = localStorage.getItem("jwt_token");
-            if (!token) {
-                alert("Вы не вошли в систему. Пожалуйста, войдите сначала.");
-                window.location.href = "index.html"; // Replace with your actual login page
-                return;
-            }
-
-            const claims = getJwtClaims();
-            if (!claims) {
-                alert("Неверный токен. Пожалуйста, войдите снова.");
-                localStorage.removeItem("jwt_token");
-                window.location.href = "index.html"; // Replace with your actual login page
-                return;
-            }
-
-            // Optional: Check token expiration if 'exp' claim exists
-            if (claims.exp) {
-                const currentTime = Date.now() / 1000; // in seconds
-                if (claims.exp < currentTime) {
-                    alert("Сессия истекла. Пожалуйста, войдите снова.");
-                    localStorage.removeItem("jwt_token");
-                    window.location.href = "index.html"; // Replace with your actual login page
-                    return;
-                }
-            }
-
-            // Optional: Check if user is organizer
-            if (!claims.is_organizer) {
-                alert("У вас нет прав для создания выборов.");
-                window.location.href = "index.html"; // Redirect if not authorized
-            }
-        }
-
-        // Handle form submission
-        document
-            .getElementById("create-election-form")
-            .addEventListener("submit", function (e) {
-                e.preventDefault();
-
-                const title = document.getElementById("election-title").value.trim();
-                const description = document
-                    .getElementById("election-description")
-                    .value.trim();
-                const tagsInput = document
-                    .getElementById("election-tags")
-                    .value.trim();
-
-                if (title === "" || description === "") {
-                    alert("Пожалуйста, заполните все обязательные поля.");
-                    return;
-                }
-
-                // Validate candidates
-                if (candidates.length === 0) {
-                    alert("Пожалуйста, добавьте хотя бы одного кандидата.");
-                    return;
-                }
-
-                for (let candidate of candidates) {
-                    if (
-                        candidate.name.trim() === "" ||
-                        candidate.description.trim() === ""
-                    ) {
-                        alert("Пожалуйста, заполните все поля каждого кандидата.");
-                        return;
-                    }
-                }
-
-                // Prepare tags
-                const tags = tagsInput
-                    ? tagsInput
-                        .split(",")
-                        .map((tag) => tag.trim())
-                        .filter((tag) => tag !== "")
-                    : [];
-
-
-                // Prepare settings
-                const settings = {
-                    is_active: document.getElementById("setting-is-active").checked,
-                    is_anonymous: document.getElementById("setting-is-anonymous").checked,
-                    allow_comments: document.getElementById("setting-allow-comments").checked,
-                    max_votes: parseInt(document.getElementById("setting-max-votes").value),
-                };
-
-                // Prepare filters
-                const filters = {
-                    has_first_name: document.getElementById("filter-first-name").checked,
-                    has_last_name: document.getElementById("filter-last-name").checked,
-                    has_birthdate: document.getElementById("filter-birthdate").checked,
-                    has_phone_number: document.getElementById("filter-phone-number").checked,
-                    has_bio: document.getElementById("filter-bio").checked,
-                    has_address: document.getElementById("filter-address").checked,
-                    has_photo_url: document.getElementById("filter-photo-url").checked,
-                };
-
-                // Prepare payload
-                const payload = {
-                    user_id: getCurrentUserId(), // Ensure user_id is included
-                    title: title,
-                    description: description,
-                    candidates: candidates.map((c) => ({
-                        name: c.name,
-                        description: c.description,
-                    })),
-                    settings: settings,
-                    filters: filters,
-                    tags: tags,
-                };
-
-                // Send POST request to create election with candidates
-                fetch("http://localhost:3000/elections", {
-                        // Changed endpoint to /elections as per your backend routes
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
-                        },
-                        body: JSON.stringify(payload),
-                    })
-                    .then((response) => {
-                        if (!response.ok) {
-                            return response.text().then((data) => {
-                                console.log(data);
-
-                                throw new Error(data.message || "Не удалось создать выборы");
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then((data) => {
-                        alert("Выборы успешно созданы!");
-                        window.location.href = "active.html";
-                    })
-                    .catch((error) => {
-                        console.error("Ошибка при создании выборов:", error);
-                        alert(error.message || "Не удалось создать выборы");
-                    });
-            });
-
-        // Function to get the current user's ID
-        function getCurrentUserId() {
-            const claims = getJwtClaims();
-            if (claims && claims.id) {
-                return claims.id;
-            }
-            return null;
-        }
-
-        // On page load, check authentication
-        window.onload = function () {
-            checkAuthentication();
-            renderCandidates();
+        // Remove button
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "remove-candidate-btn";
+        removeBtn.innerHTML = "×";
+        removeBtn.onclick = function () {
+          if (confirm("Вы уверены, что хотите удалить этого кандидата?")) {
+            removeCandidate(id);
+          }
         };
-    </script>
-</body>
+        card.appendChild(removeBtn);
 
+        // Name field
+        const nameInput = document.createElement("input");
+        nameInput.type = "text";
+        nameInput.placeholder = "Имя кандидата";
+        nameInput.value = name;
+        nameInput.required = true;
+        nameInput.oninput = function () {
+          updateCandidate(id, "name", nameInput.value);
+        };
+        card.appendChild(nameInput);
+
+        // Description field
+        const descriptionTextarea = document.createElement("textarea");
+        descriptionTextarea.placeholder = "Описание кандидата";
+        descriptionTextarea.rows = 3;
+        descriptionTextarea.value = description;
+        descriptionTextarea.required = true;
+        descriptionTextarea.oninput = function () {
+          updateCandidate(id, "description", descriptionTextarea.value);
+        };
+        card.appendChild(descriptionTextarea);
+
+        return card;
+      }
+
+      // Function to add a new candidate
+      function addCandidate() {
+        const id = Date.now(); // Unique ID based on timestamp
+        candidates.push({
+          id: id,
+          name: "",
+          description: "",
+        });
+        renderCandidates();
+      }
+
+      // Function to remove a candidate
+      function removeCandidate(id) {
+        candidates = candidates.filter((candidate) => candidate.id !== id);
+        renderCandidates();
+      }
+
+      // Function to update candidate data
+      function updateCandidate(id, field, value) {
+        const candidate = candidates.find((c) => c.id === id);
+        if (candidate) {
+          candidate[field] = value;
+        }
+      }
+
+      // Function to render all candidates
+      function renderCandidates() {
+        const candidatesList = document.getElementById("candidates-list");
+        candidatesList.innerHTML = ""; // Clear existing candidates
+
+        candidates.forEach((candidate) => {
+          const card = createCandidateCard(
+            candidate.id,
+            candidate.name,
+            candidate.description
+          );
+          candidatesList.appendChild(card);
+        });
+
+        // Add the placeholder back
+        const placeholder = document.createElement("div");
+        placeholder.id = "add-candidate-placeholder";
+        placeholder.className = "add-candidate-placeholder";
+        placeholder.onclick = addCandidate;
+        placeholder.innerHTML =
+          '<i class="fa fa-plus"></i> Нажмите, чтобы добавить кандидата';
+        candidatesList.appendChild(placeholder);
+      }
+
+      // Function to decode JWT and retrieve claims
+      function getJwtClaims() {
+        const token = localStorage.getItem("jwt_token");
+        if (!token) return null;
+
+        try {
+          const decoded = jwt_decode(token);
+          return decoded;
+        } catch (error) {
+          console.error("Invalid JWT token", error);
+          return null;
+        }
+      }
+
+      // Function to check JWT token and redirect if not present or invalid
+      function checkAuthentication() {
+        const token = localStorage.getItem("jwt_token");
+        if (!token) {
+          alert("Вы не вошли в систему. Пожалуйста, войдите сначала.");
+          window.location.href = "index.html"; // Replace with your actual login page
+          return;
+        }
+
+        const claims = getJwtClaims();
+        if (!claims) {
+          alert("Неверный токен. Пожалуйста, войдите снова.");
+          localStorage.removeItem("jwt_token");
+          window.location.href = "index.html"; // Replace with your actual login page
+          return;
+        }
+
+        // Optional: Check token expiration if 'exp' claim exists
+        if (claims.exp) {
+          const currentTime = Date.now() / 1000; // in seconds
+          if (claims.exp < currentTime) {
+            alert("Сессия истекла. Пожалуйста, войдите снова.");
+            localStorage.removeItem("jwt_token");
+            window.location.href = "index.html"; // Replace with your actual login page
+            return;
+          }
+        }
+
+        // Optional: Check if user is organizer
+        if (!claims.is_organizer) {
+          alert("У вас нет прав для создания выборов.");
+          window.location.href = "index.html"; // Redirect if not authorized
+        }
+      }
+
+      // Handle form submission
+      document
+        .getElementById("create-election-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const title = document.getElementById("election-title").value.trim();
+          const description = document
+            .getElementById("election-description")
+            .value.trim();
+          const tagsInput = document
+            .getElementById("election-tags")
+            .value.trim();
+
+          if (title === "" || description === "") {
+            alert("Пожалуйста, заполните все обязательные поля.");
+            return;
+          }
+
+          // Validate candidates
+          if (candidates.length === 0) {
+            alert("Пожалуйста, добавьте хотя бы одного кандидата.");
+            return;
+          }
+
+          for (let candidate of candidates) {
+            if (
+              candidate.name.trim() === "" ||
+              candidate.description.trim() === ""
+            ) {
+              alert("Пожалуйста, заполните все поля каждого кандидата.");
+              return;
+            }
+          }
+
+          // Prepare tags
+          const tags = tagsInput
+            ? tagsInput
+                .split(",")
+                .map((tag) => tag.trim())
+                .filter((tag) => tag !== "")
+            : [];
+
+          // Prepare settings
+          const settings = {
+            is_active: document.getElementById("setting-is-active").checked,
+            is_anonymous: document.getElementById("setting-is-anonymous")
+              .checked,
+            allow_comments: document.getElementById("setting-allow-comments")
+              .checked,
+            max_votes: parseInt(
+              document.getElementById("setting-max-votes").value
+            ),
+          };
+
+          // Prepare filters
+          const filters = {
+            has_first_name:
+              document.getElementById("filter-first-name").checked,
+            has_last_name: document.getElementById("filter-last-name").checked,
+            has_birthdate: document.getElementById("filter-birthdate").checked,
+            has_phone_number: document.getElementById("filter-phone-number")
+              .checked,
+            has_bio: document.getElementById("filter-bio").checked,
+            has_address: document.getElementById("filter-address").checked,
+            has_photo_url: document.getElementById("filter-photo-url").checked,
+          };
+
+          // Prepare payload
+          const payload = {
+            user_id: getCurrentUserId(), // Ensure user_id is included
+            title: title,
+            description: description,
+            candidates: candidates.map((c) => ({
+              name: c.name,
+              description: c.description,
+            })),
+            settings: settings,
+            filters: filters,
+            tags: tags,
+          };
+
+          // Send POST request to create election with candidates
+          fetch("http://localhost:3000/elections", {
+            // Changed endpoint to /elections as per your backend routes
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+            },
+            body: JSON.stringify(payload),
+          })
+            .then((response) => {
+              if (!response.ok) {
+                return response.text().then((data) => {
+                  console.log(data);
+
+                  throw new Error(data.message || "Не удалось создать выборы");
+                });
+              }
+              return response.json();
+            })
+            .then((data) => {
+              alert("Выборы успешно созданы!");
+              window.location.href = "active.html";
+            })
+            .catch((error) => {
+              console.error("Ошибка при создании выборов:", error);
+              alert(error.message || "Не удалось создать выборы");
+            });
+        });
+
+      // Function to get the current user's ID
+      function getCurrentUserId() {
+        const claims = getJwtClaims();
+        if (claims && claims.id) {
+          return claims.id;
+        }
+        return null;
+      }
+
+      // On page load, check authentication
+      window.onload = function () {
+        checkAuthentication();
+        renderCandidates();
+      };
+    </script>
+  </body>
 </html>

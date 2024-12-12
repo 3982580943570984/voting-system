@@ -472,6 +472,40 @@ definitions:
     required:
     - candidates
     type: object
+  services.ElectionFiltersUpdate:
+    properties:
+      electionID:
+        type: integer
+      has_address:
+        type: boolean
+      has_bio:
+        type: boolean
+      has_birthdate:
+        type: boolean
+      has_first_name:
+        type: boolean
+      has_last_name:
+        type: boolean
+      has_phone_number:
+        type: boolean
+      has_photo_url:
+        type: boolean
+    type: object
+  services.ElectionSettingsUpdate:
+    properties:
+      allow_comments:
+        type: boolean
+      duration:
+        type: string
+      electionID:
+        type: integer
+      is_active:
+        type: boolean
+      is_anonymous:
+        type: boolean
+      max_votes:
+        type: integer
+    type: object
   services.ElectionUpdate:
     properties:
       completed:
@@ -927,6 +961,77 @@ paths:
       summary: Создать комментарий
       tags:
       - Комментарии
+  /elections/{id}/filters:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает фильтры для указанных выборов.
+      parameters:
+      - description: ID выборов
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Фильтры выборов
+          schema:
+            $ref: '#/definitions/generated.ElectionFilters'
+        "400":
+          description: Неверный ID выборов
+          schema:
+            type: string
+        "404":
+          description: Выборы не найдены
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Получить фильтры выборов
+      tags:
+      - Фильтры
+    put:
+      consumes:
+      - application/json
+      description: Обновляет фильтры для указанных выборов.
+      parameters:
+      - description: ID выборов
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Обновленные данные фильтров
+        in: body
+        name: filters
+        required: true
+        schema:
+          $ref: '#/definitions/services.ElectionFiltersUpdate'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Фильтры успешно обновлены
+          schema:
+            type: string
+        "400":
+          description: Неверный ID выборов или входные данные
+          schema:
+            type: string
+        "404":
+          description: Выборы не найдены
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Обновить фильтры выборов
+      tags:
+      - Фильтры
   /elections/{id}/settings:
     get:
       consumes:
@@ -959,7 +1064,45 @@ paths:
             type: string
       summary: Получить настройки выборов
       tags:
-      - Настройки выборов
+      - Настройки
+    put:
+      consumes:
+      - application/json
+      description: Обновляет настройки для указанных выборов.
+      parameters:
+      - description: ID выборов
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Обновленные данные настроек
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/services.ElectionSettingsUpdate'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Настройки успешно обновлены
+          schema:
+            type: string
+        "400":
+          description: Неверный ID выборов или входные данные
+          schema:
+            type: string
+        "404":
+          description: Выборы не найдены
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Обновить настройки выборов
+      tags:
+      - Настройки
   /elections/{id}/tags:
     get:
       consumes:
@@ -1167,7 +1310,7 @@ paths:
       summary: Вход пользователя
       tags:
       - Аутентификация
-  /profile:
+  /profiles:
     get:
       consumes:
       - application/json

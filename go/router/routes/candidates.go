@@ -81,7 +81,7 @@ func getCandidates(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	candidates, err := services.NewElections().GetCandidates(r.Context(), id)
+	candidates, err := services.NewCandidates().GetByElectionId(r.Context(), id)
 
 	if err != nil {
 		http.Error(w, "Internal server error"+err.Error(), http.StatusInternalServerError)

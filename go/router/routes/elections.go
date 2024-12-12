@@ -42,6 +42,8 @@ func ElectionsRoutes() chi.Router {
 
 		r.Mount("/settings", ElectionSettingsRoutes())
 
+		r.Mount("/filters", ElectionFiltersRoutes())
+
 		r.Mount("/comments", CommentsRoutes())
 	})
 

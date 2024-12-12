@@ -94,7 +94,6 @@
       .create-btn,
       .modify-btn,
       .edit-btn,
-      .logout-btn,
       #back-btn {
         padding: 10px 16px;
         border: none;
@@ -145,15 +144,6 @@
       .modify-btn:hover,
       .edit-btn:hover {
         background-color: var(--color-modify-hover);
-        transform: scale(1.05);
-      }
-
-      .logout-btn {
-        background-color: var(--color-danger);
-      }
-
-      .logout-btn:hover {
-        background-color: var(--color-danger-hover);
         transform: scale(1.05);
       }
 
@@ -526,6 +516,33 @@
           margin: 20% auto;
         }
       }
+
+      .settings-filters-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .settings-container,
+      .filters-container {
+        border: 1px solid var(--color-border);
+        border-radius: var(--border-radius);
+        padding: 20px;
+        box-shadow: 0 4px 10px var(--color-shadow);
+        background-color: var(--color-card-bg);
+        transition: box-shadow var(--transition-speed),
+          transform var(--transition-speed);
+      }
+
+      .settings-container:hover,
+      .filters-container:hover {
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .settings-container input[type="checkbox"],
+      .filters-container input[type="checkbox"] {
+        margin-right: 5px;
+      }
     </style>
   </head>
   <body>
@@ -536,9 +553,6 @@
         <div>
           <button id="back-btn" class="view-btn">
             <i class="fa fa-arrow-left"></i> Назад к выборам
-          </button>
-          <button id="logout-btn" class="logout-btn">
-            <i class="fa fa-sign-out-alt"></i> Выйти
           </button>
         </div>
       </header>
@@ -561,7 +575,7 @@
 
       <!-- Manage Tags Section -->
       <div class="manage-tags" id="manage-tags">
-        <h2>Управление тегами</h2>
+        <h2>Теги</h2>
         <div class="tags-container" id="tags-container">
           <!-- Теги будут отображаться здесь -->
         </div>
@@ -576,6 +590,22 @@
             <i class="fa fa-plus"></i> Добавить Тег
           </button>
         </form>
+      </div>
+
+      <div class="settings-filters-container">
+        <div class="settings-container" id="settings-container">
+          <h2>Настройки</h2>
+          <form id="election-settings-form">
+            <!-- Settings will be loaded here -->
+          </form>
+        </div>
+
+        <div class="filters-container" id="filters-container">
+          <h2>Фильтры</h2>
+          <form id="election-filters-form">
+            <!-- Filters will be loaded here -->
+          </form>
+        </div>
       </div>
 
       <!-- List of Candidates -->
@@ -625,16 +655,6 @@
         alert("ID выборов не предоставлен.");
         window.location.href = "active.html";
       }
-
-      // Logout Functionality
-      document
-        .getElementById("logout-btn")
-        .addEventListener("click", function () {
-          if (confirm("Вы уверены, что хотите выйти?")) {
-            localStorage.removeItem("jwt_token");
-            window.location.href = "index.html"; // Replace with your actual login page
-          }
-        });
 
       // Back Button Functionality
       document
@@ -1017,6 +1037,172 @@
           });
       }
 
+      function fetchElectionSettings() {
+        fetch(`http://localhost:3000/elections/${electionId}/settings`, {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+          },
+        })
+          .then((response) => response.json())
+          .then((settings) => {
+            const settingsForm = document.getElementById(
+              "election-settings-form"
+            );
+
+            settingsForm.innerHTML = `
+          <label><input type="checkbox" id="is_active" ${
+            settings.is_active ? "checked" : ""
+          }> Активные</label>
+          <label><input type="checkbox" id="is_anonymous" ${
+            settings.is_anonymous ? "checked" : ""
+          }> Анонимные</label>
+          <label><input type="checkbox" id="allow_comments" ${
+            settings.allow_comments ? "checked" : ""
+          }> Разрешить комментарии</label>
+          <label for="max_votes">Максимальное количество голосов:</label>
+          <input type="number" id="max_votes" value="${
+            settings.max_votes
+          }" min="1" required>
+          <button type="submit" class="modify-btn">Сохранить</button>
+          `;
+            // <label for="duration">Дата окончания:</label>
+            // <input type="datetime-local" id="duration" value="${formatDateTime(
+            //   settings.duration
+            // )}" required>
+
+            settingsForm.addEventListener("submit", (e) => {
+              e.preventDefault();
+              updateElectionSettings(settings.id);
+            });
+          });
+      }
+
+      function formatDateTime(dateString) {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+      }
+
+      function updateElectionSettings(settingsId) {
+        const updatedSettings = {
+          is_active: document.getElementById("is_active").checked,
+          is_anonymous: document.getElementById("is_anonymous").checked,
+          allow_comments: document.getElementById("allow_comments").checked,
+          max_votes: parseInt(document.getElementById("max_votes").value),
+          // duration: document.getElementById("duration").value,
+        };
+
+        console.log(updatedSettings);
+
+        fetch(`http://localhost:3000/elections/${electionId}/settings`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+          },
+          body: JSON.stringify(updatedSettings),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Не удалось обновить настройки");
+            }
+            return response.text(); // or response.text() if the response is not JSON
+          })
+          .then((data) => {
+            alert("Настройки успешно обновлены!");
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Ошибка обновления настроек");
+          });
+      }
+
+      // Fetch and display election filters
+      function fetchElectionFilters() {
+        fetch(`http://localhost:3000/elections/${electionId}/filters`, {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+          },
+        })
+          .then((response) => response.json())
+          .then((filters) => {
+            const filtersForm = document.getElementById(
+              "election-filters-form"
+            );
+            filtersForm.innerHTML = `
+
+                    <label><input type="checkbox" id="has_first_name" ${
+                      filters.has_first_name ? "checked" : ""
+                    }> Имя</label>
+<label><input type="checkbox" id="has_last_name" ${
+              filters.has_last_name ? "checked" : ""
+            }> Фамилия</label>
+<label><input type="checkbox" id="has_birthdate" ${
+              filters.has_birthdate ? "checked" : ""
+            }> Дата рождения</label>
+<label><input type="checkbox" id="has_phone_number" ${
+              filters.has_phone_number ? "checked" : ""
+            }> Номер телефона</label>
+<label><input type="checkbox" id="has_bio" ${
+              filters.has_bio ? "checked" : ""
+            }> Биография</label>
+<label><input type="checkbox" id="has_address" ${
+              filters.has_address ? "checked" : ""
+            }> Адрес</label>
+<label><input type="checkbox" id="has_photo_url" ${
+              filters.has_photo_url ? "checked" : ""
+            }> URL фото</label>
+
+ <button type="submit" class="modify-btn">Сохранить</button>
+                    `;
+
+            filtersForm.addEventListener("submit", (e) => {
+              e.preventDefault();
+              updateElectionFilters(filters.id);
+            });
+          });
+      }
+
+      function updateElectionFilters(filterId) {
+        const updatedFilters = {
+          has_first_name: document.getElementById("has_first_name").checked,
+          has_last_name: document.getElementById("has_last_name").checked,
+          has_birthdate: document.getElementById("has_birthdate").checked,
+          has_phone_number: document.getElementById("has_phone_number").checked,
+          has_bio: document.getElementById("has_bio").checked,
+          has_address: document.getElementById("has_address").checked,
+          has_photo_url: document.getElementById("has_photo_url").checked,
+        };
+
+        fetch(`http://localhost:3000/elections/${electionId}/filters`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+          },
+          body: JSON.stringify(updatedFilters),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Не удалось обновить фильтры");
+            }
+            return response.text(); // or response.text() if the response is not JSON
+          })
+          .then((data) => {
+            alert("Фильтры успешно обновлены!");
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Ошибка обновления фильтров");
+          });
+      }
+
       // Handle Edit Candidate form submission
       editForm.addEventListener("submit", function (e) {
         e.preventDefault();
@@ -1108,6 +1294,8 @@
 
         fetchCandidates();
         fetchTags();
+        fetchElectionSettings();
+        fetchElectionFilters();
       };
     </script>
   </body>

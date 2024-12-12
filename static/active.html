@@ -404,7 +404,7 @@
           <ul class="nav-menu">
             <!-- Выборы Dropdown -->
             <li class="nav-item dropdown">
-              <a href="#" class="nav-link">Выборы &#9662;</a>
+              <a href="#" class="nav-link">Выборы ▾</a>
               <ul class="dropdown-menu">
                 <li>
                   <a
@@ -425,7 +425,7 @@
 
             <!-- Профиль Dropdown -->
             <li class="nav-item dropdown">
-              <a href="#" class="nav-link">Профиль &#9662;</a>
+              <a href="#" class="nav-link">Профиль ▾</a>
               <ul class="dropdown-menu">
                 <li>
                   <a href="profile.html" class="dropdown-link">Мой профиль</a>
@@ -458,6 +458,7 @@
     <script>
       let allElections = [];
       let userElectionsIds = new Set();
+      let userProfile = null;
 
       function getJwtClaims() {
         const token = localStorage.getItem("jwt_token");
@@ -581,6 +582,31 @@
         }
       }
 
+      async function fetchElectionFilters(electionId) {
+        try {
+          const response = await fetch(
+            `http://localhost:3000/elections/${electionId}/filters`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Не удалось получить фильтры для выборов");
+          }
+
+          return await response.json();
+        } catch (error) {
+          console.error("Ошибка при получении фильтров:", error);
+          return null;
+        }
+      }
+
       async function fetchUserCreatedElections() {
         try {
           const response = await fetch(
@@ -602,6 +628,29 @@
           console.error("Ошибка при получении ваших выборов:", error);
           alert("Не удалось загрузить ваши выборы");
           return [];
+        }
+      }
+
+      async function fetchUserProfile() {
+        try {
+          const response = await fetch("http://localhost:3000/profiles", {
+            method: "GET",
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch user profile");
+          }
+
+          return await response.json();
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+          alert("Failed to load user profile");
+          return null;
         }
       }
 
@@ -629,7 +678,41 @@
         }
       }
 
-      async function displayElections(electionsToDisplay, userElectionsIds) {
+      function isProfileMatchingFilters(profile, filters) {
+        if (!filters) return true;
+
+        const hasFirstName =
+          !filters.has_first_name || (profile && profile.first_name);
+        const hasLastName =
+          !filters.has_last_name || (profile && profile.last_name);
+        const hasBirthdate =
+          !filters.has_birthdate ||
+          (profile &&
+            profile.birthdate &&
+            profile.birthdate !== "0001-01-01T00:00:00Z");
+        const hasPhoneNumber =
+          !filters.has_phone_number || (profile && profile.phone_number);
+        const hasBio = !filters.has_bio || (profile && profile.bio);
+        const hasAddress = !filters.has_address || (profile && profile.address);
+        const hasPhotoUrl =
+          !filters.has_photo_url || (profile && profile.photo_url);
+
+        return (
+          hasFirstName &&
+          hasLastName &&
+          hasBirthdate &&
+          hasPhoneNumber &&
+          hasBio &&
+          hasAddress &&
+          hasPhotoUrl
+        );
+      }
+
+      async function displayElections(
+        electionsToDisplay,
+        userElectionsIds,
+        userProfile
+      ) {
         const electionList = document.getElementById("election-list");
         electionList.innerHTML = "";
 
@@ -638,9 +721,21 @@
           return;
         }
 
-        electionsToDisplay.forEach((election) => {
+        electionsToDisplay.forEach(async (election) => {
           const card = document.createElement("div");
           card.className = "election-card";
+
+          const isCreator = userElectionsIds.has(election.id);
+          const filters = await fetchElectionFilters(election.id);
+          let isRestricted = false;
+
+          if (!isCreator) {
+            isRestricted = !isProfileMatchingFilters(userProfile, filters);
+          }
+
+          if (isRestricted) {
+            card.classList.add("restricted");
+          }
 
           // Create a container for the title and timer
           const topRow = document.createElement("div");
@@ -722,6 +817,13 @@
             card.appendChild(tagsContainer);
           }
 
+          if (isRestricted) {
+            const restrictedMessage = document.createElement("p");
+            restrictedMessage.className = "restricted-message";
+            restrictedMessage.textContent =
+              "Вы не можете просматривать эти выборы из-за ограничений";
+            card.appendChild(restrictedMessage);
+          }
           // Buttons
           const buttonContainer = document.createElement("div");
           buttonContainer.className = "button-container";
@@ -729,10 +831,14 @@
           const viewButton = document.createElement("a");
           viewButton.href = "view.html?id=" + election.id;
           viewButton.className = "view-btn";
+          if (isRestricted) {
+            viewButton.classList.add("disabled");
+            viewButton.style.pointerEvents = "none"; // Make the link unclickable
+            viewButton.style.opacity = "0.5"; // Visually indicate it's disabled
+          }
           viewButton.innerHTML = '<i class="fa-solid fa-eye"></i> Просмотреть';
           buttonContainer.appendChild(viewButton);
 
-          const isCreator = userElectionsIds.has(election.id);
           const userIsOrganizer = isUserOrganizer();
 
           if (userIsOrganizer && isCreator) {
@@ -760,7 +866,7 @@
 
       function filterElectionsByTag(tagName) {
         if (tagName.trim() === "") {
-          displayElections(allElections, userElectionsIds);
+          displayElections(allElections, userElectionsIds, userProfile);
           return;
         }
 
@@ -771,7 +877,7 @@
           );
         });
 
-        displayElections(filtered, userElectionsIds);
+        displayElections(filtered, userElectionsIds, userProfile);
       }
 
       function debounce(func, delay) {
@@ -828,10 +934,11 @@
         });
 
         allElections = await Promise.all(electionsWithTagsPromises);
+        userProfile = await fetchUserProfile();
         const userElections = await fetchUserCreatedElections();
         userElectionsIds = new Set(userElections.map((e) => e.id));
 
-        displayElections(allElections, userElectionsIds);
+        displayElections(allElections, userElectionsIds, userProfile);
 
         updateTimeLeft();
         setInterval(updateTimeLeft, 1000);
@@ -848,10 +955,10 @@
         );
       }
 
-      window.onload = function () {
+      window.onload = async function () {
         checkAuthentication();
         updateHeaderBasedOnRole();
-        initializePage();
+        await initializePage();
       };
     </script>
   </body>

@@ -2,6 +2,7 @@ package routes
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 	"voting-system/services"
@@ -21,7 +22,7 @@ func ElectionSettingsRoutes() chi.Router {
 
 // @Summary Получить настройки выборов
 // @Description Возвращает настройки выборов по ID.
-// @Tags Настройки выборов
+// @Tags Настройки
 // @Accept json
 // @Produce json
 // @Param id path int true "ID выборов"
@@ -48,11 +49,39 @@ func getSettings(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(settings)
 }
 
-// TODO: implement logic
+// @Summary Обновить настройки выборов
+// @Description Обновляет настройки для указанных выборов.
+// @Tags Настройки
+// @Accept json
+// @Produce json
+// @Param id path int true "ID выборов"
+// @Param settings body services.ElectionSettingsUpdate true "Обновленные данные настроек"
+// @Success 204 {string} string "Настройки успешно обновлены"
+// @Failure 400 {string} string "Неверный ID выборов или входные данные"
+// @Failure 404 {string} string "Выборы не найдены"
+// @Failure 500 {string} string "Ошибка сервера"
+// @Router /elections/{id}/settings [put]
 func updateSettings(w http.ResponseWriter, r *http.Request) {
-	_, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "Invalid election ID"+err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	esu := services.ElectionSettingsUpdate{ElectionID: id}
+	if err := json.NewDecoder(r.Body).Decode(&esu); err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Invalid input"+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	log.Print(esu)
+
+	err = services.NewElectionSettings().Update(r.Context(), &esu)
+	if err != nil {
+		http.Error(w, "Error during settings update: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

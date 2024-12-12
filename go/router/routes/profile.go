@@ -33,17 +33,15 @@ func ProfileRoutes() chi.Router {
 // @Success 200 {object} generated.Profile "Профиль пользователя"
 // @Failure 401 {object} map[string]string "Неавторизованный доступ"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
-// @Router /profile [get]
+// @Router /profiles [get]
 func getProfile(w http.ResponseWriter, r *http.Request) {
 	id, err := RetrieveIdFromToken(r.Context())
-
 	if err != nil {
 		http.Error(w, "Unauthorized: "+err.Error(), http.StatusUnauthorized)
 		return
 	}
 
 	profile, err := services.NewProfiles().GetByUserId(r.Context(), id)
-
 	if err != nil {
 		http.Error(w, "Error retrieving profile: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -65,7 +63,7 @@ func getProfile(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {object} map[string]string "Неверный формат запроса"
 // @Failure 401 {object} map[string]string "Неавторизованный доступ"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
-// @Router /profile [put]
+// @Router /profiles [put]
 func updateProfile(w http.ResponseWriter, r *http.Request) {
 	id, err := RetrieveIdFromToken(r.Context())
 

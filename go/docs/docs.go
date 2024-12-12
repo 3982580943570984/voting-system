@@ -708,6 +708,113 @@ const docTemplate = `{
                 }
             }
         },
+        "/elections/{id}/filters": {
+            "get": {
+                "description": "Возвращает фильтры для указанных выборов.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Фильтры"
+                ],
+                "summary": "Получить фильтры выборов",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID выборов",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Фильтры выборов",
+                        "schema": {
+                            "$ref": "#/definitions/generated.ElectionFilters"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный ID выборов",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Выборы не найдены",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Обновляет фильтры для указанных выборов.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Фильтры"
+                ],
+                "summary": "Обновить фильтры выборов",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID выборов",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Обновленные данные фильтров",
+                        "name": "filters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.ElectionFiltersUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Фильтры успешно обновлены",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный ID выборов или входные данные",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Выборы не найдены",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/elections/{id}/settings": {
             "get": {
                 "description": "Возвращает настройки выборов по ID.",
@@ -718,7 +825,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Настройки выборов"
+                    "Настройки"
                 ],
                 "summary": "Получить настройки выборов",
                 "parameters": [
@@ -739,6 +846,63 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Неверный формат ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Выборы не найдены",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Обновляет настройки для указанных выборов.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Настройки"
+                ],
+                "summary": "Обновить настройки выборов",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID выборов",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Обновленные данные настроек",
+                        "name": "settings",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.ElectionSettingsUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Настройки успешно обновлены",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный ID выборов или входные данные",
                         "schema": {
                             "type": "string"
                         }
@@ -978,7 +1142,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/profile": {
+        "/profiles": {
             "get": {
                 "security": [
                     {
@@ -2055,6 +2219,58 @@ const docTemplate = `{
                     "minLength": 8
                 },
                 "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "services.ElectionFiltersUpdate": {
+            "type": "object",
+            "properties": {
+                "electionID": {
+                    "type": "integer"
+                },
+                "has_address": {
+                    "type": "boolean"
+                },
+                "has_bio": {
+                    "type": "boolean"
+                },
+                "has_birthdate": {
+                    "type": "boolean"
+                },
+                "has_first_name": {
+                    "type": "boolean"
+                },
+                "has_last_name": {
+                    "type": "boolean"
+                },
+                "has_phone_number": {
+                    "type": "boolean"
+                },
+                "has_photo_url": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "services.ElectionSettingsUpdate": {
+            "type": "object",
+            "properties": {
+                "allow_comments": {
+                    "type": "boolean"
+                },
+                "duration": {
+                    "type": "string"
+                },
+                "electionID": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "is_anonymous": {
+                    "type": "boolean"
+                },
+                "max_votes": {
                     "type": "integer"
                 }
             }
