@@ -84,6 +84,9 @@ definitions:
     type: object
   generated.Election:
     properties:
+      completed:
+        description: Completed holds the value of the "completed" field.
+        type: boolean
       description:
         description: Description holds the value of the "description" field.
         type: string
@@ -413,53 +416,53 @@ definitions:
     type: object
   services.ElectionCreate:
     properties:
-      description:
-        description: |-
-          Description — описание выборов
-          Это обязательное поле, максимальная длина 1000 символов.
-        maxLength: 1000
-        type: string
-      title:
-        description: |-
-          Title — название выборов
-          Это обязательное поле, минимальная длина 8 символов, максимальная длина 64 символа.
-        maxLength: 64
-        minLength: 8
-        type: string
-      user_id:
-        description: |-
-          UserID - идентификатор пользователя, которые создает выборы
-          Это обязательное поле.
-        type: integer
-    type: object
-  services.ElectionUpdate:
-    properties:
-      description:
-        description: |-
-          Description — новое описание выборов
-          Это необязательное поле при обновлении данных.
-        type: string
-      id:
-        description: |-
-          ID — уникальный идентификатор выбора, который необходимо обновить
-          Это обязательное поле для обновления информации о конкретном выборе.
-        type: integer
-      title:
-        description: |-
-          Title — новое название выборов
-          Это обязательное поле при обновлении данных.
-        type: string
-    type: object
-  services.ElectionWithCandidatesCreate:
-    properties:
       candidates:
         items:
-          $ref: '#/definitions/services.CandidateCreate'
+          properties:
+            description:
+              type: string
+            name:
+              type: string
+          type: object
         minItems: 1
         type: array
       description:
         maxLength: 1000
         type: string
+      filters:
+        properties:
+          has_address:
+            type: boolean
+          has_bio:
+            type: boolean
+          has_birthdate:
+            type: boolean
+          has_first_name:
+            type: boolean
+          has_last_name:
+            type: boolean
+          has_phone_number:
+            type: boolean
+          has_photo_url:
+            type: boolean
+        type: object
+      settings:
+        properties:
+          allow_comments:
+            type: boolean
+          duration:
+            type: string
+          is_active:
+            type: boolean
+          is_anonymous:
+            type: boolean
+          max_votes:
+            type: integer
+        type: object
+      tags:
+        items:
+          type: string
+        type: array
       title:
         maxLength: 64
         minLength: 8
@@ -468,6 +471,17 @@ definitions:
         type: integer
     required:
     - candidates
+    type: object
+  services.ElectionUpdate:
+    properties:
+      completed:
+        type: boolean
+      description:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
     type: object
   services.ProfileUpdate:
     properties:
@@ -549,7 +563,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Создает новые выборы на основе данных, переданных в теле запроса.
+      description: Создает новые выборы.
       parameters:
       - description: Данные для создания выборов
         in: body
@@ -563,9 +577,19 @@ paths:
         "201":
           description: Успешно создано, возвращает идентификатор созданных выборов
           schema:
-            type: integer
+            additionalProperties:
+              type: integer
+            type: object
         "400":
-          description: Неверный формат запроса
+          description: Неверный формат запроса или данные в теле запроса
+          schema:
+            type: string
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            type: string
+        "403":
+          description: Доступ запрещен
           schema:
             type: string
         "500":
@@ -1040,39 +1064,7 @@ paths:
       summary: Обновить теги выборов
       tags:
       - Теги
-  /elections/filtered:
-    get:
-      consumes:
-      - application/json
-      description: Возвращает список выборов, отфильтрованных по определенным критериям,
-        доступных текущему пользователю.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Отфильтрованный список выборов
-          schema:
-            items:
-              $ref: '#/definitions/generated.Election'
-            type: array
-        "401":
-          description: Неавторизованный доступ
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - Bearer: []
-      summary: Получить отфильтрованные выборы
-      tags:
-      - Выборы
-  /elections/user:
+  /elections/created:
     get:
       consumes:
       - application/json
@@ -1103,46 +1095,36 @@ paths:
       summary: Получить выборы, созданные пользователем
       tags:
       - Выборы
-  /elections/with-candidates:
-    post:
+  /elections/filtered:
+    get:
       consumes:
       - application/json
-      description: Создает новые выборы вместе со списком кандидатов в одной транзакции.
-      parameters:
-      - description: Данные для создания выборов и кандидатов
-        in: body
-        name: election
-        required: true
-        schema:
-          $ref: '#/definitions/services.ElectionWithCandidatesCreate'
+      description: Возвращает список выборов, отфильтрованных по определенным критериям,
+        доступных текущему пользователю.
       produces:
       - application/json
       responses:
-        "201":
-          description: Успешно создано, возвращает идентификатор созданных выборов
+        "200":
+          description: Отфильтрованный список выборов
           schema:
-            additionalProperties:
-              type: integer
-            type: object
-        "400":
-          description: Неверный формат запроса или данные в теле запроса
-          schema:
-            type: string
+            items:
+              $ref: '#/definitions/generated.Election'
+            type: array
         "401":
           description: Неавторизованный доступ
           schema:
-            type: string
-        "403":
-          description: Доступ запрещен
-          schema:
-            type: string
+            additionalProperties:
+              type: string
+            type: object
         "500":
           description: Ошибка сервера
           schema:
-            type: string
+            additionalProperties:
+              type: string
+            type: object
       security:
       - Bearer: []
-      summary: Создать выборы с кандидатами
+      summary: Получить отфильтрованные выборы
       tags:
       - Выборы
   /login:

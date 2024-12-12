@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 	"voting-system/database"
 	"voting-system/ent/generated"
-	"voting-system/ent/generated/election"
-	filters "voting-system/ent/generated/electionfilters"
+	genele "voting-system/ent/generated/election"
+	genfil "voting-system/ent/generated/electionfilters"
 	"voting-system/ent/generated/electionsettings"
 	"voting-system/ent/generated/user"
 	"voting-system/scheduler"
@@ -27,6 +28,13 @@ type ElectionCreate struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
 	} `json:"candidates" validate:"required,min=1"`
+	Settings struct {
+		IsActive      *bool      `json:"is_active,omitempty"`
+		IsAnonymous   *bool      `json:"is_anonymous,omitempty"`
+		AllowComments *bool      `json:"allow_comments,omitempty"`
+		MaxVotes      *int       `json:"max_votes,omitempty"`
+		Duration      *time.Time `json:"duration,omitempty"`
+	}
 	Filters struct {
 		HasFirstName   *bool `json:"has_first_name,omitempty"`
 		HasLastName    *bool `json:"has_last_name,omitempty"`
@@ -79,12 +87,12 @@ func (e *Elections) Create(ctx context.Context, ec *ElectionCreate) (*generated.
 		return nil, rollback(tx, err)
 	}
 
-	_, err = tx.Candidate.MapCreateBulk(ec.Candidates, func(cc *generated.CandidateCreate, i int) {
-		candidate := ec.Candidates[i]
-		cc.SetElection(election).
-			SetName(candidate.Name).
-			SetDescription(candidate.Description)
-	}).Save(ctx)
+	err = settings.Update().
+		SetNillableIsActive(ec.Settings.IsActive).
+		SetNillableIsAnonymous(ec.Settings.IsAnonymous).
+		SetNillableAllowComments(ec.Settings.AllowComments).
+		SetNillableMaxVotes(ec.Settings.MaxVotes).
+		Exec(ctx)
 	if err != nil {
 		return nil, rollback(tx, err)
 	}
@@ -103,6 +111,16 @@ func (e *Elections) Create(ctx context.Context, ec *ElectionCreate) (*generated.
 		SetNillableHasAddress(ec.Filters.HasAddress).
 		SetNillableHasPhotoURL(ec.Filters.HasPhotoURL).
 		Exec(ctx)
+	if err != nil {
+		return nil, rollback(tx, err)
+	}
+
+	_, err = tx.Candidate.MapCreateBulk(ec.Candidates, func(cc *generated.CandidateCreate, i int) {
+		candidate := ec.Candidates[i]
+		cc.SetElection(election).
+			SetName(candidate.Name).
+			SetDescription(candidate.Description)
+	}).Save(ctx)
 	if err != nil {
 		return nil, rollback(tx, err)
 	}
@@ -151,15 +169,18 @@ func (e *Elections) Create(ctx context.Context, ec *ElectionCreate) (*generated.
 
 func (e *Elections) GetAll(ctx context.Context) ([]*generated.Election, error) {
 	return e.DB.Query().
-		Select(election.Columns...).
+		Select(genele.Columns...).
 		All(ctx)
 }
 
 func (e *Elections) GetAllWithDuration(ctx context.Context) ([]*generated.Election, error) {
 	return e.DB.Query().
-		Select(election.Columns...).
+		Select(genele.Columns...).
 		WithSettings(func(esq *generated.ElectionSettingsQuery) {
-			esq.Select(electionsettings.FieldDuration)
+			esq.Select(
+				electionsettings.FieldCreateTime,
+				electionsettings.FieldDuration,
+			)
 		}).
 		All(ctx)
 }
@@ -174,56 +195,56 @@ func (e *Elections) GetAllFiltered(ctx context.Context, id int) ([]*generated.El
 
 	if profile.FirstName == "" {
 		query = query.Where(
-			election.HasFiltersWith(
-				filters.HasFirstName(false),
+			genele.HasFiltersWith(
+				genfil.HasFirstName(false),
 			),
 		)
 	}
 
 	if profile.LastName == "" {
 		query = query.Where(
-			election.HasFiltersWith(
-				filters.HasLastName(false),
+			genele.HasFiltersWith(
+				genfil.HasLastName(false),
 			),
 		)
 	}
 
 	if profile.Birthdate.IsZero() {
 		query = query.Where(
-			election.HasFiltersWith(
-				filters.HasBirthdate(false),
+			genele.HasFiltersWith(
+				genfil.HasBirthdate(false),
 			),
 		)
 	}
 
 	if profile.PhoneNumber == "" {
 		query = query.Where(
-			election.HasFiltersWith(
-				filters.HasPhoneNumber(false),
+			genele.HasFiltersWith(
+				genfil.HasPhoneNumber(false),
 			),
 		)
 	}
 
 	if profile.Bio == "" {
 		query = query.Where(
-			election.HasFiltersWith(
-				filters.HasBio(false),
+			genele.HasFiltersWith(
+				genfil.HasBio(false),
 			),
 		)
 	}
 
 	if profile.Address == "" {
 		query = query.Where(
-			election.HasFiltersWith(
-				filters.HasAddress(false),
+			genele.HasFiltersWith(
+				genfil.HasAddress(false),
 			),
 		)
 	}
 
 	if profile.PhotoURL == "" {
 		query = query.Where(
-			election.HasFiltersWith(
-				filters.HasPhotoURL(false),
+			genele.HasFiltersWith(
+				genfil.HasPhotoURL(false),
 			),
 		)
 	}
@@ -238,28 +259,28 @@ func (e *Elections) GetAllFiltered(ctx context.Context, id int) ([]*generated.El
 
 func (e *Elections) GetById(ctx context.Context, id int) (*generated.Election, error) {
 	return e.DB.Query().
-		Select(election.Columns...).
-		Where(election.ID(id)).
+		Select(genele.Columns...).
+		Where(genele.ID(id)).
 		Only(ctx)
 }
 
 func (e *Elections) GetByUserId(ctx context.Context, id int) ([]*generated.Election, error) {
 	return e.DB.Query().
-		Select(election.Columns...).
-		Where(election.HasUserWith(user.ID(id))).
+		Select(genele.Columns...).
+		Where(genele.HasUserWith(user.ID(id))).
 		All(ctx)
 }
 
 func (e *Elections) GetCandidates(ctx context.Context, id int) ([]*generated.Candidate, error) {
-	return e.DB.Query().Where(election.ID(id)).QueryCandidates().All(ctx)
+	return e.DB.Query().Where(genele.ID(id)).QueryCandidates().All(ctx)
 }
 
 func (e *Elections) GetSettings(ctx context.Context, id int) (*generated.ElectionSettings, error) {
-	return e.DB.Query().Where(election.ID(id)).QuerySettings().Only(ctx)
+	return e.DB.Query().Where(genele.ID(id)).QuerySettings().Only(ctx)
 }
 
 func (e *Elections) GetFilters(ctx context.Context, id int) (*generated.ElectionFilters, error) {
-	return e.DB.Query().Where(election.ID(id)).QueryFilters().Only(ctx)
+	return e.DB.Query().Where(genele.ID(id)).QueryFilters().Only(ctx)
 }
 
 func (e *Elections) Update(ctx context.Context, eu *ElectionUpdate) (*generated.Election, error) {

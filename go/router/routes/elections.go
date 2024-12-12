@@ -48,18 +48,18 @@ func ElectionsRoutes() chi.Router {
 	return r
 }
 
-// @Summary Создать выборы с кандидатами
-// @Description Создает новые выборы вместе со списком кандидатов в одной транзакции.
+// @Summary Создать выборы
+// @Description Создает новые выборы.
 // @Tags Выборы
 // @Accept  json
 // @Produce  json
-// @Param election body services.ElectionWithCandidatesCreate true "Данные для создания выборов и кандидатов"
+// @Param election body services.ElectionCreate true "Данные для создания выборов"
 // @Success 201 {object} map[string]int "Успешно создано, возвращает идентификатор созданных выборов"
 // @Failure 400 {string} string "Неверный формат запроса или данные в теле запроса"
 // @Failure 401 {string} string "Неавторизованный доступ"
 // @Failure 403 {string} string "Доступ запрещен"
 // @Failure 500 {string} string "Ошибка сервера"
-// @Router /elections/with-candidates [post]
+// @Router /elections [post]
 // @Security Bearer
 func create(w http.ResponseWriter, r *http.Request) {
 	userID, err := RetrieveIdFromToken(r.Context())

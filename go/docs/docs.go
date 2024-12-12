@@ -58,7 +58,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Создает новые выборы на основе данных, переданных в теле запроса.",
+                "description": "Создает новые выборы.",
                 "consumes": [
                     "application/json"
                 ],
@@ -84,11 +84,26 @@ const docTemplate = `{
                     "201": {
                         "description": "Успешно создано, возвращает идентификатор созданных выборов",
                         "schema": {
-                            "type": "integer"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
                         }
                     },
                     "400": {
-                        "description": "Неверный формат запроса",
+                        "description": "Неверный формат запроса или данные в теле запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизованный доступ",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "Доступ запрещен",
                         "schema": {
                             "type": "string"
                         }
@@ -97,6 +112,55 @@ const docTemplate = `{
                         "description": "Ошибка сервера",
                         "schema": {
                             "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/elections/created": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Эта функция возвращает список выборов, созданных текущим пользователем.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Выборы"
+                ],
+                "summary": "Получить выборы, созданные пользователем",
+                "responses": {
+                    "200": {
+                        "description": "Список выборов, созданных пользователем",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/generated.Election"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизованный доступ",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -146,121 +210,6 @@ const docTemplate = `{
                             "additionalProperties": {
                                 "type": "string"
                             }
-                        }
-                    }
-                }
-            }
-        },
-        "/elections/user": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Эта функция возвращает список выборов, созданных текущим пользователем.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Выборы"
-                ],
-                "summary": "Получить выборы, созданные пользователем",
-                "responses": {
-                    "200": {
-                        "description": "Список выборов, созданных пользователем",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/generated.Election"
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Неавторизованный доступ",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/elections/with-candidates": {
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Создает новые выборы вместе со списком кандидатов в одной транзакции.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Выборы"
-                ],
-                "summary": "Создать выборы с кандидатами",
-                "parameters": [
-                    {
-                        "description": "Данные для создания выборов и кандидатов",
-                        "name": "election",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/services.ElectionWithCandidatesCreate"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Успешно создано, возвращает идентификатор созданных выборов",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "integer"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный формат запроса или данные в теле запроса",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "401": {
-                        "description": "Неавторизованный доступ",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "403": {
-                        "description": "Доступ запрещен",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Ошибка сервера",
-                        "schema": {
-                            "type": "string"
                         }
                     }
                 }
@@ -1538,6 +1487,10 @@ const docTemplate = `{
         "generated.Election": {
             "type": "object",
             "properties": {
+                "completed": {
+                    "description": "Completed holds the value of the \"completed\" field.",
+                    "type": "boolean"
+                },
                 "description": {
                     "description": "Description holds the value of the \"description\" field.",
                     "type": "string"
@@ -2021,43 +1974,6 @@ const docTemplate = `{
         },
         "services.ElectionCreate": {
             "type": "object",
-            "properties": {
-                "description": {
-                    "description": "Description — описание выборов\nЭто обязательное поле, максимальная длина 1000 символов.",
-                    "type": "string",
-                    "maxLength": 1000
-                },
-                "title": {
-                    "description": "Title — название выборов\nЭто обязательное поле, минимальная длина 8 символов, максимальная длина 64 символа.",
-                    "type": "string",
-                    "maxLength": 64,
-                    "minLength": 8
-                },
-                "user_id": {
-                    "description": "UserID - идентификатор пользователя, которые создает выборы\nЭто обязательное поле.",
-                    "type": "integer"
-                }
-            }
-        },
-        "services.ElectionUpdate": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "description": "Description — новое описание выборов\nЭто необязательное поле при обновлении данных.",
-                    "type": "string"
-                },
-                "id": {
-                    "description": "ID — уникальный идентификатор выбора, который необходимо обновить\nЭто обязательное поле для обновления информации о конкретном выборе.",
-                    "type": "integer"
-                },
-                "title": {
-                    "description": "Title — новое название выборов\nЭто обязательное поле при обновлении данных.",
-                    "type": "string"
-                }
-            }
-        },
-        "services.ElectionWithCandidatesCreate": {
-            "type": "object",
             "required": [
                 "candidates"
             ],
@@ -2066,12 +1982,72 @@ const docTemplate = `{
                     "type": "array",
                     "minItems": 1,
                     "items": {
-                        "$ref": "#/definitions/services.CandidateCreate"
+                        "type": "object",
+                        "properties": {
+                            "description": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "description": {
                     "type": "string",
                     "maxLength": 1000
+                },
+                "filters": {
+                    "type": "object",
+                    "properties": {
+                        "has_address": {
+                            "type": "boolean"
+                        },
+                        "has_bio": {
+                            "type": "boolean"
+                        },
+                        "has_birthdate": {
+                            "type": "boolean"
+                        },
+                        "has_first_name": {
+                            "type": "boolean"
+                        },
+                        "has_last_name": {
+                            "type": "boolean"
+                        },
+                        "has_phone_number": {
+                            "type": "boolean"
+                        },
+                        "has_photo_url": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "settings": {
+                    "type": "object",
+                    "properties": {
+                        "allow_comments": {
+                            "type": "boolean"
+                        },
+                        "duration": {
+                            "type": "string"
+                        },
+                        "is_active": {
+                            "type": "boolean"
+                        },
+                        "is_anonymous": {
+                            "type": "boolean"
+                        },
+                        "max_votes": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "title": {
                     "type": "string",
@@ -2080,6 +2056,23 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "services.ElectionUpdate": {
+            "type": "object",
+            "properties": {
+                "completed": {
+                    "type": "boolean"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
                 }
             }
         },
