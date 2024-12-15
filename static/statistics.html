@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Статистика по созданным выборам</title>
+    <!-- Font Awesome for Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+      integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <!-- Include jwt-decode via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+    <style>
+      /* ======= Variables ======= */
+      :root {
+        --font-family: "Arial", sans-serif;
+        --color-background: #f8f9fa;
+        --color-card-bg: #ffffff;
+        --color-border: #ddd;
+        --color-shadow: rgba(0, 0, 0, 0.1);
+        --color-primary: #007bff;
+        --color-primary-hover: #0056b3;
+        --color-danger: #dc3545;
+        --color-danger-hover: #c82333;
+        --color-success: #28a745;
+        --color-success-hover: #218838;
+        --color-text: #333;
+        --color-text-secondary: #555;
+        --transition-speed: 0.3s;
+        --transition-speed-fast: 0.2s;
+        --border-radius: 10px;
+        --color-modify: #17a2b8;
+        --color-modify-hover: #117a8b;
+        --max-width: 1200px;
+        --color-tag: #b9b9b9;
+        --color-tag-hover: #868686;
+        --color-restricted-bg: #e0e0e0;
+        --color-restricted-text: #777;
+        --color-search-bg: #ffffff;
+        --color-search-border: #ccc;
+        --color-search-focus-border: var(--color-primary);
+        --color-search-placeholder: #999;
+        --color-time-bg: #e9ecef;
+        --color-time-number: #343a40;
+        --color-time-label: #6c757d;
+      }
+
+      /* ======= Global Styles ======= */
+      body {
+        font-family: var(--font-family);
+        margin: 0;
+        padding: 0;
+        background-color: var(--color-background);
+      }
+
+      header {
+        /* Add a subtle shadow to separate header from page */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        padding: 20px 0;
+        display: flex;
+        justify-content: center;
+      }
+
+      h1,
+      h2,
+      h3 {
+        color: var(--color-text);
+        margin: 0;
+      }
+
+      p {
+        margin: 0;
+      }
+
+      /* ======= Container ======= */
+      .container {
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      /* ======= Navigation Bar Styles ======= */
+      .navbar {
+        background-color: var(--color-primary);
+        padding: 5px 10px;
+        color: black;
+
+        /* Make navbar flex to place nav items and search bar on one line */
+        display: flex;
+        justify-content: space-between; /* Space between menu and search bar */
+        align-items: center; /* Vertically center all items */
+      }
+
+      .nav-menu {
+        list-style: none;
+        display: flex;
+        gap: 20px;
+        margin: 0;
+        padding: 0;
+      }
+
+      .nav-item {
+        position: relative;
+      }
+
+      .nav-link {
+        color: #fff;
+        text-decoration: none;
+        font-weight: bold;
+        cursor: pointer;
+        display: block;
+        padding: 8px 12px;
+        transition: background-color var(--transition-speed);
+      }
+
+      .nav-link:hover {
+        background-color: var(--color-primary-hover);
+        border-radius: var(--border-radius);
+      }
+
+      /* Dropdown Menu Styles */
+      .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background-color: var(--color-card-bg);
+        min-width: 150px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        border-radius: var(--border-radius);
+        z-index: 1000;
+      }
+
+      .dropdown-menu li {
+        border-bottom: 1px solid var(--color-border);
+      }
+
+      .dropdown-menu li:last-child {
+        border-bottom: none;
+      }
+
+      .dropdown-link {
+        color: var(--color-text);
+        padding: 10px 16px;
+        text-decoration: none;
+        display: block;
+        transition: background-color var(--transition-speed);
+      }
+
+      .dropdown-link:hover {
+        background-color: var(--color-background);
+      }
+
+      /* Show Dropdown on Hover */
+      .dropdown:hover .dropdown-menu {
+        display: block;
+      }
+
+      /* Responsive Adjustments */
+      @media (max-width: 768px) {
+        .nav-menu {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .dropdown-menu {
+          position: static;
+          box-shadow: none;
+        }
+      }
+      /* ======= Table Styles ======= */
+      .stats-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        border-radius: var(--border-radius);
+        overflow: hidden; /* Ensures rounded corners */
+        box-shadow: 0 4px 10px var(--color-shadow);
+      }
+
+      .stats-table th,
+      .stats-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid var(--color-border);
+      }
+      .stats-table thead {
+        background-color: var(--color-background);
+      }
+
+      .stats-table th {
+        font-weight: bold;
+      }
+
+      .stats-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+      .stats-table tbody tr:nth-child(even) {
+        background-color: var(
+          --color-background
+        ); /* Optional: alternate row colors */
+      }
+
+      .stats-container {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header Section -->
+      <header>
+        <nav class="navbar">
+          <ul class="nav-menu">
+            <!-- Выборы Dropdown -->
+            <li class="nav-item dropdown">
+              <a href="#" class="nav-link">Выборы ▾</a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a
+                    href="create.html"
+                    class="dropdown-link"
+                    id="create-election-link"
+                    >Создать</a
+                  >
+                </li>
+                <li>
+                  <a href="active.html" class="dropdown-link">Активные</a>
+                </li>
+                <li>
+                  <a href="completed.html" class="dropdown-link">Завершенные</a>
+                </li>
+                <li>
+                  <a href="statistics.html" class="dropdown-link">Статистика</a>
+                </li>
+              </ul>
+            </li>
+
+            <!-- Профиль Dropdown -->
+            <li class="nav-item dropdown">
+              <a href="#" class="nav-link">Профиль ▾</a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a href="profile.html" class="dropdown-link">Мой профиль</a>
+                </li>
+                <li>
+                  <a href="#" class="dropdown-link" id="logout-link">Выйти</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+      </header>
+      <h1>Статистика по созданным выборам</h1>
+      <div class="stats-container">
+        <div id="age-stats"></div>
+        <div id="comment-stats"></div>
+      </div>
+    </div>
+
+    <script>
+      function getJwtClaims() {
+        const token = localStorage.getItem("jwt_token");
+        if (!token) return null;
+
+        try {
+          return jwt_decode(token);
+        } catch (error) {
+          console.error("Invalid JWT token", error);
+          return null;
+        }
+      }
+
+      function checkAuthentication() {
+        const token = localStorage.getItem("jwt_token");
+        if (!token) {
+          alert("Вы не вошли в систему. Пожалуйста, войдите сначала.");
+          window.location.href = "index.html";
+          return;
+        }
+
+        const claims = getJwtClaims();
+        if (!claims) {
+          alert("Неверный токен. Пожалуйста, войдите снова.");
+          localStorage.removeItem("jwt_token");
+          window.location.href = "index.html";
+          return;
+        }
+
+        if (claims.exp) {
+          const currentTime = Date.now() / 1000;
+          if (claims.exp < currentTime) {
+            alert("Сессия истекла. Пожалуйста, войдите снова.");
+            localStorage.removeItem("jwt_token");
+            window.location.href = "index.html";
+            return;
+          }
+        }
+      }
+      function isUserOrganizer() {
+        const claims = getJwtClaims();
+        return claims && claims.is_organizer;
+      }
+      function updateHeaderBasedOnRole() {
+        const createElectionLink = document.getElementById(
+          "create-election-link"
+        );
+        if (createElectionLink) {
+          createElectionLink.style.display = isUserOrganizer()
+            ? "block"
+            : "none";
+        }
+      }
+      function handleLogout() {
+        if (confirm("Вы уверены, что хотите выйти?")) {
+          localStorage.removeItem("jwt_token");
+          window.location.href = "index.html";
+        }
+      }
+
+      const logoutLink = document.getElementById("logout-link");
+      if (logoutLink) {
+        logoutLink.addEventListener("click", function (e) {
+          e.preventDefault();
+          handleLogout();
+        });
+      }
+      async function fetchStatistics() {
+        try {
+          const response = await fetch(
+            "http://localhost:3000/elections/statistics",
+            {
+              method: "GET",
+              headers: {
+                Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Не удалось получить статистику по выборам");
+          }
+
+          return await response.json();
+        } catch (error) {
+          console.error("Ошибка при получении статистики:", error);
+          alert("Не удалось загрузить статистику по выборам");
+          return null;
+        }
+      }
+      function displayAgeStats(ageData) {
+        const ageStatsContainer = document.getElementById("age-stats");
+        if (!ageData) {
+          ageStatsContainer.innerHTML =
+            "<p>Нет данных о возрастных группах</p>";
+          return;
+        }
+
+        const table = document.createElement("table");
+        table.className = "stats-table";
+        table.innerHTML = `
+          <thead>
+          <tr>
+            <th>Возрастная группа</th>
+            <th>Количество</th>
+          </tr>
+          </thead>
+          <tbody>
+            <tr>
+                <td>Младше 12</td>
+                <td>${ageData.under_12}</td>
+            </tr>
+             <tr>
+                <td>12-18</td>
+                <td>${ageData.between_12_and_18}</td>
+            </tr>
+            <tr>
+                <td>18-25</td>
+                 <td>${ageData.between_18_and_25}</td>
+            </tr>
+            <tr>
+                <td>25-40</td>
+                <td>${ageData.between_25_and_40}</td>
+             </tr>
+            <tr>
+                <td>40-60</td>
+                <td>${ageData.between_40_and_60}</td>
+            </tr>
+            <tr>
+                <td>Старше 60</td>
+                 <td>${ageData.over_60}</td>
+             </tr>
+             <tr>
+                <td>Не указано</td>
+                <td>${ageData.no_age}</td>
+           </tr>
+          </tbody>
+        `;
+
+        ageStatsContainer.appendChild(table);
+      }
+
+      function displayCommentStats(commentData) {
+        const commentStatsContainer = document.getElementById("comment-stats");
+        if (!commentData) {
+          commentStatsContainer.innerHTML = "<p>Нет данных о комментариях</p>";
+          return;
+        }
+
+        const table = document.createElement("table");
+        table.className = "stats-table";
+
+        table.innerHTML = `
+           <thead>
+              <tr>
+               <th>Метрика</th>
+               <th>Значение</th>
+              </tr>
+           </thead>
+            <tbody>
+              <tr>
+                <td>Всего комментариев</td>
+                <td>${commentData.total_comments}</td>
+             </tr>
+              <tr>
+                  <td>Средняя длина комментария</td>
+                 <td>${commentData.avg_comment_length}</td>
+               </tr>
+                 <tr>
+                   <td>Среднее количество комментариев на пользователя</td>
+                 <td>${commentData.comments_per_user.toFixed(2)}</td>
+               </tr>
+          </tbody>
+        `;
+
+        commentStatsContainer.appendChild(table);
+      }
+      async function initializePage() {
+        const statistics = await fetchStatistics();
+        console.log(statistics);
+
+        if (statistics) {
+          displayAgeStats(statistics.age_groups);
+          displayCommentStats(statistics.comment_info);
+        }
+      }
+      window.onload = async function () {
+        checkAuthentication();
+        updateHeaderBasedOnRole();
+        await initializePage();
+      };
+    </script>
+  </body>
+</html>

@@ -376,6 +376,23 @@ definitions:
         description: JWT-токен
         type: string
     type: object
+  services.AgeGroup:
+    properties:
+      between_12_and_18:
+        type: integer
+      between_18_and_25:
+        type: integer
+      between_25_and_40:
+        type: integer
+      between_40_and_60:
+        type: integer
+      no_age:
+        type: integer
+      over_60:
+        type: integer
+      under_12:
+        type: integer
+    type: object
   services.CandidateCreate:
     properties:
       description:
@@ -412,6 +429,15 @@ definitions:
       parent_id:
         type: integer
       userId:
+        type: integer
+    type: object
+  services.CommentInfo:
+    properties:
+      avg_comment_length:
+        type: integer
+      comments_per_user:
+        type: number
+      total_comments:
         type: integer
     type: object
   services.ElectionCreate:
@@ -535,6 +561,13 @@ definitions:
         type: string
       userID:
         type: integer
+    type: object
+  services.Statistics:
+    properties:
+      age_groups:
+        $ref: '#/definitions/services.AgeGroup'
+      comment_info:
+        $ref: '#/definitions/services.CommentInfo'
     type: object
   services.TagCreate:
     properties:
@@ -1268,6 +1301,35 @@ paths:
       security:
       - Bearer: []
       summary: Получить отфильтрованные выборы
+      tags:
+      - Выборы
+  /elections/statistics:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает статистику по всем выборам, созданным текущим пользователем.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Статистика по выборам
+          schema:
+            $ref: '#/definitions/services.Statistics'
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - Bearer: []
+      summary: Получить статистику по выборам пользователя
       tags:
       - Выборы
   /login:

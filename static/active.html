@@ -420,6 +420,14 @@
                 <li>
                   <a href="completed.html" class="dropdown-link">Завершенные</a>
                 </li>
+                <li>
+                  <a
+                    href="statistics.html"
+                    class="dropdown-link"
+                    id="elections-statistics-link"
+                    >Статистика</a
+                  >
+                </li>
               </ul>
             </li>
 
@@ -514,9 +522,20 @@
           "create-election-link"
         );
         if (createElectionLink) {
-          createElectionLink.style.display = isUserOrganizer()
-            ? "block"
-            : "none";
+          if (!isUserOrganizer()) {
+            createElectionLink.parentNode.style.display = "none";
+          }
+          createElectionLink.style.display = "block";
+        }
+
+        const electionsStatisticsLink = document.getElementById(
+          "elections-statistics-link"
+        );
+        if (electionsStatisticsLink) {
+          if (!isUserOrganizer()) {
+            electionsStatisticsLink.parentNode.style.display = "none";
+          }
+          electionsStatisticsLink.style.display = "block";
         }
       }
 

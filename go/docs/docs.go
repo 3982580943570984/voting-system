@@ -215,6 +215,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/elections/statistics": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Возвращает статистику по всем выборам, созданным текущим пользователем.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Выборы"
+                ],
+                "summary": "Получить статистику по выборам пользователя",
+                "responses": {
+                    "200": {
+                        "description": "Статистика по выборам",
+                        "schema": {
+                            "$ref": "#/definitions/services.Statistics"
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизованный доступ",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/elections/{id}": {
             "get": {
                 "description": "Эта функция возвращает информацию о конкретных выборах по ID.",
@@ -2077,6 +2123,32 @@ const docTemplate = `{
                 }
             }
         },
+        "services.AgeGroup": {
+            "type": "object",
+            "properties": {
+                "between_12_and_18": {
+                    "type": "integer"
+                },
+                "between_18_and_25": {
+                    "type": "integer"
+                },
+                "between_25_and_40": {
+                    "type": "integer"
+                },
+                "between_40_and_60": {
+                    "type": "integer"
+                },
+                "no_age": {
+                    "type": "integer"
+                },
+                "over_60": {
+                    "type": "integer"
+                },
+                "under_12": {
+                    "type": "integer"
+                }
+            }
+        },
         "services.CandidateCreate": {
             "type": "object",
             "properties": {
@@ -2132,6 +2204,20 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "services.CommentInfo": {
+            "type": "object",
+            "properties": {
+                "avg_comment_length": {
+                    "type": "integer"
+                },
+                "comments_per_user": {
+                    "type": "number"
+                },
+                "total_comments": {
                     "type": "integer"
                 }
             }
@@ -2318,6 +2404,17 @@ const docTemplate = `{
                 },
                 "userID": {
                     "type": "integer"
+                }
+            }
+        },
+        "services.Statistics": {
+            "type": "object",
+            "properties": {
+                "age_groups": {
+                    "$ref": "#/definitions/services.AgeGroup"
+                },
+                "comment_info": {
+                    "$ref": "#/definitions/services.CommentInfo"
                 }
             }
         },

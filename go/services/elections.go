@@ -54,6 +54,27 @@ type ElectionUpdate struct {
 	Completed   *bool   `json:"completed,omitempty"`
 }
 
+type AgeGroup struct {
+	Under12        int `json:"under_12"`
+	Between12And18 int `json:"between_12_and_18"`
+	Between18And25 int `json:"between_18_and_25"`
+	Between25And40 int `json:"between_25_and_40"`
+	Between40And60 int `json:"between_40_and_60"`
+	Over60         int `json:"over_60"`
+	NoAge          int `json:"no_age"`
+}
+
+type CommentInfo struct {
+	TotalComments    int     `json:"total_comments"`
+	AvgCommentLength int     `json:"avg_comment_length"`
+	CommentsPerUser  float64 `json:"comments_per_user"`
+}
+
+type Statistics struct {
+	AgeGroups   AgeGroup    `json:"age_groups"`
+	CommentInfo CommentInfo `json:"comment_info"`
+}
+
 func NewElections() *Elections {
 	return &Elections{
 		DB: database.Client.Election,
@@ -273,6 +294,93 @@ func (e *Elections) GetByUserId(ctx context.Context, id int) ([]*generated.Elect
 
 func (e *Elections) GetCandidates(ctx context.Context, id int) ([]*generated.Candidate, error) {
 	return e.DB.Query().Where(genele.ID(id)).QueryCandidates().All(ctx)
+}
+
+func (e *Elections) GetStatistics(ctx context.Context, id int) (any, error) {
+	calculateAge := func(birthdate time.Time) int {
+		now := time.Now()
+		age := now.Year() - birthdate.Year()
+		if now.YearDay() < birthdate.YearDay() {
+			age--
+		}
+		return age
+	}
+
+	elections, err := e.GetByUserId(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	var ageGroups AgeGroup
+	commentInfo := CommentInfo{}
+	var totalCommentLength int
+
+	for _, election := range elections {
+		votes, err := election.QueryCandidates().QueryVotes().All(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		var totalUsers int
+		for _, vote := range votes {
+			user, err := vote.QueryUser().Only(ctx)
+			if err != nil {
+				return nil, err
+			}
+
+			profile, err := user.QueryProfile().Only(ctx)
+			if err != nil {
+				return nil, err
+			}
+
+			if profile.Birthdate.IsZero() {
+				ageGroups.NoAge++
+			} else {
+				age := calculateAge(profile.Birthdate)
+				switch {
+				case age < 12:
+					ageGroups.Under12++
+				case age >= 12 && age < 18:
+					ageGroups.Between12And18++
+				case age >= 18 && age < 25:
+					ageGroups.Between18And25++
+				case age >= 25 && age < 40:
+					ageGroups.Between25And40++
+				case age >= 40 && age < 60:
+					ageGroups.Between40And60++
+				default:
+					ageGroups.Over60++
+				}
+			}
+			totalUsers++
+		}
+
+		comments, err := election.QueryComments().All(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		commentInfo.TotalComments += len(comments)
+
+		for _, comment := range comments {
+			totalCommentLength += len(comment.Contents)
+		}
+
+		if commentInfo.TotalComments > 0 {
+			commentInfo.AvgCommentLength = totalCommentLength / commentInfo.TotalComments
+		}
+
+		if totalUsers > 0 && commentInfo.TotalComments > 0 {
+			commentInfo.CommentsPerUser = float64(commentInfo.TotalComments) / float64(totalUsers)
+		}
+	}
+
+	statistics := Statistics{
+		AgeGroups:   ageGroups,
+		CommentInfo: commentInfo,
+	}
+
+	return statistics, nil
 }
 
 func (e *Elections) GetSettings(ctx context.Context, id int) (*generated.ElectionSettings, error) {

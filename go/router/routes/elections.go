@@ -26,6 +26,8 @@ func ElectionsRoutes() chi.Router {
 
 		r.Get("/created", getCreated)
 
+		r.Get("/statistics", getStatistics)
+
 		r.Post("/", create)
 	})
 
@@ -176,6 +178,34 @@ func get(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(election)
 }
 
+// @Summary Получить статистику по выборам пользователя
+// @Description Возвращает статистику по всем выборам, созданным текущим пользователем.
+// @Tags Выборы
+// @Accept json
+// @Produce json
+// @Success 200 {object} services.Statistics "Статистика по выборам"
+// @Failure 401 {object} map[string]string "Неавторизованный доступ"
+// @Failure 500 {object} map[string]string "Ошибка сервера"
+// @Router /elections/statistics [get]
+// @Security Bearer
+func getStatistics(w http.ResponseWriter, r *http.Request) {
+	userID, err := RetrieveIdFromToken(r.Context())
+	if err != nil {
+		http.Error(w, "Invalid authentication token: "+err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	statistics, err := services.NewElections().GetStatistics(r.Context(), userID)
+	if err != nil {
+		http.Error(w, "Internal server error: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	json.NewEncoder(w).Encode(statistics)
+}
+
 // @Summary Получить выборы, созданные пользователем
 // @Description Эта функция возвращает список выборов, созданных текущим пользователем.
 // @Tags Выборы
@@ -194,7 +224,6 @@ func getCreated(w http.ResponseWriter, r *http.Request) {
 	}
 
 	elections, err := services.NewElections().GetByUserId(r.Context(), userID)
-
 	if err != nil {
 		http.Error(w, "Internal server error: "+err.Error(), http.StatusInternalServerError)
 		return
