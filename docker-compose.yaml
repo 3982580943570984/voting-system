@@ -9,6 +9,8 @@ services:
       - POSTGRES_DB=database
       - POSTGRES_HOST_AUTH_METHOD=trust
       - POSTGRES_USER=postgres
+    volumes:
+      - ./sql:/app
 
   pgadmin:
     image: dpage/pgadmin4
@@ -59,3 +61,36 @@ services:
       - SWAGGER_JSON_URL=http://localhost:3000/swagger
     depends_on:
       - backend
+
+  kong:
+    image: kong:latest
+    container_name: kong
+    restart: unless-stopped
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kongpass
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001,0.0.0.0:8444 ssl
+      KONG_ADMIN_GUI_URL: http://localhost:8002
+    ports:
+      - 8000:8000
+      - 8443:8443
+      - 127.0.0.1:8001:8001
+      - 127.0.0.1:8002:8002
+      - 127.0.0.1:8444:8444
+
+  kong-database:
+    image: postgres:latest
+    container_name: kong-database
+    restart: unless-stopped
+    ports:
+      - 5433:5432
+    environment:
+      - POSTGRES_DB=kong
+      - POSTGRES_PASSWORD=kongpass
+      - POSTGRES_USER=kong
