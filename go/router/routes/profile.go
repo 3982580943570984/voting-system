@@ -27,7 +27,7 @@ func ProfileRoutes() chi.Router {
 // @Summary Получить профиль пользователя
 // @Description Возвращает профиль текущего аутентифицированного пользователя.
 // @Tags Профиль
-// @Security BearerAuth
+// @Security Bearer
 // @Accept json
 // @Produce json
 // @Success 200 {object} generated.Profile "Профиль пользователя"
@@ -55,7 +55,7 @@ func getProfile(w http.ResponseWriter, r *http.Request) {
 // @Summary Обновить профиль пользователя
 // @Description Обновляет профиль текущего аутентифицированного пользователя.
 // @Tags Профиль
-// @Security BearerAuth
+// @Security Bearer
 // @Accept json
 // @Produce json
 // @Param profile body services.ProfileUpdate true "Данные для обновления профиля"

@@ -1192,7 +1192,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "Bearer": []
                     }
                 ],
                 "description": "Возвращает профиль текущего аутентифицированного пользователя.",
@@ -1236,7 +1236,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "Bearer": []
                     }
                 ],
                 "description": "Обновляет профиль текущего аутентифицированного пользователя.",
@@ -1345,7 +1345,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "Bearer": []
                     }
                 ],
                 "description": "Возвращает список голосов текущего пользователя на указанных выборах.",
@@ -1503,7 +1503,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "Bearer": []
                     }
                 ],
                 "description": "Возвращает булевое значение, указывающее, проголосовал ли пользователь на указанных выборах.",

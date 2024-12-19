@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Активные выборы</title>
-    <!-- Font Awesome for Icons -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
@@ -12,10 +11,8 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <!-- Include jwt-decode via CDN -->
     <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
     <style>
-      /* ======= Variables ======= */
       :root {
         --font-family: "Arial", sans-serif;
         --color-background: #f8f9fa;
@@ -49,7 +46,6 @@
         --color-time-label: #6c757d;
       }
 
-      /* ======= Global Styles ======= */
       body {
         font-family: var(--font-family);
         margin: 0;
@@ -79,14 +75,12 @@
         margin: 0;
       }
 
-      /* ======= Container ======= */
       .container {
         max-width: var(--max-width);
         margin: 0 auto;
         padding: 20px;
       }
 
-      /* ======= Navigation Bar Styles ======= */
       .navbar {
         background-color: var(--color-primary);
         padding: 5px 10px;
@@ -125,7 +119,6 @@
         border-radius: var(--border-radius);
       }
 
-      /* Dropdown Menu Styles */
       .dropdown-menu {
         display: none;
         position: absolute;
@@ -158,12 +151,10 @@
         background-color: var(--color-background);
       }
 
-      /* Show Dropdown on Hover */
       .dropdown:hover .dropdown-menu {
         display: block;
       }
 
-      /* Responsive Adjustments */
       @media (max-width: 768px) {
         .nav-menu {
           flex-direction: column;
@@ -176,7 +167,6 @@
         }
       }
 
-      /* ======= Search Bar Styling ======= */
       .search-container {
         background: #fff;
         padding: 5px 10px;
@@ -206,7 +196,6 @@
         color: #aaa;
       }
 
-      /* ======= Election List Container ======= */
       .election-list {
         display: grid;
         grid-template-columns: 1fr; /* One per line */
@@ -214,7 +203,6 @@
         margin-top: 20px;
       }
 
-      /* ======= Election Card Styling ======= */
       .election-card {
         display: flex;
         flex-direction: column;
@@ -262,7 +250,6 @@
         align-items: center;
       }
 
-      /* Adjust .time-left positioning */
       .time-left {
         display: flex;
         align-items: center;
@@ -271,7 +258,6 @@
         margin: 0; /* Remove top margin if any */
       }
 
-      /* Keep previous .time-left styles but ensure minimal vertical space */
       .time-left .clock-icon {
         font-size: 1.1rem;
         color: var(--color-primary);
@@ -303,7 +289,6 @@
         margin-top: 2px;
       }
 
-      /* ======= Tags Styling ======= */
       .tags-container {
         margin: 15px 0;
         gap: 10px;
@@ -324,7 +309,6 @@
         background-color: var(--color-tag-hover);
       }
 
-      /* ======= Button Styling ======= */
       .button-container {
         display: flex;
         align-items: center;
@@ -377,7 +361,6 @@
         transform: scale(1.05);
       }
 
-      /* ======= Restricted Message Styling ======= */
       .restricted-message {
         margin-top: 10px;
         font-size: 14px;
@@ -385,7 +368,6 @@
         font-weight: bold;
       }
 
-      /* ======= Responsive Design ======= */
       @media (max-width: 768px) {
         .time-left {
           flex-direction: row;
@@ -398,11 +380,9 @@
   </head>
   <body>
     <div class="container">
-      <!-- Header Section -->
       <header>
         <nav class="navbar">
           <ul class="nav-menu">
-            <!-- Выборы Dropdown -->
             <li class="nav-item dropdown">
               <a href="#" class="nav-link">Выборы ▾</a>
               <ul class="dropdown-menu">
@@ -431,7 +411,6 @@
               </ul>
             </li>
 
-            <!-- Профиль Dropdown -->
             <li class="nav-item dropdown">
               <a href="#" class="nav-link">Профиль ▾</a>
               <ul class="dropdown-menu">
@@ -445,7 +424,6 @@
             </li>
           </ul>
 
-          <!-- Search Bar for Tag Filtering moved here -->
           <div class="search-container">
             <input
               type="text"
@@ -456,11 +434,8 @@
         </nav>
       </header>
 
-      <!-- Active Elections List -->
       <h1>Активные выборы</h1>
-      <div class="election-list" id="election-list">
-        <!-- Election Cards will be populated here -->
-      </div>
+      <div class="election-list" id="election-list"></div>
     </div>
 
     <script>
@@ -756,16 +731,13 @@
             card.classList.add("restricted");
           }
 
-          // Create a container for the title and timer
           const topRow = document.createElement("div");
           topRow.className = "top-row";
 
-          // Title
           const title = document.createElement("h3");
           title.innerText = election.title;
           topRow.appendChild(title);
 
-          // Time Left at the top just under the title
           const timeLeftContainer = document.createElement("div");
           timeLeftContainer.className = "time-left";
 
@@ -810,16 +782,13 @@
 
           card.appendChild(topRow);
 
-          // Description
           const description = document.createElement("p");
-          // description.style.marginTop = "10px";
           description.innerText =
             election.description.length > 100
               ? election.description.substring(0, 100) + "..."
               : election.description;
           card.appendChild(description);
 
-          // Tags
           if (election.tags && election.tags.length > 0) {
             const tagsContainer = document.createElement("div");
             tagsContainer.className = "tags-container";
@@ -843,7 +812,6 @@
               "Вы не можете просматривать эти выборы из-за ограничений";
             card.appendChild(restrictedMessage);
           }
-          // Buttons
           const buttonContainer = document.createElement("div");
           buttonContainer.className = "button-container";
 
@@ -852,8 +820,8 @@
           viewButton.className = "view-btn";
           if (isRestricted) {
             viewButton.classList.add("disabled");
-            viewButton.style.pointerEvents = "none"; // Make the link unclickable
-            viewButton.style.opacity = "0.5"; // Visually indicate it's disabled
+            viewButton.style.pointerEvents = "none";
+            viewButton.style.opacity = "0.5";
           }
           viewButton.innerHTML = '<i class="fa-solid fa-eye"></i> Просмотреть';
           buttonContainer.appendChild(viewButton);

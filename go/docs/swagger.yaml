@@ -1397,7 +1397,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - Bearer: []
       summary: Получить профиль пользователя
       tags:
       - Профиль
@@ -1438,7 +1438,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - Bearer: []
       summary: Обновить профиль пользователя
       tags:
       - Профиль
@@ -1538,7 +1538,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - Bearer: []
       summary: Получить голоса пользователя на конкретных выборах
       tags:
       - Голоса
@@ -1613,7 +1613,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - Bearer: []
       summary: Проверить, проголосовал ли пользователь на выборах
       tags:
       - Голоса

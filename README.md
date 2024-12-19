@@ -20,6 +20,14 @@ ent describe ./ent/schema
 atlas schema inspect --url "postgres://postgres@localhost:5432/database?sslmode=disable" --format '{{ sql . }}' > schema.sql
 ```
 
+# POSTGRES
+
+## DUMP TABLES DATA
+
+```bash
+pg_dump --quote-all-identifiers --column-inserts --no-comments --host localhost --port 5432 --username postgres --no-password --dbname database --file /app/dump.sql
+```
+
 # DOCKER
 
 ## CREATE DOCKER IMAGE
@@ -52,4 +60,12 @@ docker exec --interactive --tty voting-system /bin/sh
 
 ```bash
 docker compose up --build --detach
+```
+
+# KONG
+
+## PREPARE THE KONG DATABASE
+
+```bash
+docker run --network voting-system_default --rm --env "KONG_DATABASE=postgres" --env "KONG_PG_HOST=kong-database" --env "KONG_PG_PASSWORD=kongpass" kong:latest kong migrations bootstrap
 ```

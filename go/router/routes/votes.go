@@ -31,7 +31,7 @@ func VotesRoutes() chi.Router {
 // @Summary Получить голоса пользователя на конкретных выборах
 // @Description Возвращает список голосов текущего пользователя на указанных выборах.
 // @Tags Голоса
-// @Security BearerAuth
+// @Security Bearer
 // @Accept json
 // @Produce json
 // @Param election_id query int true "ID выборов"
@@ -156,7 +156,7 @@ func deleteVote(w http.ResponseWriter, r *http.Request) {
 // @Summary Проверить, проголосовал ли пользователь на выборах
 // @Description Возвращает булевое значение, указывающее, проголосовал ли пользователь на указанных выборах.
 // @Tags Голоса
-// @Security BearerAuth
+// @Security Bearer
 // @Accept json
 // @Produce json
 // @Param election_id query int true "ID выборов"
