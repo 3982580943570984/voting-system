@@ -1453,50 +1453,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "description": "Удаляет голос пользователя по ID.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Голоса"
-                ],
-                "summary": "Удаление голоса пользователя",
-                "parameters": [
-                    {
-                        "description": "Информация о пользователе для удаления его голоса",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/services.VoteDelete"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "Голос успешно удален",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный формат данных или ошибка при удалении",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Ошибка сервера",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
             }
         },
         "/votes/voted": {
@@ -2444,17 +2400,6 @@ const docTemplate = `{
             }
         },
         "services.VoteCreate": {
-            "type": "object",
-            "properties": {
-                "candidate_id": {
-                    "type": "integer"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "services.VoteDelete": {
             "type": "object",
             "properties": {
                 "candidate_id": {

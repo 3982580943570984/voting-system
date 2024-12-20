@@ -1,0 +1,3 @@
+package votes
+
+func main() {}

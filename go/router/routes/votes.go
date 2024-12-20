@@ -20,8 +20,6 @@ func VotesRoutes() chi.Router {
 
 		r.Post("/", createVote)
 
-		r.Delete("/", deleteVote)
-
 		r.Get("/voted", hasVoted)
 	})
 
@@ -123,34 +121,6 @@ func createVote(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 
 	json.NewEncoder(w).Encode(map[string]int{"id": vote.ID})
-}
-
-// @Summary Удаление голоса пользователя
-// @Description Удаляет голос пользователя по ID.
-// @Tags Голоса
-// @Accept json
-// @Produce json
-// @Param request body services.VoteDelete true "Информация о пользователе для удаления его голоса"
-// @Success 204 {string} string "Голос успешно удален"
-// @Failure 400 {string} string "Неверный формат данных или ошибка при удалении"
-// @Failure 500 {string} string "Ошибка сервера"
-// @Router /votes [delete]
-func deleteVote(w http.ResponseWriter, r *http.Request) {
-	var vd services.VoteDelete
-
-	if err := json.NewDecoder(r.Body).Decode(&vd); err != nil {
-		http.Error(w, "Invalid input: "+err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	err := services.NewVotes().Delete(r.Context(), &vd)
-
-	if err != nil {
-		http.Error(w, "Error during vote deletion: "+err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	w.WriteHeader(http.StatusNoContent)
 }
 
 // @Summary Проверить, проголосовал ли пользователь на выборах

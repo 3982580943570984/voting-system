@@ -592,13 +592,6 @@ definitions:
       user_id:
         type: integer
     type: object
-  services.VoteDelete:
-    properties:
-      candidate_id:
-        type: integer
-      user_id:
-        type: integer
-    type: object
 info:
   contact: {}
 paths:
@@ -1471,35 +1464,6 @@ paths:
       tags:
       - Аутентификация
   /votes:
-    delete:
-      consumes:
-      - application/json
-      description: Удаляет голос пользователя по ID.
-      parameters:
-      - description: Информация о пользователе для удаления его голоса
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/services.VoteDelete'
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: Голос успешно удален
-          schema:
-            type: string
-        "400":
-          description: Неверный формат данных или ошибка при удалении
-          schema:
-            type: string
-        "500":
-          description: Ошибка сервера
-          schema:
-            type: string
-      summary: Удаление голоса пользователя
-      tags:
-      - Голоса
     get:
       consumes:
       - application/json
