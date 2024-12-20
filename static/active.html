@@ -531,7 +531,7 @@
 
       async function fetchAllElections() {
         try {
-          const response = await fetch("http://localhost:3000/elections", {
+          const response = await fetch("http://localhost:8000/elections/", {
             method: "GET",
             headers: {
               Authorization: "Bearer " + localStorage.getItem("jwt_token"),
@@ -555,7 +555,7 @@
       async function fetchElectionTags(electionId) {
         try {
           const response = await fetch(
-            `http://localhost:3000/elections/${electionId}/tags`,
+            `http://localhost:8000/elections/${electionId}/tags`,
             {
               method: "GET",
               headers: {
@@ -579,7 +579,7 @@
       async function fetchElectionFilters(electionId) {
         try {
           const response = await fetch(
-            `http://localhost:3000/elections/${electionId}/filters`,
+            `http://localhost:8000/elections/${electionId}/filters`,
             {
               method: "GET",
               headers: {
@@ -604,7 +604,7 @@
       async function fetchUserCreatedElections() {
         try {
           const response = await fetch(
-            "http://localhost:3000/elections/created",
+            "http://localhost:8000/elections/created",
             {
               method: "GET",
               headers: {
@@ -627,7 +627,7 @@
 
       async function fetchUserProfile() {
         try {
-          const response = await fetch("http://localhost:3000/profiles", {
+          const response = await fetch("http://localhost:8000/users/profile", {
             method: "GET",
             headers: {
               Authorization: "Bearer " + localStorage.getItem("jwt_token"),

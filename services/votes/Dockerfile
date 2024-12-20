@@ -4,20 +4,28 @@ RUN apk add --no-cache git
 
 WORKDIR /app
 
-COPY go/go.mod go/go.sum ./
+COPY services/votes/go.mod services/votes/go.sum ./votes/
+
+COPY services/shared ./shared/
+
+WORKDIR /app/votes
 
 RUN go mod download
 
-COPY . .
+WORKDIR /app
 
-RUN go build -o votes .
+COPY services/votes ./votes/
+
+WORKDIR /app/votes
+
+RUN go build -ldflags="-s -w" -o votes .
 
 FROM alpine:latest
 
 WORKDIR /app
 
-COPY --from=builder /app/votes .
+COPY --from=builder /app/votes ./
 
-EXPOSE 3000
+EXPOSE 3001
 
 CMD ["./votes"]

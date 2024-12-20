@@ -1,20 +1,39 @@
-package routes
+package router
 
 import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"voting-system/services"
+
+	"shared/token"
+	"shared/utils"
+
+	"votes/repositories"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"github.com/go-chi/jwtauth/v5"
 )
 
-func VotesRoutes() chi.Router {
-	r := chi.NewRouter()
+func Router() http.Handler {
+	router := chi.NewRouter()
 
-	r.Group(func(r chi.Router) {
-		r.Use(jwtauth.Verifier(token), jwtauth.Authenticator(token))
+	router.Use(
+		middleware.Heartbeat("/status"),
+		middleware.Logger,
+		middleware.Recoverer,
+		cors.Handler(cors.Options{
+			AllowCredentials: true,
+			AllowedHeaders:   []string{"*"},
+			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+			ExposedHeaders:   []string{"Link"},
+			MaxAge:           300,
+		}),
+	)
+
+	router.Group(func(r chi.Router) {
+		r.Use(jwtauth.Verifier(token.Token), jwtauth.Authenticator(token.Token))
 
 		r.Get("/", getAllVotes)
 
@@ -23,7 +42,7 @@ func VotesRoutes() chi.Router {
 		r.Get("/voted", hasVoted)
 	})
 
-	return r
+	return router
 }
 
 // @Summary Получить голоса пользователя на конкретных выборах
@@ -39,7 +58,7 @@ func VotesRoutes() chi.Router {
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router /votes [get]
 func getAllVotes(w http.ResponseWriter, r *http.Request) {
-	id, err := RetrieveIdFromToken(r.Context())
+	id, err := utils.RetrieveIdFromToken(r.Context())
 
 	if err != nil {
 		http.Error(w, "Invalid input: "+err.Error(), http.StatusBadRequest)
@@ -58,7 +77,7 @@ func getAllVotes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	votes, err := services.NewVotes().GetByUserAndElectionId(r.Context(), id, electionId)
+	votes, err := repositories.NewVotes().GetByUserAndElectionId(r.Context(), id, electionId)
 	if err != nil {
 		http.Error(w, "Ошибка при получении голосов: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -79,35 +98,33 @@ func getAllVotes(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {string} string "Ошибка сервера"
 // @Router /votes [post]
 func createVote(w http.ResponseWriter, r *http.Request) {
-	id, err := RetrieveIdFromToken(r.Context())
+	id, err := utils.RetrieveIdFromToken(r.Context())
 
 	if err != nil {
 		http.Error(w, "Invalid input: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	vc := services.VoteCreate{
-		UserId: id,
-	}
+	vc := repositories.VoteCreate{UserId: id}
 
 	if err := json.NewDecoder(r.Body).Decode(&vc); err != nil {
 		http.Error(w, "Invalid input: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	_, err = services.NewUsers().GetById(r.Context(), vc.UserId)
-	if err != nil {
-		http.Error(w, "Error finding user: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
+	// _, err = services.NewUsers().GetById(r.Context(), vc.UserId)
+	// if err != nil {
+	// 	http.Error(w, "Error finding user: "+err.Error(), http.StatusInternalServerError)
+	// 	return
+	// }
 
-	_, err = services.NewCandidates().GetById(r.Context(), vc.CandidateId)
-	if err != nil {
-		http.Error(w, "Error finding candidate: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
+	// _, err = services.NewCandidates().GetById(r.Context(), vc.CandidateId)
+	// if err != nil {
+	// 	http.Error(w, "Error finding candidate: "+err.Error(), http.StatusInternalServerError)
+	// 	return
+	// }
 
-	vote, err := services.NewVotes().Create(r.Context(), &vc)
+	vote, err := repositories.NewVotes().Create(r.Context(), &vc)
 	if err != nil {
 		http.Error(w, "Error creating vote: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -133,7 +150,7 @@ func createVote(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router /votes/voted [get]
 func hasVoted(w http.ResponseWriter, r *http.Request) {
-	userId, err := RetrieveIdFromToken(r.Context())
+	userId, err := utils.RetrieveIdFromToken(r.Context())
 
 	if err != nil {
 		http.Error(w, "Неверные данные: "+err.Error(), http.StatusBadRequest)
@@ -152,7 +169,7 @@ func hasVoted(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	votes, err := services.NewVotes().GetByUserAndElectionId(r.Context(), userId, electionId)
+	votes, err := repositories.NewVotes().GetByUserAndElectionId(r.Context(), userId, electionId)
 	if err != nil {
 		http.Error(w, "Ошибка при получении голосов: "+err.Error(), http.StatusInternalServerError)
 		return

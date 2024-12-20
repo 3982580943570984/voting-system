@@ -3,13 +3,16 @@ package router
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"users/repositories"
 
 	"shared/token"
+	"shared/utils"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/go-chi/jwtauth/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -17,25 +20,33 @@ func Router() http.Handler {
 	router := chi.NewRouter()
 
 	router.Use(
+		middleware.Heartbeat("/status"),
 		middleware.Logger,
 		middleware.Recoverer,
 		cors.Handler(cors.Options{
-			AllowedOrigins:   []string{"https://*", "http://*"},
+			AllowCredentials: true,
+			AllowedHeaders:   []string{"*"},
 			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-			AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 			ExposedHeaders:   []string{"Link"},
-			AllowCredentials: false,
 			MaxAge:           300,
 		}),
 	)
 
-	router.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	})
-
 	router.Post("/login", login)
 
 	router.Post("/signup", signup)
+
+	router.Group(func(r chi.Router) {
+		r.Use(jwtauth.Verifier(token.Token), jwtauth.Authenticator(token.Token))
+
+		r.Get("/profile", getUserProfile)
+	})
+
+	router.Route("/{id}", func(r chi.Router) {
+		r.Get("/", get)
+
+		r.Get("/profile", getProfile)
+	})
 
 	return router
 }
@@ -56,7 +67,6 @@ func login(w http.ResponseWriter, r *http.Request) {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}{}
-
 	if err := json.NewDecoder(r.Body).Decode(&credentials); err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
@@ -70,7 +80,8 @@ func login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password)); err != nil {
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password))
+	if err != nil {
 		http.Error(w, "Invalid password", http.StatusUnauthorized)
 		return
 	}
@@ -129,4 +140,58 @@ func signup(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 
 	json.NewEncoder(w).Encode(map[string]int{"id": user.ID})
+}
+
+func get(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "Invalid user ID"+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	user, err := repositories.NewUsers().GetById(r.Context(), id)
+	if err != nil {
+		http.Error(w, "Internal server error"+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	json.NewEncoder(w).Encode(user)
+}
+
+func getUserProfile(w http.ResponseWriter, r *http.Request) {
+	id, err := utils.RetrieveIdFromToken(r.Context())
+	if err != nil {
+		http.Error(w, "Invalid user ID"+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	profile, err := repositories.NewProfiles().GetByUserId(r.Context(), id)
+	if err != nil {
+		http.Error(w, "Internal server error"+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	json.NewEncoder(w).Encode(profile)
+}
+
+func getProfile(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "Invalid user ID"+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	profile, err := repositories.NewProfiles().GetByUserId(r.Context(), id)
+	if err != nil {
+		http.Error(w, "Internal server error"+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	json.NewEncoder(w).Encode(profile)
 }

@@ -4,20 +4,28 @@ RUN apk add --no-cache git
 
 WORKDIR /app
 
-COPY go/go.mod go/go.sum ./
+COPY services/comments/go.mod services/comments/go.sum ./comments/
+
+COPY services/shared ./shared/
+
+WORKDIR /app/comments
 
 RUN go mod download
 
-COPY . .
+WORKDIR /app
 
-RUN go build -o comments .
+COPY services/comments ./comments/
+
+WORKDIR /app/comments
+
+RUN go build -ldflags="-s -w" -o comments .
 
 FROM alpine:latest
 
 WORKDIR /app
 
-COPY --from=builder /app/comments .
+COPY --from=builder /app/comments ./
 
-EXPOSE 3000
+EXPOSE 3001
 
 CMD ["./comments"]

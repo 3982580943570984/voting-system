@@ -27,7 +27,7 @@ services:
   backend:
     build:
       context: .
-      dockerfile: docker/Dockerfile.backend
+      dockerfile: go/Dockerfile
     image: backend:latest
     container_name: backend
     restart: unless-stopped
@@ -50,10 +50,46 @@ services:
     depends_on:
       - postgres
 
+  elections:
+    build:
+      context: .
+      dockerfile: services/elections/Dockerfile
+    image: elections:latest
+    container_name: elections
+    restart: unless-stopped
+    ports:
+      - 3002:3002
+    depends_on:
+      - postgres
+
+  votes:
+    build:
+      context: .
+      dockerfile: services/votes/Dockerfile
+    image: votes:latest
+    container_name: votes
+    restart: unless-stopped
+    ports:
+      - 3003:3003
+    depends_on:
+      - postgres
+
+  comments:
+    build:
+      context: .
+      dockerfile: services/comments/Dockerfile
+    image: comments:latest
+    container_name: comments
+    restart: unless-stopped
+    ports:
+      - 3004:3004
+    depends_on:
+      - postgres
+
   frontend:
     build:
       context: .
-      dockerfile: docker/Dockerfile.frontend
+      dockerfile: static/Dockerfile
     image: frontend:latest
     container_name: frontend
     restart: unless-stopped

@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"shared/database"
 	"users/router"
+
+	_ "shared/ent/generated/runtime"
 )
 
 func main() {

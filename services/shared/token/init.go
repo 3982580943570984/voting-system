@@ -1,6 +1,6 @@
 package token
 
-import "github.com/go-chi/jwtauth"
+import "github.com/go-chi/jwtauth/v5"
 
 var Token *jwtauth.JWTAuth
 

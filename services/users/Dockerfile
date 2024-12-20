@@ -18,7 +18,7 @@ COPY services/users ./users/
 
 WORKDIR /app/users
 
-RUN go build -o users .
+RUN go build -ldflags="-s -w" -o users .
 
 FROM alpine:latest
 
