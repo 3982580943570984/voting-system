@@ -69,3 +69,15 @@ docker compose up --build --detach
 ```bash
 docker run --network voting-system_default --rm --env "KONG_DATABASE=postgres" --env "KONG_PG_HOST=kong-database" --env "KONG_PG_PASSWORD=kongpass" kong:latest kong migrations bootstrap
 ```
+
+## BACK UP CONFIGURATION
+
+```bash
+deck gateway dump -o kong.yaml
+```
+
+## RECREATE ENTITIES FROM BACKUP
+
+```bash
+deck gateway sync kong.yaml
+```
