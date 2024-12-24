@@ -1,0 +1,37 @@
+@startuml
+top to bottom direction
+
+package commments/repositories{
+    annotation comments/repositories{
+        +NewComments(): *Comments
+    }
+
+    class Comments {
+        +DB: *CommentClient
+        +Create(ctx Context, cc *CommentCreate): *Comment, error
+        +GetAllByElectionId(ctx Context, electionId int): []*Comment, error
+    }
+
+    class CommentCreate {
+        +UserId: int
+        +ElectionId: int
+        +ParentId: *int
+        +Contents: string
+    }
+
+    class CommentInfo {
+        +TotalComments: int
+        +AvgCommentLength: int
+        +CommentsPerUser: float64
+    }
+}
+
+package comments/router{
+    annotation comments/router {
+        +Router(): Handler
+        -createComment(w ResponseWriter, r *Request)
+        -getAllCommentsByElectionId(w ResponseWriter, r *Request)
+    }
+}
+
+@enduml

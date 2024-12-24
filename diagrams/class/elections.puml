@@ -1,0 +1,217 @@
+@startuml
+top to bottom direction
+package repositories{
+annotation repositories {
+
+
++NewCandidates(): *Candidates
+' +NewComments(): *Comments
++NewElections(): *Elections
++NewFilters(): *Filters
++NewElectionSettings(): *ElectionSettings
++NewTags(): *Tags
+}
+class CandidateCreate {
++ElectionId: int
++Name: string
++Description: string
+
+}
+class CandidateUpdate {
++ID: int
++Name: *string
++Description: *string
++PhotoURL: *string
+
+}
+class CandidateDelete {
++ID: int
++ElectionId: int
+
+}
+class Candidates {
++DB: *CandidateClient
++Create(ctx Context, cc *CandidateCreate): *Candidate, error
++GetAll(ctx Context): []*Candidate, error
++GetById(ctx Context, id int): *Candidate, error
++GetByElectionId(ctx Context, id int): []*Candidate, error
++Update(ctx Context, cu *CandidateUpdate): *Candidate, error
++Delete(ctx Context, cd *CandidateDelete): error
+}
+' class Comments {
+' +DB: *CommentClient
+' +Create(ctx Context, cc *CommentCreate): *Comment, error
+' +GetAllByElectionId(ctx Context, electionId int): []*Comment, error
+' }
+class CommentCreate {
++UserId: int
++ElectionId: int
++ParentId: *int
++Contents: string
+
+}
+class Elections {
++DB: *ElectionClient
++Create(ctx Context, ec *ElectionCreate): *Election, error
++GetAll(ctx Context): []*Election, error
++GetAllWithDuration(ctx Context): []*Election, error
++GetAllFiltered(ctx Context, id int): []*Election, error
++GetById(ctx Context, id int): *Election, error
++GetByUserId(ctx Context, id int): []*Election, error
++GetCandidates(ctx Context, id int): []*Candidate, error
++GetStatistics(ctx Context, id int): any, error
++GetSettings(ctx Context, id int): *ElectionSettings, error
++GetFilters(ctx Context, id int): *ElectionFilters, error
++Update(ctx Context, eu *ElectionUpdate): *Election, error
++UpdateCompleted(ctx Context, id int, completed bool): *Election, error
++DeleteById(ctx Context, id int): error
+-fetchUserProfile(ctx Context, userID int): *Profile, error
+}
+class ElectionCreate {
++UserID: int
++Title: string
++Description: string
++Candidates: []interface{}
++Settings: interface{}
++Filters: interface{}
++Tags: []string
+
+}
+class ElectionUpdate {
++ID: int
++Title: *string
++Description: *string
++Completed: *bool
+
+}
+class AgeGroup {
++Under12: int
++Between12And18: int
++Between18And25: int
++Between25And40: int
++Between40And60: int
++Over60: int
++NoAge: int
+
+}
+class CommentInfo {
++TotalComments: int
++AvgCommentLength: int
++CommentsPerUser: float64
+
+}
+class Statistics {
++AgeGroups: AgeGroup
++CommentInfo: CommentInfo
+
+}
+class Filters {
++DB: *ElectionFiltersClient
++Update(ctx Context, efu *FiltersUpdate): error
+}
+class FiltersUpdate {
++ElectionID: int
++HasFirstName: *bool
++HasLastName: *bool
++HasBirthdate: *bool
++HasPhoneNumber: *bool
++HasBio: *bool
++HasAddress: *bool
++HasPhotoURL: *bool
+
+}
+class ElectionSettings {
++DB: *ElectionSettingsClient
++Update(ctx Context, esu *ElectionSettingsUpdate): error
+}
+class ElectionSettingsUpdate {
++ElectionID: int
++IsActive: *bool
++IsAnonymous: *bool
++AllowComments: *bool
++MaxVotes: *int
++Duration: *Time
+
+}
+class Tags {
++DB: *TagClient
++Create(ctx Context, tc *TagCreate): *Tag, error
++GetAll(ctx Context): []*Tag, error
++GetByElectionId(ctx Context, id int): []*Tag, error
++UpdateByElectionId(ctx Context, tu *TagsUpdate): error
++RemoveFromElectionById(ctx Context, tr *TagRemove): int, error
+}
+class TagCreate {
++ElectionId: int
++Name: string
+
+}
+class TagsUpdate {
++ElectionId: int
++Names: []string
+
+}
+class TagRemove {
++ElectionId: int
++Name: string
+
+}
+}
+package router/routes{
+annotation router/routes {
+
+
++Candidates(): Router
+-createCandidate(w ResponseWriter, r *Request)
+-getCandidates(w ResponseWriter, r *Request)
+-updateCandidate(w ResponseWriter, r *Request)
+-deleteCandidate(w ResponseWriter, r *Request)
+' +Comments(): Router
+' -createComment(w ResponseWriter, r *Request)
+' -getAllCommentsByElectionId(w ResponseWriter, r *Request)
++Filters(): Router
+-getFilters(w ResponseWriter, r *Request)
+-updateFilters(w ResponseWriter, r *Request)
++Settings(): Router
+-get(w ResponseWriter, r *Request)
+-update(w ResponseWriter, r *Request)
++Tags(): Router
+-createElectionTag(w ResponseWriter, r *Request)
+-getElectionTags(w ResponseWriter, r *Request)
+-updateElectionTags(w ResponseWriter, r *Request)
+}
+}
+package router{
+annotation router {
+
+
++Router(): Handler
+-create(w ResponseWriter, r *Request)
+-getAll(w ResponseWriter, r *Request)
+-getFiltered(w ResponseWriter, r *Request)
+-get(w ResponseWriter, r *Request)
+-getStatistics(w ResponseWriter, r *Request)
+-getCreated(w ResponseWriter, r *Request)
+-update(w ResponseWriter, r *Request)
+-delete(w ResponseWriter, r *Request)
+-fetchUser(ctx Context, userID int): *User, error
+}
+}
+package scheduler{
+annotation scheduler {
+
+-var Scheduler: Scheduler
+-init()
+}
+}
+package .{
+annotation . {
+
+
+-main()
+}
+}
+"Statistics" --> "AgeGroup"
+"Statistics" --> "CommentInfo"
+
+@enduml

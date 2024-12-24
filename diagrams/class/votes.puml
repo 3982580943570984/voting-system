@@ -1,0 +1,37 @@
+@startuml
+top to bottom direction
+
+package votes/repositories{
+    annotation votes/repositories {
+        +NewVotes(): *Votes
+    }
+
+    class Votes {
+        +DB: *VoteClient
+        +Create(ctx Context, vc *VoteCreate): *Vote, error
+        +GetByUserAndElectionId(ctx Context, userId int, electionId int): []*Vote, error
+        +Delete(ctx Context, vd *VoteDelete): error
+    }
+
+    class VoteCreate {
+        +UserId: int
+        +CandidateId: int
+    }
+
+    class VoteDelete {
+        +UserId: int
+        +CandidateId: int
+    }
+}
+
+package votes/router{
+    annotation votes/router {
+        +Router(): Handler
+        -getAllVotes(w ResponseWriter, r *Request)
+        -createVote(w ResponseWriter, r *Request)
+        -hasVoted(w ResponseWriter, r *Request)
+    }
+}
+
+
+@enduml

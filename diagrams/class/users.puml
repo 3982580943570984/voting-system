@@ -1,0 +1,72 @@
+@startuml
+top to bottom direction
+package users/repositories{
+annotation users/repositories {
+
+
++NewProfiles(): *Profiles
++NewUsers(): *Users
+}
+class Profiles {
++DB: *ProfileClient
++GetByUserId(ctx Context, id int): *Profile, error
++Update(ctx Context, pu *ProfileUpdate): int, error
+}
+class ProfileUpdate {
++UserID: int
++FirstName: *string
++LastName: *string
++Birthdate: *Time
++PhoneNumber: *string
++Bio: *string
++Address: *string
++PhotoURL: *string
+
+}
+class Users {
++DB: *UserClient
++Create(ctx Context, uc *UserCreate): *User, error
++GetAll(ctx Context): []*User, error
++GetById(ctx Context, id int): *User, error
++GetByEmail(ctx Context, email string): *User, error
++Update(ctx Context, uu *UserUpdate): *User, error
++Delete(ctx Context, id int): error
+}
+class UserCreate {
++Email: string
++Password: string
++IsOrganizer: bool
+
+}
+class UserUpdate {
++ID: int
++Email: *string
++Password: *string
++LastLogin: *Time
++IsActive: *bool
++IsOrganizer: *bool
+
+}
+}
+package users/router{
+annotation users/router {
+
+
++Router(): Handler
+-login(w ResponseWriter, r *Request)
+-signup(w ResponseWriter, r *Request)
+-get(w ResponseWriter, r *Request)
+-getUserProfile(w ResponseWriter, r *Request)
+-getProfile(w ResponseWriter, r *Request)
+}
+}
+package ./users{
+annotation ./users {
+
+
+-main()
+}
+}
+
+
+@enduml

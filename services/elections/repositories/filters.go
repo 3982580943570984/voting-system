@@ -29,8 +29,8 @@ func NewFilters() *Filters {
 	}
 }
 
-func (ef *Filters) Update(ctx context.Context, efu *FiltersUpdate) error {
-	return ef.DB.Update().
+func (f *Filters) Update(ctx context.Context, efu *FiltersUpdate) error {
+	return f.DB.Update().
 		Where(electionfilters.HasElectionWith(election.ID(efu.ElectionID))).
 		SetNillableHasFirstName(efu.HasFirstName).
 		SetNillableHasLastName(efu.HasLastName).

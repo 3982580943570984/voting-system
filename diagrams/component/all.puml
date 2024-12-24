@@ -1,0 +1,42 @@
+@startuml
+[Frontend] as Frontend
+[Kong API Gateway] as Kong
+
+database Postgresql as Postgresql
+
+package "Сервисы приложения" {
+    package "Упр. комментариями" {
+        [comments] as CommentsService
+        [ent/orm] as CommentsORM
+    }
+    package "Упр. выборами" {
+        [elections] as ElectionsService
+        [ent/orm] as ElectionsORM
+    }
+    package "Упр. пользователями" {
+        [users] as UsersService
+        [ent/orm] as UsersORM
+    }
+    package "Упр. голосами" {
+        [votes] as VotesService
+        [ent/orm] as VotesORM
+    }
+}
+
+Frontend -right-> Kong :  REST API
+Kong -down-> CommentsService : REST API
+Kong -down-> ElectionsService : REST API
+Kong -down-> UsersService : REST API
+Kong -down-> VotesService : REST API
+
+CommentsService -down-> CommentsORM : ORM
+ElectionsService -down-> ElectionsORM : ORM
+UsersService -down-> UsersORM : ORM
+VotesService -down-> VotesORM : ORM
+
+CommentsORM -down-> Postgresql : Доступ к БД
+ElectionsORM -down-> Postgresql : Доступ к БД
+UsersORM -down-> Postgresql : Доступ к БД
+VotesORM -down-> Postgresql : Доступ к БД
+
+@enduml
